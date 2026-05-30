@@ -60,7 +60,7 @@ class _BookingsBodyState extends State<BookingsBody> {
                       Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
                 ),
                 child: ClipOval(
-                  child: Image.network(
+                  child: Image.asset(
                     AppConstants.imgProfileAvatar,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(

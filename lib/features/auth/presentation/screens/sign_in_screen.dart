@@ -194,7 +194,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: Image.network(
+                                  child: Image.asset(
                                     AppConstants.imgGoogleLogo,
                                     fit: BoxFit.contain,
                                     errorBuilder: (_, __, ___) => const Icon(

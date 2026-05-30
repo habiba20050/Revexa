@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
+import 'package:revexa/core/constants/app_constants.dart';
 
 class MyVehiclesScreen extends StatelessWidget {
   const MyVehiclesScreen({super.key});
@@ -9,161 +10,163 @@ class MyVehiclesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text('My Vehicles', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.onSurface,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Manage your premium fleet with real-time health diagnostics.',
-              style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
-            ),
-            const SizedBox(height: 20),
-
-            // Vehicle 1
-            const _VehicleCard(
-              plate: 'B-MW 005',
-              make: 'BMW M5 Competition',
-              color: 'Marina Bay Blue Metallic',
-              status: 'OK',
-              statusIcon: Icons.check_circle_outline,
-              statusColor: Color(0xFF22C55E),
-              statusLabel: 'Engine OK',
-              metrics: [
-                _Metric(icon: Icons.settings_suggest, label: 'Diagnostics', value: 'Stock'),
-              ],
-              imageGradient: [Color(0xFF1D3C87), Color(0xFF2563EB)],
-            ),
-            const SizedBox(height: 16),
-
-            // Vehicle 2
-            const _VehicleCard(
-              plate: '911-LUX',
-              make: 'Porsche 911 Carrera S',
-              color: 'GT Silver Metallic',
-              status: 'Warning',
-              statusIcon: Icons.warning_amber_rounded,
-              statusColor: Color(0xFFF59E0B),
-              statusLabel: 'Service Soon',
-              metrics: [
-                _Metric(icon: Icons.tire_repair, label: 'Tire PSI', value: '32 / 34'),
-                _Metric(icon: Icons.local_gas_station, label: 'Fuel', value: '82%'),
-              ],
-              imageGradient: [Color(0xFF334155), Color(0xFF64748B)],
-            ),
-            const SizedBox(height: 20),
-
-            // Fleet analytics
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.outline),
-                boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
-              ),
+      body: Column(
+        children: [
+          _VehiclesAppBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    Icon(Icons.analytics_outlined, color: AppColors.primary, size: 20),
-                    const SizedBox(width: 8),
-                    Text('Fleet Analytics', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text('View Reports', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
-                    ),
-                  ]),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Manage your premium fleet with real-time health diagnostics and maintenance tracking.',
+                    style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
+                  ),
+                  const SizedBox(height: 20),
+
+                  _VehicleCard(
+                    plate: 'B-MW 005',
+                    make: 'BMW M5 Competition',
+                    color: 'Marina Bay Blue Metallic',
+                    engineStatus: 'ENGINE OK',
+                    engineColor: const Color(0xFF22C55E),
+                    diagnosticsLabel: 'STOCK DIAGNOSTICS',
+                    imageUrl: AppConstants.imgMyVehicles1,
+                    gradientColors: const [Color(0xFF1A2540), Color(0xFF243060)],
+                    warningLabel: null,
+                    metrics: const [],
+                  ),
                   const SizedBox(height: 16),
-                  const Row(children: [
-                    _AnalyticChip(label: 'Efficiency', value: '14.2 L/100km'),
-                    SizedBox(width: 12),
-                    _AnalyticChip(label: 'Active Plans', value: '02'),
-                    SizedBox(width: 12),
-                    _AnalyticChip(label: 'Global Sync', value: '2 mins ago'),
-                  ]),
+
+                  _AddVehicleCard(),
+                  const SizedBox(height: 16),
+
+                  _VehicleCard(
+                    plate: '911-LUX',
+                    make: 'Porsche 911 Carrera S',
+                    color: 'GT Silver Metallic',
+                    engineStatus: null,
+                    engineColor: null,
+                    diagnosticsLabel: null,
+                    imageUrl: AppConstants.imgMyVehicles2,
+                    gradientColors: const [Color(0xFF2C3E50), Color(0xFF4A5568)],
+                    warningLabel: 'SERVICE IN 500KM',
+                    metrics: const [
+                      _MetricData(label: 'TIRE PRESSURE', value: '32 PSI / 34 PSI', hasIndicator: true),
+                      _MetricData(label: 'FUEL LEVEL', value: '82%', hasIndicator: true),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  _FleetAnalyticsCard(),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Add new vehicle
-            GestureDetector(
-              onTap: () => _showAddVehicleDialog(context),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), style: BorderStyle.solid),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48, height: 48,
-                      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.10), shape: BoxShape.circle),
-                      child: Icon(Icons.add_circle_outline, color: AppColors.primary, size: 24),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Add New Vehicle', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                          Text('Expand your digital garage and unlock premium services.',
-                              style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4)),
-                        ],
-                      ),
-                    ),
-                    Text('Register Now', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  void _showAddVehicleDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => const _AddVehicleSheet(),
+class _VehiclesAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.surface,
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 12,
+        left: 20,
+        right: 20,
+        bottom: 14,
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.arrow_back, color: AppColors.onSurface, size: 20),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Revexa',
+                style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary.withValues(alpha: 0.10),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
+            ),
+            child: Center(
+              child: Text(
+                'U',
+                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+class _MetricData {
+  final String label;
+  final String value;
+  final bool hasIndicator;
+  const _MetricData({required this.label, required this.value, required this.hasIndicator});
 }
 
 class _VehicleCard extends StatelessWidget {
   final String plate;
   final String make;
   final String color;
-  final String status;
-  final IconData statusIcon;
-  final Color statusColor;
-  final String statusLabel;
-  final List<_Metric> metrics;
-  final List<Color> imageGradient;
+  final String? engineStatus;
+  final Color? engineColor;
+  final String? diagnosticsLabel;
+  final String? imageUrl;
+  final List<Color> gradientColors;
+  final String? warningLabel;
+  final List<_MetricData> metrics;
 
   const _VehicleCard({
     required this.plate,
     required this.make,
     required this.color,
-    required this.status,
-    required this.statusIcon,
-    required this.statusColor,
-    required this.statusLabel,
+    required this.engineStatus,
+    required this.engineColor,
+    required this.diagnosticsLabel,
+    required this.imageUrl,
+    required this.gradientColors,
+    required this.warningLabel,
     required this.metrics,
-    required this.imageGradient,
   });
 
   @override
@@ -176,72 +179,143 @@ class _VehicleCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Image / gradient header
-          Container(
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: imageGradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Stack(
-              children: [
-                Positioned(top: -20, right: -20,
-                  child: Container(width: 120, height: 120,
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.06), shape: BoxShape.circle))),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
-                              child: Text(plate, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(make, style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
-                            Text(color, style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
-                          ],
-                        ),
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: SizedBox(
+              height: 150,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (imageUrl != null)
+                    Image.asset(imageUrl!, fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: gradientColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                          ),
+                        ))
+                  else
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: gradientColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
                       ),
-                      const Icon(Icons.directions_car, color: Colors.white24, size: 56),
-                    ],
+                    ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0x44000000), Color(0xCC000000)],
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        plate,
+                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          // Status & metrics
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(make, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                          const SizedBox(height: 2),
+                          Text(color, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                        ],
                       ),
-                      child: Row(children: [
-                        Icon(statusIcon, color: statusColor, size: 14),
-                        const SizedBox(width: 4),
-                        Text(statusLabel, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: statusColor)),
-                      ]),
                     ),
-                    const Spacer(),
-                    ...metrics.map((m) => Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: _MetricChip(metric: m),
-                    )),
+                    if (warningLabel != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Color(0xFFF59E0B), size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              warningLabel!,
+                              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFFF59E0B)),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
+
+                if (engineStatus != null || diagnosticsLabel != null) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (engineStatus != null)
+                        _StatusBadge(
+                          label: engineStatus!,
+                          color: engineColor ?? const Color(0xFF22C55E),
+                          icon: Icons.check_circle_outline,
+                        ),
+                      if (engineStatus != null && diagnosticsLabel != null)
+                        const SizedBox(width: 8),
+                      if (diagnosticsLabel != null)
+                        _StatusBadge(
+                          label: diagnosticsLabel!,
+                          color: AppColors.primary,
+                          icon: Icons.settings_suggest_outlined,
+                        ),
+                    ],
+                  ),
+                ],
+
+                if (metrics.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Row(
+                    children: metrics.map((m) => Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: metrics.last == m ? 0 : 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(m.label, style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant, letterSpacing: 0.3)),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(m.value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                                if (m.hasIndicator) ...[
+                                  const SizedBox(width: 6),
+                                  Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFF22C55E), shape: BoxShape.circle)),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    )).toList(),
+                  ),
+                ],
               ],
             ),
           ),
@@ -251,49 +325,174 @@ class _VehicleCard extends StatelessWidget {
   }
 }
 
-class _Metric {
-  final IconData icon;
+class _StatusBadge extends StatelessWidget {
   final String label;
-  final String value;
-  const _Metric({required this.icon, required this.label, required this.value});
-}
+  final Color color;
+  final IconData icon;
 
-class _MetricChip extends StatelessWidget {
-  final _Metric metric;
-  const _MetricChip({required this.metric});
+  const _StatusBadge({required this.label, required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: AppColors.surfaceContainerLow, borderRadius: BorderRadius.circular(8)),
-      child: Row(children: [
-        Icon(metric.icon, size: 12, color: AppColors.onSurfaceVariant),
-        const SizedBox(width: 4),
-        Text(metric.value, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-      ]),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 13),
+          const SizedBox(width: 4),
+          Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
+        ],
+      ),
     );
   }
 }
 
-class _AnalyticChip extends StatelessWidget {
+class _AddVehicleCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: AppColors.primary.withValues(alpha: 0.30), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 26),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Add New Vehicle',
+            style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Expand your digital garage and unlock premium concierge services for your new car.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(fontSize: 12, color: Colors.white.withValues(alpha: 0.75), height: 1.5),
+          ),
+          const SizedBox(height: 18),
+          GestureDetector(
+            onTap: () => _showAddVehicleSheet(context),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  'Register Now',
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddVehicleSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => const _AddVehicleSheet(),
+    );
+  }
+}
+
+class _FleetAnalyticsCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.outline),
+        boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.analytics_outlined, color: AppColors.primary, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Text('Fleet Analytics', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _AnalyticRow(label: 'Average Fleet Efficiency', value: '14.2 L/100km'),
+          Divider(color: AppColors.outline, height: 20),
+          _AnalyticRow(label: 'Last Global Sync', value: '2 mins ago'),
+          Divider(color: AppColors.outline, height: 20),
+          _AnalyticRow(label: 'Active Maintenance Plans', value: '02'),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.outline),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.bar_chart_rounded, color: AppColors.primary, size: 18),
+                  const SizedBox(width: 8),
+                  Text('View Detailed Reports', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnalyticRow extends StatelessWidget {
   final String label;
   final String value;
-  const _AnalyticChip({required this.label, required this.value});
+  const _AnalyticRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        decoration: BoxDecoration(color: AppColors.surfaceContainerLow, borderRadius: BorderRadius.circular(10)),
-        child: Column(
-          children: [
-            Text(value, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
-            Text(label, style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant)),
-          ],
-        ),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
+        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+      ],
     );
   }
 }
@@ -311,17 +510,22 @@ class _AddVehicleSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.outline, borderRadius: BorderRadius.circular(2)))),
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: AppColors.outline, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
             const SizedBox(height: 20),
             Text('Register Vehicle', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 4),
             Text('Add your vehicle to unlock premium services', style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 24),
-            const _SheetField(label: 'Car Model', placeholder: 'e.g. BMW M5 2023'),
+            _SheetField(label: 'Car Model', placeholder: 'e.g. BMW M5 2023'),
             const SizedBox(height: 12),
-            const _SheetField(label: 'Plate Number', placeholder: 'e.g. ABC-1234'),
+            _SheetField(label: 'Plate Number', placeholder: 'e.g. ABC-1234'),
             const SizedBox(height: 12),
-            const _SheetField(label: 'Color', placeholder: 'e.g. Marina Bay Blue'),
+            _SheetField(label: 'Color', placeholder: 'e.g. Marina Bay Blue'),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

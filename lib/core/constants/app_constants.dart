@@ -23,53 +23,58 @@ class AppConstants {
   static const double designWidth = 390.0;
   static const double designHeight = 884.0;
 
-  // ── Image URLs ──────────────────────────────────────────────────────────
+  // ── Local Asset Images ───────────────────────────────────────────────────
 
-  /// Profile avatar — Home & Bookings app-bar
-  static const String imgProfileAvatar =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBckCwm5GEJoCV8V0lqtsnvQOTouvvPJ-_PF1ran3h91QzOkHAcr1m34iuMb9qh-N5Xfcp9ZH82f42E1UIVZbMKkAkhnmtIUDX0oVddlApeJPKPE74F9AFD5kO5OHG_jk6f-PCKJrbJB_0EP5ykSWi8Nrky78I4aORdM-AcrhfCHHjRsrgadTn9_s6OAN7y-vgg-XdA9v-CB5kD8VDh9ni3zjD3xeiLeTmzbFOq1QS5a2tfjsEiNpHFG_Wa9ah1AO1GGBO8OyCW2Mk';
+  static const String imgProfileAvatar         = 'assets/images/avatar_profile.png';
+  static const String imgTechnicianAvatar       = 'assets/images/avatar_technician.png';
+  static const String imgBookingsTechnician     = 'assets/images/bookings_technician.png';
+  static const String imgPromoCarBanner         = 'assets/images/car_home.png';
+  static const String imgOnboardingCarDashboard = 'assets/images/onboarding_car.png';
+  static const String imgOnboardingMap          = 'assets/images/onboarding_map.png';
+  static const String imgOnboardingMechanic     = 'assets/images/onboarding_service.png';
 
-  /// Home promo banner — Summer Shine Package car
-  static const String imgPromoCarBanner =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC6_RHDaOeg3eZ5MsI9Vywpe838X1ZhNP_YAGON_WCzNqczo0Ppn-UP-YKxOTpsHn0RbvYnsId6ZbGhC60xEf6nq8LDysEp_hLBuGIGmoJq2zf2ipySRXaVkCSuek_gfhNkO7qlKpdGKb8qwNoQOAXghPCLE6IRAJbLS_ZLcEiNcUh9PhtoO2lfEyMCiT8UlhA98ILNNVJsM8ZVVlh1ipE3vsVajN-HSZFpOwtdilRXebMjWypl0SeyNihoUTlJ3RB1YAF7e59TWlc';
+  // Maintenance Detail
+  static const String imgMaintenanceDetail1     = 'assets/images/revexa_maintenance_detail_1.png';
+  static const String imgMaintenanceDetail2     = 'assets/images/revexa_maintenance_detail_2.png';
+  static const String imgMaintenanceDetail3     = 'assets/images/revexa_maintenance_detail_3.png';
+  static const String imgMaintenanceDetail4     = 'assets/images/revexa_maintenance_detail_4.png';
 
-  /// Onboarding booking — top-right floating card (luxury car dashboard)
-  static const String imgOnboardingCarDashboard =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBET98sARTNmd0wKVxhEceImbSPddDRtnmz_lzLpWxfheVSPYY5SeEsJ-6lbIRkoccvNls8t4UMkq2eeCSMuQiFizMKc8Yz6iX4DAgZqlJoyxmzfjMhpkKqmFrtXmMGClQ6YEtVdLOiHMuZYOafrGVRYvaCBI-KApmYd-L81zLbpGKsDN2UfYmqYXQ7dge0A5Fy8CoQy7YYHIQVgbjtUCZDc0fP0NpY5mN-hwn5mg9dc57P0QoLGfKXfCZd08E95qwulibOSWY67Dk';
+  // Mobile Wash Detail
+  static const String imgMobileWashDetail1      = 'assets/images/revexa_mobile_wash_detail_1.png';
+  static const String imgMobileWashDetail2      = 'assets/images/revexa_mobile_wash_detail_2.png';
+  static const String imgMobileWashDetail3      = 'assets/images/revexa_mobile_wash_detail_3.png';
 
-  /// Onboarding booking — bottom-left floating circle (mechanic with tablet)
-  static const String imgOnboardingMechanic =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAC4OtidhfnPkywqxBeTkF7Mn3SOY3s3YRkodFqCAoS8J1AwXooyM29lDNS16KGUWDHPvuoeTWfFzDA0D5MoC2p4qYWeoLWDb7dlyDgZDI2eyyVPViXKLDs9GnDVi3iWfvtBY5ThEkVu1kLnc40nG_9c6Vb2_D7ou6cD57fJ8sF4JcdufFoHYreZ4APP_9JRPqIUhcO1cCGMYWDr6MnWlz4e7V4ocKFdKDKMCuDJt7DvedHEveLiNhXwHXHcgqWObGyy-avdXeM3z0';
+  // My Vehicles
+  static const String imgMyVehicles1            = 'assets/images/revexa_my_vehicles_1.png';
+  static const String imgMyVehicles2            = 'assets/images/revexa_my_vehicles_2.png';
 
-  /// Onboarding tracking — full map background
-  static const String imgOnboardingMap =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAdjvwzSPsB7b5PBx_NIgyqRmLKjOzlwKGPF9lnKCF1e-44CXz5p2ZNTO_xsCAD-ek6t_eoXZ-GtUon_bWYLYTyjtuwM93-Qi-S9dgRkPF4I1F4gcCD7vGIz17YkzpNrHk_aopv66JNMPRJBLmLPERNtXioPmzPHTaD7m3xojCHTSKfKY31iHAWXM1hhB7aFx3k67HCL9Z0Rc7sbaeIccf4-6tJlwQkBOoyyX6Tm3UZooqJ8y-9Ly-7fVEp8jtj_ZP04vPS9YvYuXM';
+  // Oil Service
+  static const String imgOilServiceDetail       = 'assets/images/revexa_oil_service_detail.png';
 
-  /// Onboarding tracking floating card + Bookings card — technician (Marcus Chen)
-  static const String imgTechnicianAvatar =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDjf16670slRFkZP2nBbxh_5VdDJXIDbhJw3QFxPCtHP8gS_Syg1K9MulCLJRMiTv7sr6m4_b0YEav3ssPi0sa7PWUBdR8jUaDK3lniqgdGaq99rUJrw-3MyEq1xe8VhDD3GY-CIW6-oZarlACjwALsWWWhsp1BXpKorKdp1ldzCG21Vib3cZRKD9uJiTXoudV_LkPNwhuQkPNHneIdltz5QKFMxeJhv79BJnwhiPmwy0VnXVtqqCA19rYxVoytBFqJ2RpdWuBqNxs';
+  // Service Detail
+  static const String imgServiceDetails1        = 'assets/images/revexa_service_details_1.png';
 
-  /// Sign-In — Google logo button image
-  static const String imgGoogleLogo =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBxr3ij99BvUJMNc8JpfFFtAPL3CsFmUgtV7MSf3ttVht9J17EiA6PLve_cijzmZLL2sRBiJ9Wgz6RDSsrXkB7Q0WHskH4zWEcE26CHyjUO8DqJZb93wHFOvWHomFVXgoCSzwOfbu62VPzKxG-q8f2kIjyId-3UnaHmWoJi0ybtdMnad086BaHbTeI9Zs6kweODL5r9ZhKbPO25XOr4l2IiNDrbd74WWSQtz2vg0XwXlbWQn0dW4FOCxaSbdyLSRwaReqZ9gfbl4nE';
+  // Services screen
+  static const String imgServices1              = 'assets/images/revexa_services_1.png';
+  static const String imgServices2              = 'assets/images/revexa_services_2.png';
 
-  /// Updates app-bar profile avatar
-  static const String imgUpdatesProfileAvatar =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuB-eSfCWYrAi5vxnFIrGCNOmkWGDS4hMsQkqTFErCQ1whn7ppoql2ytY4MLbJ8MSycC-MO9Czmx0N7PPM8ctcLnKLHciIXyPiAiJduBwypHvjjp0LnmdF0K3AkP99k7w20_HIz-PYfrSAWfnKBSzw0Ttfzft8cNYB3kSqQdiQM5K5Q7lX90Ir-kTzphtN2Gqql1zHrocFxvaTcYHokoS3fDdmrwPFzhlDm0OB8uEOAOq-_9YD54GQyfJ3AG66cvwe4r_cXlWgl1BaM';
+  // Tires Detail
+  static const String imgTiresDetail1           = 'assets/images/revexa_tires_detail_1.png';
+  static const String imgTiresDetail2           = 'assets/images/revexa_tires_detail_2.png';
+  static const String imgTiresDetail3           = 'assets/images/revexa_tires_detail_3.png';
 
-  /// Updates Platform News card — car interior image
-  static const String imgUpdatesCarInterior =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDfZrQte_Asehstz0JfzBMaX0kS0UrIN0u4JlxWhOqKPgaHxNlcksd3Kw7GdCluQEMm4HBsYN8BSXTKptECPvA41Cno03CkAhrCgEQHFBLlvBWjLb8ByC_1t1Ro2RoDjeMBxCQpumN5ZPgkaaFM2KGEzejuR90Ccl2JcIys0A-gndnnHIQ1KVTbuCSbCvf_T_NFDzQwpEy7Thv2IPmTLwO4a3BGuqKj9w2VwYaz9SrLSqyZAH6UL-lvyW3t35uQYTyXnHm7JtafIEM';
+  // Settings
+  static const String imgSettingsHelpCenter     = 'assets/images/settings_car.png';
+  static const String imgSettingsProfileAvatar  = 'assets/images/settings_profile.png';
 
-  /// Settings app-bar profile avatar
-  static const String imgSettingsProfileAvatar =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDDZcHUnU7LJUt6du8uUsGb7m0sbAAylGpCm1yo2NbYgOjbyz29TzHLnRDoMQIGi7H5o-5xpXuERz8oWs2N-ZLZ9wr7gKg3vr19XSvghC5BsM10ms9RpvoBvvBzOZtU_QrwmOE_aot685rLzyIiETWXfErCz8gV27wer7xtE206tXh6hSexQPO6tWsksnJOGRXyFwF5hAv5nO53E6PiQvF7Nb_bKewQ6yTuUaGtLD0PD9fGKS-7KrjLGCVR0Moeb9w1RTUvt82w2OU';
+  // Auth
+  static const String imgGoogleLogo             = 'assets/images/signin_avatar.png';
 
-  /// Settings Help Center banner image
-  static const String imgSettingsHelpCenter =
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ7h0qTKMlNehdXBlM5RTev_1cajDjubU86hcUht6IZnv5hDK1s3hHabRLFEI0en9red4qkquzE_qL3_qS6BOn3BZsRTmJKViEFNJDK_cFbxMNDIvpOIP5xpU0TnH0y6iztWUKaEpg1J_I9fPXOQ3dhcXtU8GuceHv2G5Xiv23UuzCJwyeZwGRC-p0E9w2r2bTHXLj-4wb1i3JadKHpsd89VbywoyiA8FCFWA15ICgcbovsnKv-WXeSOg_lUOSvFaBmHAh2QBgCeM';
+  // Updates
+  static const String imgUpdatesProfileAvatar   = 'assets/images/updates_avatar.png';
+  static const String imgUpdatesCarInterior     = 'assets/images/updates_car.png';
 
   // Legacy aliases
-  static const String profileImageUrl = imgProfileAvatar;
+  static const String profileImageUrl    = imgProfileAvatar;
   static const String technicianImageUrl = imgTechnicianAvatar;
 }

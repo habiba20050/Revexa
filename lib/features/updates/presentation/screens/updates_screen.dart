@@ -16,72 +16,49 @@ class UpdatesBody extends StatelessWidget {
         Container(
           color: AppColors.surface,
           padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 20,
+            right: 20,
+            bottom: 14,
           ),
-          child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryContainer,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.directions_car,
-                      color: Colors.white, size: 20),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  'Revexa',
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                    color: const Color(0xFF3730A3),
-                  ),
+                child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 16),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Revexa',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
-                const Spacer(),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {},
-                    icon: Icon(Icons.search,
-                        color: AppColors.onSurfaceVariant, size: 20),
+              ),
+              const Spacer(),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.surfaceContainerHigh,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    AppConstants.imgUpdatesProfileAvatar,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Icon(Icons.person_outline, color: AppColors.primary, size: 18),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.surfaceContainerHighest,
-                    border: Border.all(color: Colors.white, width: 2),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Color(0x14000000),
-                          blurRadius: 4,
-                          offset: Offset(0, 1))
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Image.network(
-                      AppConstants.imgUpdatesProfileAvatar,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(Icons.person,
-                          color: AppColors.primary, size: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -435,7 +412,7 @@ class _PlatformNewsCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   // Real luxury interior image (opacity: 60% as in design)
-                  Image.network(
+                  Image.asset(
                     AppConstants.imgUpdatesCarInterior,
                     fit: BoxFit.cover,
                     opacity: const AlwaysStoppedAnimation(0.6),

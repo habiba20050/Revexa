@@ -58,7 +58,7 @@ class OnboardingTrackingScreen extends StatelessWidget {
                             Positioned.fill(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(24),
-                                child: Image.network(
+                                child: Image.asset(
                                   AppConstants.imgOnboardingMap,
                                   fit: BoxFit.cover,
                                   opacity: const AlwaysStoppedAnimation(0.8),

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
-enum NavTab { home, services, bookings, updates, profile }
+enum NavTab { home, services, bookings, updates, profile, settings }
 
 class AppBottomNavBar extends StatelessWidget {
   final NavTab activeTab;
@@ -76,6 +76,14 @@ class AppBottomNavBar extends StatelessWidget {
                 tab: NavTab.profile,
                 activeTab: activeTab,
                 onTap: () => onTabChanged(NavTab.profile),
+              )),
+              Expanded(child: _NavItem(
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings_rounded,
+                label: 'Settings',
+                tab: NavTab.settings,
+                activeTab: activeTab,
+                onTap: () => onTabChanged(NavTab.settings),
               )),
             ],
           ),

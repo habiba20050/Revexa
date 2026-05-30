@@ -158,7 +158,7 @@ class OnboardingBookingScreen extends StatelessWidget {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
+                                    child: Image.asset(
                                       AppConstants.imgOnboardingCarDashboard,
                                       fit: BoxFit.cover,
                                       errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),
@@ -189,7 +189,7 @@ class OnboardingBookingScreen extends StatelessWidget {
                                     ],
                                   ),
                                   child: ClipOval(
-                                    child: Image.network(
+                                    child: Image.asset(
                                       AppConstants.imgOnboardingMechanic,
                                       fit: BoxFit.cover,
                                       errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh),

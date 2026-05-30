@@ -14,6 +14,7 @@ import 'package:revexa/features/bookings/presentation/screens/bookings_screen.da
 import 'package:revexa/features/updates/presentation/screens/updates_screen.dart';
 import 'package:revexa/features/services/presentation/screens/services_screen.dart';
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
+import 'package:revexa/features/settings/presentation/screens/settings_screen.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -47,6 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return const UpdatesBody();
       case NavTab.profile:
         return const ProfileScreen();
+      case NavTab.settings:
+        return const Scaffold(body: SettingsBody());
     }
   }
 
@@ -59,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.background,
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           child: KeyedSubtree(
@@ -264,38 +267,34 @@ class _VehicleHealthCard extends StatelessWidget {
             child: Container(
               width: 160, height: 160,
               decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08), shape: BoxShape.circle),
+                  color: Colors.white.withValues(alpha: 0.06), shape: BoxShape.circle),
             ),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(AppLocalizations.of(context)!.vehicleStatus,
-                      style: GoogleFonts.inter(
-                          fontSize: 10, fontWeight: FontWeight.w700,
-                          letterSpacing: 2.0, color: Colors.white.withValues(alpha: 0.60)),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text('BMW M5 Competition',
-                      style: GoogleFonts.inter(
-                          fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                ]),
+              Text(
+                'PREMIUM STATUS',
+                style: GoogleFonts.inter(
+                    fontSize: 10, fontWeight: FontWeight.w700,
+                    letterSpacing: 2.0, color: Colors.white.withValues(alpha: 0.60)),
               ),
-              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text(AppLocalizations.of(context)!.optimal,
+                child: Text('OPTIMAL',
                     style: GoogleFonts.inter(
                         fontSize: 10, fontWeight: FontWeight.w700,
                         letterSpacing: 0.8, color: Colors.white)),
               ),
             ]),
+            const SizedBox(height: 6),
+            Text(
+              'Vehicle Health',
+              style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3),
+            ),
             const SizedBox(height: 20),
             Row(children: [
               SizedBox(
@@ -327,11 +326,9 @@ class _VehicleHealthCard extends StatelessWidget {
               const SizedBox(width: 20),
               Expanded(
                 child: Column(children: [
-                  _StatBar(label: AppLocalizations.of(context)!.engine, value: 0.92, valueStr: '92%', color: AppColors.neon),
-                  const SizedBox(height: 12),
-                  _StatBar(label: AppLocalizations.of(context)!.battery, value: 0.78, valueStr: '78%', color: Colors.white.withValues(alpha: 0.80)),
-                  const SizedBox(height: 12),
-                  _StatBar(label: AppLocalizations.of(context)!.tyres, value: 0.65, valueStr: '65%', color: const Color(0xFFFACC15)),
+                  _StatBar(label: 'Engine Power', value: 0.92, valueStr: '92%', color: AppColors.neon),
+                  const SizedBox(height: 16),
+                  _StatBar(label: 'Battery Life', value: 0.78, valueStr: '78%', color: Colors.white.withValues(alpha: 0.80)),
                 ]),
               ),
             ]),
@@ -381,11 +378,14 @@ class _QuickActionsRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        _QuickAction(icon: Icons.local_car_wash_rounded, label: l10n.quickWash, onTap: () {}),
+        _QuickAction(icon: Icons.local_car_wash_rounded, label: l10n.quickWash,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.mobileWashDetail)),
         const SizedBox(width: 12),
-        _QuickAction(icon: Icons.build_rounded, label: l10n.quickService, onTap: () {}),
+        _QuickAction(icon: Icons.build_rounded, label: l10n.quickService,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.maintenanceDetail)),
         const SizedBox(width: 12),
-        _QuickAction(icon: Icons.tire_repair, label: l10n.quickTires, onTap: () {}),
+        _QuickAction(icon: Icons.tire_repair, label: l10n.quickTires,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.tiresDetail)),
         const SizedBox(width: 12),
         _QuickAction(icon: Icons.more_horiz_rounded, label: l10n.quickMore,
             onTap: () => Navigator.pushNamed(context, AppRoutes.services)),
@@ -439,13 +439,13 @@ class _ServicesSection extends StatelessWidget {
         return Column(
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(AppLocalizations.of(context)!.services,
+              Text('Our Services',
                   style: GoogleFonts.inter(
                       fontSize: 18, fontWeight: FontWeight.w700,
                       color: AppColors.onSurface, letterSpacing: -0.2)),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.services),
-                child: Text(AppLocalizations.of(context)!.seeAll,
+                child: Text('Explore all',
                     style: GoogleFonts.inter(
                         fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
               ),
@@ -465,13 +465,15 @@ class _ServicesSection extends StatelessWidget {
   }
 
   Widget _skeletonRow() {
-    return Row(
-      children: List.generate(3, (_) => Expanded(
-        child: Container(
-          margin: const EdgeInsets.only(right: 8),
-          height: 110,
-          decoration: BoxDecoration(color: AppColors.surfaceContainerHigh, borderRadius: BorderRadius.circular(16)),
-        ),
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.1,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: List.generate(4, (_) => Container(
+        decoration: BoxDecoration(color: AppColors.surfaceContainerHigh, borderRadius: BorderRadius.circular(18)),
       )),
     );
   }
@@ -482,42 +484,50 @@ class _ServicesSection extends StatelessWidget {
       return Text(AppLocalizations.of(context)!.noServicesAvailable,
           style: GoogleFonts.inter(color: AppColors.onSurfaceVariant));
     }
-    final icons = [Icons.local_car_wash, Icons.handyman, Icons.tire_repair];
-    return Row(
-      children: List.generate(products.length, (i) {
-        final p = products[i];
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.serviceDetail, arguments: p),
-            child: Container(
-              margin: EdgeInsets.only(right: i < products.length - 1 ? 12 : 0),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.outline),
-                boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
-              ),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icons[i % icons.length], color: AppColors.primary, size: 18),
-                ),
-                const SizedBox(height: 10),
-                Text(p.title,
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-                    maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 4),
-                Text('\$${p.price.toStringAsFixed(0)}',
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
-              ]),
-            ),
+
+    final staticServices = [
+      _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
+      _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
+      _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
+      _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.1,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: staticServices.map((s) => GestureDetector(
+        onTap: () => Navigator.pushNamed(context, s.route),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.outline),
+            boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
           ),
-        );
-      }),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(s.icon, color: AppColors.primary, size: 22),
+              ),
+              const Spacer(),
+              Text(s.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              const SizedBox(height: 2),
+              Text(s.subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+            ],
+          ),
+        ),
+      )).toList(),
     );
   }
 }
@@ -597,7 +607,7 @@ class _PromoBanner extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
+            Image.asset(
               AppConstants.imgPromoCarBanner,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(color: AppColors.primary),
@@ -646,4 +656,12 @@ class _PromoBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+class _HomeServiceItem {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String route;
+  const _HomeServiceItem({required this.icon, required this.title, required this.subtitle, required this.route});
 }

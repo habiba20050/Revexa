@@ -30,6 +30,11 @@ import 'package:revexa/features/home/presentation/screens/home_screen.dart';
 // New feature screens
 import 'package:revexa/features/services/presentation/screens/services_screen.dart';
 import 'package:revexa/features/services/presentation/screens/service_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/maintenance_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/mobile_wash_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/oil_service_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/tires_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/battery_detail_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/create_order_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
@@ -38,6 +43,7 @@ import 'package:revexa/features/vehicles/presentation/screens/my_vehicles_screen
 import 'package:revexa/features/billing/presentation/screens/billing_screen.dart';
 import 'package:revexa/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:revexa/features/bookings/presentation/screens/bookings_screen.dart';
+import 'package:revexa/features/settings/presentation/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,6 +122,11 @@ class RevexaApp extends StatelessWidget {
                   // New screens
                   AppRoutes.services: (_) => const ServicesScreen(),
                   AppRoutes.serviceDetail: (_) => const ServiceDetailScreen(),
+                  AppRoutes.maintenanceDetail: (_) => const MaintenanceDetailScreen(),
+                  AppRoutes.mobileWashDetail: (_) => const MobileWashDetailScreen(),
+                  AppRoutes.oilServiceDetail: (_) => const OilServiceDetailScreen(),
+                  AppRoutes.tiresDetail: (_) => const TiresDetailScreen(),
+                  AppRoutes.batteryDetail: (_) => const BatteryDetailScreen(),
                   AppRoutes.createOrder: (_) => const CreateOrderScreen(),
                   AppRoutes.orderDetail: (_) => const OrderDetailScreen(),
                   AppRoutes.profile: (_) => const ProfileScreen(),
@@ -124,14 +135,7 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.billing: (_) => const BillingScreen(),
                   AppRoutes.notifications: (_) => const NotificationsScreen(),
                   AppRoutes.bookings: (_) => const Scaffold(body: BookingsBody()),
-                  AppRoutes.settings: (_) => Builder(
-                    builder: (ctx) => Scaffold(
-                      appBar: AppBar(title: Text(AppLocalizations.of(ctx)!.settings)),
-                      body: Center(child: Builder(
-                        builder: (ctx2) => Text(AppLocalizations.of(ctx2)!.settingsComingSoon),
-                      )),
-                    ),
-                  ),
+                  AppRoutes.settings: (_) => const Scaffold(body: SettingsBody()),
                 },
               );
             },
