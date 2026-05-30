@@ -29,6 +29,30 @@ class CarDetails extends Equatable {
   List<Object?> get props => [model, plateNumber, color];
 }
 
+class BookingLocation extends Equatable {
+  final String title;
+  final String address;
+  final double latitude;
+  final double longitude;
+
+  const BookingLocation({
+    required this.title,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'address': address,
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+
+  @override
+  List<Object?> get props => [title, address, latitude, longitude];
+}
+
 class OrderService extends Equatable {
   final String id;
   final String title;

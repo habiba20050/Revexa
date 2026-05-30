@@ -9,13 +9,31 @@ class NewsRemoteDataSource {
 
   NewsRemoteDataSource() : _dio = DioClient.instance.dio;
 
-  Future<List<NewsItem>> getLatestNews() async {
+  /// GET /api/news?page=1&limit=10 — matches backend [getStoredNews].
+  Future<NewsPage> getStoredNews({int page = 1, int limit = 20}) async {
     try {
-      final response = await _dio.get(ApiEndpoints.news);
-      final data = response.data['data'] as List<dynamic>;
-      return data
-          .map((item) => NewsItem.fromJson(item as Map<String, dynamic>))
-          .toList();
+      final response = await _dio.get(
+        ApiEndpoints.news,
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      final body = response.data;
+      if (body is! Map<String, dynamic>) {
+        return const NewsPage(items: [], total: 0, currentPage: 1, totalPages: 0);
+      }
+      if (body['status']?.toString() == 'success' || body['data'] is List) {
+        return NewsPage.fromJson(body);
+      }
+      final message = body['message']?.toString() ?? 'Failed to load news';
+      throw Exception(message);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  /// POST /api/news/sync — fetches from NewsAPI and saves to MongoDB (admin/cron).
+  Future<void> syncCarsNews() async {
+    try {
+      await _dio.post(ApiEndpoints.newsSync);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

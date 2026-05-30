@@ -27,6 +27,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   NavTab _activeTab = NavTab.home;
 
+  void _goToTab(NavTab tab) => setState(() => _activeTab = tab);
+
   @override
   void initState() {
     super.initState();
@@ -39,13 +41,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     switch (_activeTab) {
       case NavTab.home:
-        return const _HomeBody();
+        return _HomeBody(onProfileTap: () => _goToTab(NavTab.profile));
       case NavTab.services:
-        return const ServicesScreen();
+        return ServicesScreen(
+          onBackToHome: () => _goToTab(NavTab.home),
+          onOpenSettings: () => _goToTab(NavTab.settings),
+        );
       case NavTab.bookings:
         return const BookingsBody();
       case NavTab.updates:
-        return const UpdatesBody();
+        return UpdatesBody(onBackToHome: () => _goToTab(NavTab.home));
       case NavTab.profile:
         return const ProfileScreen();
       case NavTab.settings:
@@ -82,13 +87,15 @@ class _HomeScreenState extends State<HomeScreen> {
 // ─── Home Body ────────────────────────────────────────────────────────────────
 
 class _HomeBody extends StatelessWidget {
-  const _HomeBody();
+  final VoidCallback? onProfileTap;
+
+  const _HomeBody({this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _HomeAppBar(),
+        _HomeAppBar(onProfileTap: onProfileTap),
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async {
@@ -122,6 +129,10 @@ class _HomeBody extends StatelessWidget {
 }
 
 class _HomeAppBar extends StatelessWidget {
+  final VoidCallback? onProfileTap;
+
+  const _HomeAppBar({this.onProfileTap});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
@@ -167,7 +178,7 @@ class _HomeAppBar extends StatelessWidget {
               ),
               // Avatar
               GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+                onTap: onProfileTap ?? () => Navigator.pushNamed(context, AppRoutes.profile),
                 child: Container(
                   width: 40, height: 40,
                   decoration: BoxDecoration(
@@ -486,6 +497,7 @@ class _ServicesSection extends StatelessWidget {
     }
 
     final staticServices = [
+      _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
       _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
       _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
       _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),

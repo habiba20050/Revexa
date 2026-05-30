@@ -15,7 +15,9 @@ class ErrorHandler {
         return const NetworkException('Connection timed out. Please try again.');
       case DioExceptionType.connectionError:
         if (kIsWeb) {
-          return const NetworkException('Unable to reach the backend server. Check that it is running and CORS is allowed.');
+          return const NetworkException(
+            'Unable to reach the server. Check your internet connection and try again.',
+          );
         }
         return const NetworkException('No internet connection. Please check your network.');
       case DioExceptionType.badResponse:
@@ -55,7 +57,17 @@ class ErrorHandler {
     if (data is Map<String, dynamic>) {
       return data['message']?.toString() ?? data['error']?.toString() ?? 'Unknown error occurred.';
     }
-    return data.toString();
+    final text = data.toString();
+    if (text.contains('<!DOCTYPE') || text.contains('<html')) {
+      final match = RegExp(r'<pre>([^<]+)</pre>', caseSensitive: false).firstMatch(text);
+      if (match != null) return match.group(1)!.trim();
+      if (text.contains('Cannot GET')) {
+        return 'API route not found on the server. Check that the backend is running.';
+      }
+      return 'Server returned an unexpected response.';
+    }
+    if (text.length > 200) return '${text.substring(0, 200)}...';
+    return text;
   }
 
   /// Converts any exception into a Failure

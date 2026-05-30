@@ -97,8 +97,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.mail_outline,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
+                        if (v == null || v.trim().isEmpty) {
                           return AppLocalizations.of(context)!.emailRequired;
+                        }
                         if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,}$')
                             .hasMatch(v.trim())) {
                           return AppLocalizations.of(context)!.emailInvalid;
@@ -139,11 +140,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty)
+                        if (v == null || v.isEmpty) {
                           return AppLocalizations.of(context)!.passwordRequired;
-                        if (v.length < 6)
-                          return AppLocalizations.of(context)!
-                              .passwordMinLength;
+                        }
+                        if (v.length < 6) {
+                          return AppLocalizations.of(context)!.passwordMinLength;
+                        }
                         return null;
                       },
                     ),

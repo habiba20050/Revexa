@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
 class MaintenanceDetailScreen extends StatelessWidget {
@@ -453,7 +454,7 @@ class _ReserveServiceSection extends StatelessWidget {
           const SizedBox(height: 18),
 
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+            onTap: () => openServiceBooking(context, id: 'maintenance', title: 'Maintenance', price: 89, description: 'Engine maintenance'),
             child: Container(
               height: 52,
               decoration: BoxDecoration(
@@ -582,7 +583,7 @@ class _BookNowBar extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+              onTap: () => openServiceBooking(context, id: 'maintenance', title: 'Maintenance', price: 89, description: 'Engine maintenance'),
               child: Container(
                 height: 52,
                 decoration: BoxDecoration(

@@ -6,9 +6,13 @@ import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/updates/data/models/news_item_model.dart';
 import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UpdatesBody extends StatefulWidget {
-  const UpdatesBody({super.key});
+  final VoidCallback? onBackToHome;
+
+  const UpdatesBody({super.key, this.onBackToHome});
 
   @override
   State<UpdatesBody> createState() => _UpdatesBodyState();
@@ -37,6 +41,13 @@ class _UpdatesBodyState extends State<UpdatesBody> {
           ),
           child: Row(
             children: [
+              if (widget.onBackToHome != null)
+                IconButton(
+                  onPressed: widget.onBackToHome,
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  color: AppColors.onSurface,
+                  tooltip: 'Back to Home',
+                ),
               Container(
                 width: 30,
                 height: 30,
@@ -48,7 +59,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Revexa',
+                'Auto News',
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -193,12 +204,23 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                     }
                     if (state is NewsLoaded) {
                       if (state.news.isEmpty) {
-                        return Text(
-                          'No news available right now.',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: AppColors.onSurfaceVariant,
-                          ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'No car news in the database yet.',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton.icon(
+                              onPressed: () => context.read<NewsCubit>().syncAndReload(),
+                              icon: const Icon(Icons.sync),
+                              label: const Text('Sync news from NewsAPI'),
+                            ),
+                          ],
                         );
                       }
                       return Column(
@@ -367,53 +389,106 @@ class _NewsItemCard extends StatelessWidget {
 
   const _NewsItemCard({required this.newsItem});
 
+  Future<void> _openArticle(BuildContext context) async {
+    final url = newsItem.articleUrl;
+    if (url == null || url.isEmpty) return;
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            newsItem.title ?? '',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: AppColors.onSurface,
+    final imageUrl = newsItem.imageUrl;
+    return GestureDetector(
+      onTap: () => _openArticle(context),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 8,
+              offset: Offset(0, 2),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            newsItem.description,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: AppColors.secondary,
-              height: 1.4,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (imageUrl != null && imageUrl.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (newsItem.sourceName != null && newsItem.sourceName!.isNotEmpty)
+              Text(
+                newsItem.sourceName!,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            const SizedBox(height: 4),
+            Text(
+              newsItem.title,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            newsItem.publishedAt != null
-                ? newsItem.publishedAt!.toLocal().toString().split(' ').first
-                : '',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: AppColors.onSurfaceVariant,
+            if (newsItem.description.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                newsItem.description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: AppColors.secondary,
+                  height: 1.4,
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                if (newsItem.publishedAt != null)
+                  Text(
+                    newsItem.publishedAt!.toLocal().toString().split(' ').first,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                const Spacer(),
+                if (newsItem.articleUrl != null)
+                  Text(
+                    'Read more',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

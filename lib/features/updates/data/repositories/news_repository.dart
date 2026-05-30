@@ -8,10 +8,19 @@ class NewsRepository {
 
   NewsRepository(this._remote);
 
-  Future<Result<List<NewsItem>>> getLatestNews() async {
+  Future<Result<NewsPage>> getStoredNews({int page = 1, int limit = 20}) async {
     try {
-      final result = await _remote.getLatestNews();
+      final result = await _remote.getStoredNews(page: page, limit: limit);
       return Success(result);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  Future<Result<void>> syncCarsNews() async {
+    try {
+      await _remote.syncCarsNews();
+      return const Success(null);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
     }

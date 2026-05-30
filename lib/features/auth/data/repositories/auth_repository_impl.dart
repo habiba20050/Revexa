@@ -19,6 +19,7 @@ abstract interface class AuthRepository {
   Future<Result<void>> logout();
   Future<Result<void>> forgotPassword(String email);
   Future<AuthUser?> getStoredUser();
+  Future<void> persistUser(AuthUser user);
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -116,6 +117,18 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!hasToken) return null;
     final data = await _storage.getUserData();
     if (data['id'] == null || data['id']!.isEmpty) return null;
-    return AuthUser.fromStorage(data);
+    final token = await _storage.getToken() ?? '';
+    return AuthUser.fromStorage(data).copyWith(token: token);
+  }
+
+  @override
+  Future<void> persistUser(AuthUser user) async {
+    await _storage.saveUser(
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    );
   }
 }

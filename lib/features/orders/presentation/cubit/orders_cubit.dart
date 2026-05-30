@@ -77,16 +77,20 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   Future<void> createOrder({
     required String productId,
+    required String serviceName,
     required CarDetails carDetails,
     required DateTime appointmentDate,
+    required BookingLocation location,
   }) async {
     if (isClosed) return;
     emit(const OrdersLoading());
     try {
       final result = await _repository.createOrder(
         productId: productId,
+        serviceName: serviceName,
         carDetails: carDetails,
         appointmentDate: appointmentDate,
+        location: location,
       );
       if (isClosed) return;
       if (result is Success) {

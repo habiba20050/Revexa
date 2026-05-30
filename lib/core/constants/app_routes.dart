@@ -15,6 +15,7 @@ class AppRoutes {
 
   // New screens
   static const String services = '/services';
+  static const String nearbyWorkshops = '/workshops/nearby';
   static const String serviceDetail = '/services/detail';
   static const String mobileWashDetail = '/services/mobile-wash';
   static const String maintenanceDetail = '/services/maintenance';

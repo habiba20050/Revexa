@@ -38,6 +38,7 @@ import 'package:revexa/features/services/presentation/screens/mobile_wash_detail
 import 'package:revexa/features/services/presentation/screens/oil_service_detail_screen.dart';
 import 'package:revexa/features/services/presentation/screens/tires_detail_screen.dart';
 import 'package:revexa/features/services/presentation/screens/battery_detail_screen.dart';
+import 'package:revexa/features/workshops/presentation/screens/nearby_workshops_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/create_order_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/order_detail_screen.dart';
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
@@ -126,6 +127,7 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.home: (_) => const HomeScreen(),
                   // New screens
                   AppRoutes.services: (_) => const ServicesScreen(),
+                  AppRoutes.nearbyWorkshops: (_) => const NearbyWorkshopsScreen(),
                   AppRoutes.serviceDetail: (_) => const ServiceDetailScreen(),
                   AppRoutes.maintenanceDetail: (_) => const MaintenanceDetailScreen(),
                   AppRoutes.mobileWashDetail: (_) => const MobileWashDetailScreen(),

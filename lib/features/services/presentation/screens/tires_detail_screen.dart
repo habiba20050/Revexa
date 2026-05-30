@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
 class TiresDetailScreen extends StatelessWidget {
@@ -287,7 +288,7 @@ class _PricingBookCard extends StatelessWidget {
           _IncludeCheck(label: '1 Year Warranty'),
           const SizedBox(height: 18),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+            onTap: () => openServiceBooking(context, id: 'tires', title: 'Tires', price: 60, description: 'Tire repair and change'),
             child: Container(
               height: 54,
               decoration: BoxDecoration(

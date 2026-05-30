@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/core/utils/booking_navigation.dart';
 
 class BatteryDetailScreen extends StatelessWidget {
   const BatteryDetailScreen({super.key});
@@ -132,7 +133,7 @@ class BatteryDetailScreen extends StatelessWidget {
                         _IncludeCheck(label: 'Free Health Report'),
                         const SizedBox(height: 18),
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+                          onTap: () => openServiceBooking(context, id: 'battery', title: 'Battery', price: 40, description: 'Battery health check'),
                           child: Container(
                             height: 54,
                             decoration: BoxDecoration(

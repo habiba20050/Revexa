@@ -8,8 +8,10 @@ abstract interface class OrdersRepository {
   Future<Result<Order>> getOrderById(String id);
   Future<Result<Order>> createOrder({
     required String productId,
+    required String serviceName,
     required CarDetails carDetails,
     required DateTime appointmentDate,
+    required BookingLocation location,
   });
   Future<Result<Order>> updateOrderStatus(String orderId, String status);
   Future<Result<void>> deleteOrder(String orderId);
@@ -42,14 +44,18 @@ class OrdersRepositoryImpl implements OrdersRepository {
   @override
   Future<Result<Order>> createOrder({
     required String productId,
+    required String serviceName,
     required CarDetails carDetails,
     required DateTime appointmentDate,
+    required BookingLocation location,
   }) async {
     try {
       final result = await _remote.createOrder(
         productId: productId,
+        serviceName: serviceName,
         carDetails: carDetails,
         appointmentDate: appointmentDate,
+        location: location,
       );
       return Success(result);
     } catch (e) {

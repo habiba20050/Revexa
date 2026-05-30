@@ -7,6 +7,9 @@ class AuthUser extends Equatable {
   final String lastName;
   final String role;
   final String token;
+  final String? phone;
+  final String? address;
+  final String? imageUrl;
 
   const AuthUser({
     required this.id,
@@ -15,31 +18,70 @@ class AuthUser extends Equatable {
     required this.lastName,
     required this.role,
     required this.token,
+    this.phone,
+    this.address,
+    this.imageUrl,
   });
 
-  String get fullName => '$firstName $lastName';
+  String get fullName {
+    final combined = '$firstName $lastName'.trim();
+    return combined.isEmpty ? email.split('@').first : combined;
+  }
+
+  AuthUser copyWith({
+    String? id,
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? role,
+    String? token,
+    String? phone,
+    String? address,
+    String? imageUrl,
+  }) {
+    return AuthUser(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      role: role ?? this.role,
+      token: token ?? this.token,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
 
   factory AuthUser.fromLoginJson(Map<String, dynamic> json, String token) {
     final user = json['user'] as Map<String, dynamic>;
-    return AuthUser(
-      id: user['id']?.toString() ?? '',
-      email: user['email']?.toString() ?? '',
-      firstName: user['firstName']?.toString() ?? '',
-      lastName: user['lastName']?.toString() ?? '',
-      role: user['role']?.toString() ?? 'user',
-      token: token,
-    );
+    return AuthUser.fromUserMap(user, token: token);
   }
 
   factory AuthUser.fromRegisterJson(Map<String, dynamic> json, String token) {
     final user = json['user'] as Map<String, dynamic>;
+    return AuthUser.fromUserMap(user, token: token);
+  }
+
+  factory AuthUser.fromUserMap(Map<String, dynamic> json, {required String token}) {
+    final name = json['name']?.toString().trim() ?? '';
+    var first = json['firstName']?.toString() ?? '';
+    var last = json['lastName']?.toString() ?? '';
+    if (first.isEmpty && last.isEmpty && name.isNotEmpty) {
+      final parts = name.split(RegExp(r'\s+'));
+      first = parts.first;
+      if (parts.length > 1) last = parts.sublist(1).join(' ');
+    }
+
     return AuthUser(
-      id: user['id']?.toString() ?? '',
-      email: user['email']?.toString() ?? '',
-      firstName: user['firstName']?.toString() ?? '',
-      lastName: user['lastName']?.toString() ?? '',
-      role: 'user',
+      id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      firstName: first,
+      lastName: last,
+      role: json['role']?.toString() ?? 'user',
       token: token,
+      phone: json['phone']?.toString(),
+      address: json['address']?.toString(),
+      imageUrl: json['image']?.toString() ?? json['imageUrl']?.toString() ?? json['avatar']?.toString(),
     );
   }
 
@@ -51,9 +93,12 @@ class AuthUser extends Equatable {
       lastName: data['lastName'] ?? '',
       role: data['role'] ?? 'user',
       token: '',
+      phone: data['phone'],
+      address: data['address'],
+      imageUrl: data['imageUrl'],
     );
   }
 
   @override
-  List<Object?> get props => [id, email, firstName, lastName, role, token];
+  List<Object?> get props => [id, email, firstName, lastName, role, token, phone, address, imageUrl];
 }

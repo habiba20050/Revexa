@@ -1,24 +1,22 @@
-import 'package:flutter/foundation.dart';
-
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:3000/api';
-    }
-    return 'http://localhost:3000/api';
-  }
+  /// Production API on Vercel (auth, services, news, addresses, orders, …).
+  static const String baseUrl = 'https://revexa-backend.vercel.app/api';
 
   // Auth
   static const String register = '/auth/register';
   static const String login = '/auth/login';
-  static const String googleLogin = '/auth/google-login';
   static const String logout = '/auth/logout';
   static const String forgotPassword = '/auth/forgot-password';
   static String resetPassword(String token) => '/auth/reset-password/$token';
 
-  // Users
+  // Profile
+  static const String profile = '/user/profile';
+  static const String profileUpdate = '/user/profile/update';
+  static const String deleteAccount = '/user/account';
+
+  // Users (legacy)
   static const String users = '/users';
   static String userById(String id) => '/users/$id';
 
@@ -45,8 +43,9 @@ class ApiEndpoints {
   // Addresses
   static const String addresses = '/addresses';
 
-  // News
+  // News — GET /news, POST /news/sync
   static const String news = '/news';
+  static const String newsSync = '/news/sync';
 
   // Notifications
   static const String sendNotification = '/notifications/send';

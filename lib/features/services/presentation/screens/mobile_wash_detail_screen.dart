@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
 class MobileWashDetailScreen extends StatelessWidget {
@@ -417,7 +418,7 @@ class _PricingCard extends StatelessWidget {
           _PricingRow(label: 'Availability', value: 'Daily 8AM–8PM', valueColor: const Color(0xFF22C55E)),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+            onTap: () => openServiceBooking(context, id: 'mobile-wash', title: 'Mobile Wash', price: 45, description: 'Mobile car wash'),
             child: Container(
               height: 52,
               decoration: BoxDecoration(
@@ -491,7 +492,7 @@ class _BookNowBar extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+              onTap: () => openServiceBooking(context, id: 'mobile-wash', title: 'Mobile Wash', price: 45, description: 'Mobile car wash'),
               child: Container(
                 height: 52,
                 decoration: BoxDecoration(

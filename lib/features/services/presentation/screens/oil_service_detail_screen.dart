@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
 class OilServiceDetailScreen extends StatelessWidget {
@@ -341,7 +342,7 @@ class _PricingSection extends StatelessWidget {
         _IncludeItem(label: 'Fluid Top-off'),
         const SizedBox(height: 20),
         GestureDetector(
-          onTap: () => Navigator.pushNamed(context, AppRoutes.createOrder),
+          onTap: () => openServiceBooking(context, id: 'oil-service', title: 'Oil Service', price: 75, description: 'Synthetic oil change'),
           child: Container(
             height: 54,
             decoration: BoxDecoration(

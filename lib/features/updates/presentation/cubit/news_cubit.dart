@@ -20,10 +20,19 @@ class NewsLoading extends NewsState {
 
 class NewsLoaded extends NewsState {
   final List<NewsItem> news;
-  const NewsLoaded(this.news);
+  final int total;
+  final int currentPage;
+  final int totalPages;
+
+  const NewsLoaded(
+    this.news, {
+    this.total = 0,
+    this.currentPage = 1,
+    this.totalPages = 1,
+  });
 
   @override
-  List<Object?> get props => [news];
+  List<Object?> get props => [news, total, currentPage, totalPages];
 }
 
 class NewsError extends NewsState {
@@ -39,15 +48,33 @@ class NewsCubit extends Cubit<NewsState> {
 
   NewsCubit(this._repository) : super(const NewsInitial());
 
-  Future<void> loadNews() async {
+  Future<void> loadNews({int page = 1, int limit = 20}) async {
     if (isClosed) return;
     emit(const NewsLoading());
-    final result = await _repository.getLatestNews();
+    final result = await _repository.getStoredNews(page: page, limit: limit);
     if (isClosed) return;
     if (result is Success) {
-      emit(NewsLoaded(result.data!));
+      final pageData = result.data!;
+      emit(NewsLoaded(
+        pageData.items,
+        total: pageData.total,
+        currentPage: pageData.currentPage,
+        totalPages: pageData.totalPages,
+      ));
     } else {
       emit(NewsError(result.failure!.message));
     }
+  }
+
+  Future<void> syncAndReload() async {
+    if (isClosed) return;
+    emit(const NewsLoading());
+    final syncResult = await _repository.syncCarsNews();
+    if (isClosed) return;
+    if (syncResult is ResultFailure) {
+      emit(NewsError(syncResult.failure!.message));
+      return;
+    }
+    await loadNews();
   }
 }

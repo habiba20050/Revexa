@@ -31,16 +31,32 @@ class Service extends Equatable {
   factory Service.fromJson(Map<String, dynamic> json) {
     return Service(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
+      name: json['name']?.toString() ?? json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       category: json['category']?.toString() ?? '',
-      image: json['image']?.toString(),
+      image: _readImageUrl(json),
       duration: (json['duration'] as num?)?.toInt() ?? 30,
       status: json['status']?.toString() ?? 'active',
       rating: (json['rating'] as num?)?.toDouble(),
       reviewsCount: (json['reviewsCount'] as num?)?.toInt(),
     );
+  }
+
+  static String? _readImageUrl(Map<String, dynamic> json) {
+    final direct = json['image']?.toString();
+    if (direct != null && direct.isNotEmpty) return direct;
+    final images = json['images'];
+    if (images is List && images.isNotEmpty) {
+      final first = images.first;
+      if (first is Map) {
+        final url = first['url']?.toString();
+        if (url != null && url.isNotEmpty) return url;
+      } else if (first is String && first.isNotEmpty) {
+        return first;
+      }
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() => {

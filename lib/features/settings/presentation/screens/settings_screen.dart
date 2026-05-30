@@ -6,7 +6,8 @@ import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
-import 'package:revexa/shared/theme/theme_cubit.dart';
+import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/shared/widgets/settings_preference_tiles.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({super.key});
@@ -17,6 +18,33 @@ class SettingsBody extends StatefulWidget {
 
 class _SettingsBodyState extends State<SettingsBody> {
   bool _notificationsEnabled = true;
+
+  void _confirmLogout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.surface,
+        title: Text(l10n.confirmSignOut, style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+        content: Text(l10n.confirmSignOutMessage, style: GoogleFonts.inter(color: AppColors.onSurfaceVariant)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel, style: GoogleFonts.inter(color: AppColors.onSurfaceVariant)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthCubit>().logout();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: Text(l10n.signOut),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +57,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SectionLabel(label: 'Account', trailing: GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, AppRoutes.editProfile),
-                  child: Text('Edit Profile', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
-                )),
+                const _SectionLabel(label: 'Account'),
                 const SizedBox(height: 12),
                 _SecurityPrivacyCard(),
                 const SizedBox(height: 12),
@@ -63,21 +88,8 @@ class _SettingsBodyState extends State<SettingsBody> {
                   value: _notificationsEnabled,
                   onChanged: (v) => setState(() => _notificationsEnabled = v),
                 ),
-                const SizedBox(height: 1),
-                BlocBuilder<ThemeCubit, ThemeState>(
-                  builder: (context, themeState) {
-                    final isDark = themeState.mode == AppThemeMode.dark;
-                    return _ToggleRow(
-                      icon: Icons.dark_mode_outlined,
-                      title: 'Dark Mode',
-                      subtitle: 'Switch theme based on system settings',
-                      value: isDark,
-                      onChanged: (v) => context.read<ThemeCubit>().setTheme(v ? AppThemeMode.dark : AppThemeMode.light),
-                    );
-                  },
-                ),
-                const SizedBox(height: 1),
-                _LanguageRow(),
+                const SettingsThemeTile(),
+                const SettingsLanguageTile(),
                 const SizedBox(height: 28),
                 _SectionLabel(label: 'Support'),
                 const SizedBox(height: 12),
@@ -91,7 +103,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                _LogoutButton(),
+                _LogoutButton(onLogout: () => _confirmLogout(context)),
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
@@ -340,45 +352,6 @@ class _ToggleRow extends StatelessWidget {
   }
 }
 
-class _LanguageRow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.outline),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Icon(Icons.language_outlined, color: AppColors.primary, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Language', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                const SizedBox(height: 2),
-                Text('English (United States)', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
-              ],
-            ),
-          ),
-          Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceVariant, size: 22),
-        ],
-      ),
-    );
-  }
-}
-
 class _HelpCenterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -466,6 +439,9 @@ class _SupportBtn extends StatelessWidget {
 }
 
 class _LogoutButton extends StatelessWidget {
+  final VoidCallback onLogout;
+  const _LogoutButton({required this.onLogout});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
@@ -480,7 +456,7 @@ class _LogoutButton extends StatelessWidget {
             shadowColor: AppColors.primary.withValues(alpha: 0.25),
             elevation: 6,
             child: InkWell(
-              onTap: isLoading ? null : () => context.read<AuthCubit>().logout(),
+              onTap: isLoading ? null : onLogout,
               borderRadius: BorderRadius.circular(14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

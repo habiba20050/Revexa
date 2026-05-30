@@ -6,8 +6,10 @@ import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/features/products/data/models/product_model.dart';
 import 'package:revexa/features/services/data/models/service_model.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:revexa/features/orders/data/models/order_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:revexa/shared/widgets/booking_location_section.dart';
 
 class CreateOrderScreen extends StatefulWidget {
   const CreateOrderScreen({super.key});
@@ -23,6 +25,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   final _colorCtrl = TextEditingController();
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  LatLng? _serviceLocation;
+  String _locationAddress = '';
 
   @override
   void dispose() {
@@ -63,11 +67,17 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (picked != null) setState(() => _selectedTime = picked);
   }
 
-  void _submit(BuildContext context, Object? item) {
-    final serviceId = item is Product ? item.id : item is Service ? item.id : null;
-    if (serviceId == null) return;
-
+  void _submit(BuildContext context, Service service) {
     if (!_formKey.currentState!.validate()) return;
+    if (_serviceLocation == null || _locationAddress.trim().length < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select your car location on the map and enter the parking address.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     if (_selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select appointment date and time'), behavior: SnackBarBehavior.floating),
@@ -79,9 +89,20 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       _selectedTime!.hour, _selectedTime!.minute,
     );
     context.read<OrdersCubit>().createOrder(
-      productId: serviceId,
-      carDetails: CarDetails(model: _modelCtrl.text.trim(), plateNumber: _plateCtrl.text.trim(), color: _colorCtrl.text.trim()),
+      productId: service.id,
+      serviceName: service.name,
+      carDetails: CarDetails(
+        model: _modelCtrl.text.trim(),
+        plateNumber: _plateCtrl.text.trim(),
+        color: _colorCtrl.text.trim().isEmpty ? null : _colorCtrl.text.trim(),
+      ),
       appointmentDate: appointment,
+      location: BookingLocation(
+        title: 'Service location',
+        address: _locationAddress.trim(),
+        latitude: _serviceLocation!.latitude,
+        longitude: _serviceLocation!.longitude,
+      ),
     );
   }
 
@@ -89,9 +110,33 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   Widget build(BuildContext context) {
     final rawArgs = ModalRoute.of(context)!.settings.arguments;
     final item = rawArgs is Map ? (rawArgs['service'] ?? rawArgs['product'] ?? rawArgs['item']) : rawArgs;
-    final hasSelection = item is Product || item is Service;
-    final serviceTitle = item is Product ? item.title : item is Service ? item.title : 'Service';
-    final servicePrice = item is Product ? item.price : item is Service ? item.price : 0.0;
+    final serviceTitle = item is Product
+        ? item.title
+        : item is Service
+            ? item.title
+            : 'Service';
+    final servicePrice = item is Product
+        ? item.price
+        : item is Service
+            ? item.price
+            : 0.0;
+    final bookingService = item is Service
+        ? item
+        : item is Product
+            ? Service(
+                id: item.id,
+                name: item.title,
+                description: item.description,
+                price: item.price,
+                category: 'product',
+              )
+            : Service(
+                id: 'local-booking',
+                name: serviceTitle,
+                description: '',
+                price: servicePrice,
+                category: 'general',
+              );
 
     return BlocListener<OrdersCubit, OrdersState>(
       listener: (context, state) {
@@ -165,6 +210,14 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 _OrderField(label: 'Color (Optional)', placeholder: 'e.g. Marina Bay Blue', controller: _colorCtrl),
                 const SizedBox(height: 28),
 
+                BookingLocationSection(
+                  selectedPoint: _serviceLocation,
+                  addressText: _locationAddress,
+                  onPointSelected: (p) => setState(() => _serviceLocation = p),
+                  onAddressChanged: (v) => _locationAddress = v,
+                ),
+                const SizedBox(height: 28),
+
                 // Appointment
                 Text('Appointment', style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 16),
@@ -234,7 +287,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: isLoading || !hasSelection ? null : () => _submit(context, item),
+                  onPressed: isLoading ? null : () => _submit(context, bookingService),
                   child: isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Row(mainAxisAlignment: MainAxisAlignment.center, children: [

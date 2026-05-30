@@ -3,14 +3,17 @@ import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/features/orders/data/models/order_model.dart';
+import 'package:revexa/features/orders/data/order_id_resolver.dart';
 
 abstract interface class OrdersRemoteDataSource {
   Future<List<Order>> getAllOrders();
   Future<Order> getOrderById(String id);
   Future<Order> createOrder({
     required String productId,
+    required String serviceName,
     required CarDetails carDetails,
     required DateTime appointmentDate,
+    required BookingLocation location,
   });
   Future<Order> updateOrderStatus(String orderId, String status);
   Future<void> deleteOrder(String orderId);
@@ -44,18 +47,39 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   @override
   Future<Order> createOrder({
     required String productId,
+    required String serviceName,
     required CarDetails carDetails,
     required DateTime appointmentDate,
+    required BookingLocation location,
   }) async {
     try {
-      final response = await _dio.post(
-        ApiEndpoints.createOrder(productId),
-        data: {
-          'carDetails': carDetails.toJson(),
-          'appointmentDate': appointmentDate.toIso8601String(),
-        },
+      final resolvedId = await OrderIdResolver.resolve(
+        fallbackId: productId,
+        serviceName: serviceName,
       );
-      return Order.fromJson(response.data['data'] as Map<String, dynamic>);
+
+      final body = {
+        'carDetails': carDetails.toJson(),
+        'appointmentDate': appointmentDate.toIso8601String(),
+        'location': location.toJson(),
+        'address': location.address,
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+      };
+
+      final response = await _dio.post(
+        ApiEndpoints.createOrder(resolvedId),
+        data: body,
+      );
+
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic>) {
+        final data = responseData['data'];
+        if (data is Map<String, dynamic>) {
+          return Order.fromJson(data);
+        }
+      }
+      throw Exception('Invalid order response from server');
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
