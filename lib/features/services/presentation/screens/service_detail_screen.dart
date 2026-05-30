@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/constants/app_constants.dart';
-import 'package:revexa/features/products/data/models/product_model.dart';
+import 'package:revexa/features/services/data/models/service_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 
 class ServiceDetailScreen extends StatelessWidget {
@@ -12,13 +12,13 @@ class ServiceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final product = ModalRoute.of(context)!.settings.arguments as Product;
+    final service = ModalRoute.of(context)!.settings.arguments as Service;
 
     return BlocListener<OrdersCubit, OrdersState>(
       listener: (context, state) {
         if (state is OrderCreated) {
           Navigator.pushNamed(context, AppRoutes.createOrder, arguments: {
-            'product': product,
+            'service': service,
             'order': state.order,
           });
         } else if (state is OrdersError) {
@@ -31,23 +31,23 @@ class ServiceDetailScreen extends StatelessWidget {
         backgroundColor: AppColors.background,
         body: Column(
           children: [
-            _DetailAppBar(product: product),
+            _DetailAppBar(service: service),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _HeroImage(product: product),
+                    _HeroImage(service: service),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _StatsRow(product: product),
+                          _StatsRow(service: service),
                           const SizedBox(height: 16),
                           _RatingCard(),
                           const SizedBox(height: 24),
-                          _DescriptionSection(product: product),
+                          _DescriptionSection(service: service),
                           const SizedBox(height: 24),
                           _WhatsIncludedSection(),
                           const SizedBox(height: 100),
@@ -60,15 +60,15 @@ class ServiceDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-        bottomNavigationBar: _BookNowBar(product: product),
+        bottomNavigationBar: _BookNowBar(service: service),
       ),
     );
   }
 }
 
 class _DetailAppBar extends StatelessWidget {
-  final Product product;
-  const _DetailAppBar({required this.product});
+  final Service service;
+  const _DetailAppBar({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +113,8 @@ class _DetailAppBar extends StatelessWidget {
 }
 
 class _HeroImage extends StatelessWidget {
-  final Product product;
-  const _HeroImage({required this.product});
+  final Service service;
+  const _HeroImage({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +128,9 @@ class _HeroImage extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              product.firstImageUrl.isNotEmpty
+              service.firstImageUrl.isNotEmpty
                   ? Image.network(
-                      product.firstImageUrl,
+                      service.firstImageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Image.asset(
                         AppConstants.imgServiceDetails1,
@@ -173,7 +173,7 @@ class _HeroImage extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      product.title,
+                      service.title,
                       style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
                     ),
                   ],
@@ -188,8 +188,8 @@ class _HeroImage extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
-  final Product product;
-  const _StatsRow({required this.product});
+  final Service service;
+  const _StatsRow({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +199,7 @@ class _StatsRow extends StatelessWidget {
           child: _StatCard(
             icon: Icons.payments_outlined,
             label: 'Price',
-            value: '\$${product.price.toStringAsFixed(0)}',
+            value: '\$${service.price.toStringAsFixed(0)}',
           ),
         ),
         const SizedBox(width: 12),
@@ -285,8 +285,8 @@ class _RatingCard extends StatelessWidget {
 }
 
 class _DescriptionSection extends StatelessWidget {
-  final Product product;
-  const _DescriptionSection({required this.product});
+  final Service service;
+  const _DescriptionSection({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -296,8 +296,8 @@ class _DescriptionSection extends StatelessWidget {
         Text('Description', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 10),
         Text(
-          product.description.isNotEmpty
-              ? product.description
+          service.description.isNotEmpty
+              ? service.description
               : 'Get a professional-grade car wash at your doorstep. Our expert team uses eco-friendly products and state-of-the-art equipment to make your vehicle look brand new without you ever leaving your home or office.',
           style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
         ),
@@ -375,8 +375,8 @@ class _IncludedItem extends StatelessWidget {
 }
 
 class _BookNowBar extends StatelessWidget {
-  final Product product;
-  const _BookNowBar({required this.product});
+  final Service service;
+  const _BookNowBar({required this.service});
 
   @override
   Widget build(BuildContext context) {
@@ -397,14 +397,14 @@ class _BookNowBar extends StatelessWidget {
                 children: [
                   Text('TOTAL PRICE', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2)),
                   const SizedBox(height: 2),
-                  Text('\$${product.price.toStringAsFixed(2)}',
+                  Text('\$${service.price.toStringAsFixed(2)}',
                       style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
                 ],
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: GestureDetector(
-                  onTap: isLoading ? null : () => Navigator.pushNamed(context, AppRoutes.createOrder, arguments: product),
+                  onTap: isLoading ? null : () => Navigator.pushNamed(context, AppRoutes.createOrder, arguments: service),
                   child: Container(
                     height: 54,
                     decoration: BoxDecoration(

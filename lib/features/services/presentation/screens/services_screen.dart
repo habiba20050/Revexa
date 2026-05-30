@@ -4,8 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/constants/app_constants.dart';
-import 'package:revexa/features/products/data/models/product_model.dart';
-import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
+import 'package:revexa/features/services/data/models/service_model.dart';
+import 'package:revexa/features/services/presentation/cubit/services_cubit.dart';
+import 'package:revexa/features/services/presentation/cubit/services_state.dart';
 import 'package:revexa/shared/widgets/shimmer_widgets.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductsCubit>().loadProducts(limit: 20);
+      context.read<ServicesCubit>().loadServices(limit: 20);
     });
   }
 
@@ -74,26 +75,26 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       ],
                     ),
                   ),
-                  BlocBuilder<ProductsCubit, ProductsState>(
+                  BlocBuilder<ServicesCubit, ServicesState>(
                     builder: (context, state) {
-                      if (state is ProductsLoading || state is ProductsInitial) {
+                      if (state is ServicesLoading || state is ServicesInitial) {
                         return _buildSkeletons();
                       }
-                      if (state is ProductsError) {
+                      if (state is ServicesError) {
                         return _buildError(context, state.message);
                       }
-                      if (state is ProductsLoaded) {
-                        final products = state.page.products
-                            .where((p) => _query.isEmpty ||
-                                p.title.toLowerCase().contains(_query) ||
-                                p.description.toLowerCase().contains(_query))
+                      if (state is ServicesLoaded) {
+                        final services = state.servicesPage.services
+                            .where((s) => _query.isEmpty ||
+                                s.title.toLowerCase().contains(_query) ||
+                                s.description.toLowerCase().contains(_query))
                             .toList();
 
-                        if (products.isEmpty) return _buildEmpty();
+                        if (services.isEmpty) return _buildEmpty();
 
                         return RefreshIndicator(
-                          onRefresh: () => context.read<ProductsCubit>().loadProducts(limit: 20),
-                          child: _ServicesContent(products: products),
+                          onRefresh: () => context.read<ServicesCubit>().loadServices(limit: 20),
+                          child: _ServicesContent(services: services),
                         );
                       }
                       return const SizedBox.shrink();
@@ -140,7 +141,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             Text(msg, textAlign: TextAlign.center, style: GoogleFonts.inter(color: AppColors.onSurfaceVariant, fontSize: 14)),
             const SizedBox(height: 16),
             TextButton.icon(
-              onPressed: () => context.read<ProductsCubit>().loadProducts(limit: 20),
+              onPressed: () => context.read<ServicesCubit>().loadServices(limit: 20),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
             ),
@@ -248,8 +249,8 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _ServicesContent extends StatelessWidget {
-  final List<Product> products;
-  const _ServicesContent({required this.products});
+  final List<Service> services;
+  const _ServicesContent({required this.services});
 
   static const _staticServices = [
     _StaticService(
@@ -301,6 +302,23 @@ class _ServicesContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (services.isNotEmpty) ...[
+            Text('Available Services', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            const SizedBox(height: 14),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: services.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.88,
+              ),
+              itemBuilder: (context, index) => _ServiceCard(service: services[index]),
+            ),
+            const SizedBox(height: 20),
+          ],
           _FeaturedCard(service: _staticServices[0]),
           const SizedBox(height: 12),
           GridView.count(
@@ -337,6 +355,52 @@ class _StaticService {
     required this.route,
     required this.isFeatured,
   });
+}
+
+class _ServiceCard extends StatelessWidget {
+  final Service service;
+  const _ServiceCard({required this.service});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, AppRoutes.serviceDetail, arguments: service),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.outline),
+          boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: service.firstImageUrl.isNotEmpty
+                    ? Image.network(service.firstImageUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh))
+                    : Image.asset(AppConstants.imgServices1, fit: BoxFit.cover, width: double.infinity),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(service.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                  const SizedBox(height: 4),
+                  Text(service.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4)),
+                  const SizedBox(height: 10),
+                  Text('\$${service.price.toStringAsFixed(0)}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _FeaturedCard extends StatelessWidget {

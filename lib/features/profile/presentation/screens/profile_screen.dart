@@ -68,7 +68,7 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.location_on_outlined,
                     title: l10n.addresses,
                     subtitle: l10n.addressesSubtitle,
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.addresses),
                   ),
 
                   const SizedBox(height: 8),

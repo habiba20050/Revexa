@@ -10,6 +10,12 @@ import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/features/products/data/datasources/products_remote_datasource.dart';
 import 'package:revexa/features/products/data/repositories/products_repository_impl.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
+import 'package:revexa/features/services/data/datasources/services_remote_datasource.dart';
+import 'package:revexa/features/services/data/repositories/services_repository_impl.dart';
+import 'package:revexa/features/services/presentation/cubit/services_cubit.dart';
+import 'package:revexa/features/updates/data/datasources/news_remote_datasource.dart';
+import 'package:revexa/features/updates/data/repositories/news_repository.dart';
+import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 
@@ -23,6 +29,8 @@ class ServiceLocator {
   late final ProductsCubit productsCubit;
   late final OrdersCubit ordersCubit;
   late final CategoriesCubit categoriesCubit;
+  late final ServicesCubit servicesCubit;
+  late final NewsCubit newsCubit;
   late final ThemeCubit themeCubit;
   late final LocaleCubit localeCubit;
 
@@ -52,6 +60,16 @@ class ServiceLocator {
     final categoriesDataSource = CategoriesRemoteDataSource();
     final categoriesRepo = CategoriesRepository(categoriesDataSource);
     categoriesCubit = CategoriesCubit(categoriesRepo);
+
+    // Services
+    final servicesDataSource = ServicesRemoteDataSourceImpl();
+    final servicesRepo = ServicesRepositoryImpl(servicesDataSource);
+    servicesCubit = ServicesCubit(servicesRepo);
+
+    // News
+    final newsDataSource = NewsRemoteDataSource();
+    final newsRepo = NewsRepository(newsDataSource);
+    newsCubit = NewsCubit(newsRepo);
 
     // Theme
     themeCubit = ThemeCubit();

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:revexa/core/error/exceptions.dart';
 import 'package:revexa/core/error/failures.dart';
 
@@ -13,6 +14,9 @@ class ErrorHandler {
       case DioExceptionType.receiveTimeout:
         return const NetworkException('Connection timed out. Please try again.');
       case DioExceptionType.connectionError:
+        if (kIsWeb) {
+          return const NetworkException('Unable to reach the backend server. Check that it is running and CORS is allowed.');
+        }
         return const NetworkException('No internet connection. Please check your network.');
       case DioExceptionType.badResponse:
         return _handleResponseError(error.response);

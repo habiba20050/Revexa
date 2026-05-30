@@ -12,6 +12,9 @@ import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/categories/categories.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
+import 'package:revexa/features/profile/presentation/screens/addresses_screen.dart';
+import 'package:revexa/features/services/presentation/cubit/services_cubit.dart';
+import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
 
@@ -81,6 +84,8 @@ class RevexaApp extends StatelessWidget {
         BlocProvider<ProductsCubit>.value(value: sl.productsCubit),
         BlocProvider<OrdersCubit>.value(value: sl.ordersCubit),
         BlocProvider<CategoriesCubit>.value(value: sl.categoriesCubit),
+        BlocProvider<ServicesCubit>.value(value: sl.servicesCubit),
+        BlocProvider<NewsCubit>.value(value: sl.newsCubit),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
@@ -131,6 +136,7 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.orderDetail: (_) => const OrderDetailScreen(),
                   AppRoutes.profile: (_) => const ProfileScreen(),
                   AppRoutes.editProfile: (_) => const EditProfileScreen(),
+                  AppRoutes.addresses: (_) => const AddressesScreen(),
                   AppRoutes.myVehicles: (_) => const MyVehiclesScreen(),
                   AppRoutes.billing: (_) => const BillingScreen(),
                   AppRoutes.notifications: (_) => const NotificationsScreen(),

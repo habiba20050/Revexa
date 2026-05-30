@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_constants.dart';
+import 'package:revexa/features/updates/data/models/news_item_model.dart';
+import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
-class UpdatesBody extends StatelessWidget {
+class UpdatesBody extends StatefulWidget {
   const UpdatesBody({super.key});
+
+  @override
+  State<UpdatesBody> createState() => _UpdatesBodyState();
+}
+
+class _UpdatesBodyState extends State<UpdatesBody> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<NewsCubit>().loadNews();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,6 +158,62 @@ class UpdatesBody extends StatelessWidget {
                   time: '2h ago',
                   body:
                       'Mobile Wash confirmed for 2 PM today. Our specialist David is en route.',
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Latest news',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                BlocBuilder<NewsCubit, NewsState>(
+                  builder: (context, state) {
+                    if (state is NewsLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is NewsError) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          state.message,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      );
+                    }
+                    if (state is NewsLoaded) {
+                      if (state.news.isEmpty) {
+                        return Text(
+                          'No news available right now.',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.onSurfaceVariant,
+                          ),
+                        );
+                      }
+                      return Column(
+                        children: state.news
+                            .map(
+                              (newsItem) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _NewsItemCard(newsItem: newsItem),
+                              ),
+                            )
+                            .toList(),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
                 const SizedBox(height: 32),
 
@@ -292,7 +362,62 @@ class _NotificationCard extends StatelessWidget {
     );
   }
 }
+class _NewsItemCard extends StatelessWidget {
+  final NewsItem newsItem;
 
+  const _NewsItemCard({required this.newsItem});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            newsItem.title ?? '',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            newsItem.description,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: AppColors.secondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            newsItem.publishedAt != null
+                ? newsItem.publishedAt!.toLocal().toString().split(' ').first
+                : '',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class _ServiceReminderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

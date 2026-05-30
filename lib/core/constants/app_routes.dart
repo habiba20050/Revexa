@@ -23,6 +23,7 @@ class AppRoutes {
   static const String tiresDetail = '/services/tires';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
+  static const String addresses = '/profile/addresses';
   static const String myVehicles = '/vehicles';
   static const String billing = '/billing';
   static const String notifications = '/notifications';

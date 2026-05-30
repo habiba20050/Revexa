@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/features/products/data/models/product_model.dart';
+import 'package:revexa/features/services/data/models/service_model.dart';
 import 'package:revexa/features/orders/data/models/order_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 
@@ -62,7 +63,10 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
     if (picked != null) setState(() => _selectedTime = picked);
   }
 
-  void _submit(BuildContext context, Product product) {
+  void _submit(BuildContext context, Object? item) {
+    final serviceId = item is Product ? item.id : item is Service ? item.id : null;
+    if (serviceId == null) return;
+
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +79,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
       _selectedTime!.hour, _selectedTime!.minute,
     );
     context.read<OrdersCubit>().createOrder(
-      productId: product.id,
+      productId: serviceId,
       carDetails: CarDetails(model: _modelCtrl.text.trim(), plateNumber: _plateCtrl.text.trim(), color: _colorCtrl.text.trim()),
       appointmentDate: appointment,
     );
@@ -83,7 +87,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final product = ModalRoute.of(context)!.settings.arguments as Product;
+    final rawArgs = ModalRoute.of(context)!.settings.arguments;
+    final item = rawArgs is Map ? (rawArgs['service'] ?? rawArgs['product'] ?? rawArgs['item']) : rawArgs;
+    final hasSelection = item is Product || item is Service;
+    final serviceTitle = item is Product ? item.title : item is Service ? item.title : 'Service';
+    final servicePrice = item is Product ? item.price : item is Service ? item.price : 0.0;
 
     return BlocListener<OrdersCubit, OrdersState>(
       listener: (context, state) {
@@ -91,7 +99,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (_) => _ConfirmationDialog(order: state.order, product: product),
+            builder: (_) => _ConfirmationDialog(order: state.order, serviceTitle: serviceTitle),
           );
         } else if (state is OrdersError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -134,8 +142,8 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(product.title, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
-                            Text('\$${product.price.toStringAsFixed(0)}',
+                            Text(serviceTitle, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                            Text('\$${servicePrice.toStringAsFixed(0)}',
                                 style: GoogleFonts.inter(fontSize: 13, color: AppColors.neon, fontWeight: FontWeight.w600)),
                           ],
                         ),
@@ -226,7 +234,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : () => _submit(context, product),
+                  onPressed: isLoading || !hasSelection ? null : () => _submit(context, item),
                   child: isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -329,8 +337,8 @@ class _DateTimeSelector extends StatelessWidget {
 
 class _ConfirmationDialog extends StatelessWidget {
   final Order order;
-  final Product product;
-  const _ConfirmationDialog({required this.order, required this.product});
+  final String serviceTitle;
+  const _ConfirmationDialog({required this.order, required this.serviceTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +358,7 @@ class _ConfirmationDialog extends StatelessWidget {
             Text('Booking Confirmed!', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 8),
             Text(
-              'Your ${product.title} appointment has been booked successfully.',
+              'Your $serviceTitle appointment has been booked successfully.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
             ),
@@ -359,7 +367,7 @@ class _ConfirmationDialog extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: AppColors.surfaceContainerLow, borderRadius: BorderRadius.circular(12)),
               child: Column(children: [
-                _ConfirmRow(label: 'Service', value: product.title),
+                _ConfirmRow(label: 'Service', value: serviceTitle),
                 const SizedBox(height: 8),
                 _ConfirmRow(label: 'Date', value: DateFormat('MMM dd, yyyy hh:mm a').format(order.appointmentDate)),
                 const SizedBox(height: 8),
