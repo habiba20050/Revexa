@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -186,15 +187,19 @@ class _HomeAppBar extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.10),
                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
                   ),
-                  child: Center(
-                    child: Text(
-                      user?.firstName.isNotEmpty == true
-                          ? user!.firstName[0].toUpperCase()
-                          : 'U',
-                      style: GoogleFonts.inter(
-                          fontSize: 16, fontWeight: FontWeight.w700,
-                          color: AppColors.primary),
-                    ),
+                  child: ClipOval(
+                    child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: user.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => const Icon(Icons.person, size: 20),
+                          )
+                        : Center(
+                            child: Text(
+                              user?.firstName.isNotEmpty == true ? user!.firstName[0].toUpperCase() : 'U',
+                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -497,11 +502,11 @@ class _ServicesSection extends StatelessWidget {
     }
 
     final staticServices = [
-      _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
-      _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
-      _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
-      _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
-      _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
+      const _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
+      const _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
+      const _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
+      const _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
+      const _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
     ];
 
     return GridView.count(

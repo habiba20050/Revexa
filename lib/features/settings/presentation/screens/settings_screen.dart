@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -79,7 +80,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                _SectionLabel(label: 'App Experience'),
+              const  _SectionLabel(label: 'App Experience'),
                 const SizedBox(height: 12),
                 _ToggleRow(
                   icon: Icons.notifications_active_outlined,
@@ -91,7 +92,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                 const SettingsThemeTile(),
                 const SettingsLanguageTile(),
                 const SizedBox(height: 28),
-                _SectionLabel(label: 'Support'),
+                const _SectionLabel(label: 'Support'),
                 const SizedBox(height: 12),
                 _HelpCenterCard(),
                 const SizedBox(height: 12),
@@ -166,12 +167,24 @@ class _SettingsAppBar extends StatelessWidget {
               color: AppColors.surfaceContainerHigh,
               border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
             ),
-            child: ClipOval(
-              child: Image.asset(
-                AppConstants.imgSettingsProfileAvatar,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(Icons.person_outline, color: AppColors.primary, size: 20),
-              ),
+            child: BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, state) {
+                final user = state is AuthAuthenticated ? state.user : null;
+                return ClipOval(
+                  child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: user.imageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const CircularProgressIndicator(strokeWidth: 2),
+                          errorWidget: (context, url, error) => Icon(Icons.person_outline, color: AppColors.primary, size: 20),
+                        )
+                      : Image.asset(
+                          AppConstants.imgSettingsProfileAvatar,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(Icons.person_outline, color: AppColors.primary, size: 20),
+                        ),
+                );
+              },
             ),
           ),
         ],

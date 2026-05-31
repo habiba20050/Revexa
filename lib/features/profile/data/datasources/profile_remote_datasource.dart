@@ -34,9 +34,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     try {
       final response = await _dio.get(ApiEndpoints.profile);
       final data = ApiResponse.unwrap(response.data);
-      final userMap = data['user'] is Map
+      var userMap = data['user'] is Map
           ? Map<String, dynamic>.from(data['user'] as Map)
           : data;
+      userMap = _normalizeUserMap(userMap);
       return AuthUser.fromUserMap(userMap, token: await _token());
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
@@ -52,22 +53,21 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     String? imageUrl,
   }) async {
     try {
-      final fullName = '$firstName $lastName'.trim();
       final response = await _dio.put(
         ApiEndpoints.profileUpdate,
         data: {
-          'name': fullName,
           'firstName': firstName,
           'lastName': lastName,
-          if (phone != null && phone.isNotEmpty) 'phone': phone,
-          if (address != null && address.isNotEmpty) 'address': address,
-          if (imageUrl != null && imageUrl.isNotEmpty) 'image': imageUrl,
+          'phone': phone ?? '',
+          'address': address ?? '',
+          if (imageUrl != null && imageUrl.isNotEmpty) 'avatar': imageUrl,
         },
       );
       final data = ApiResponse.unwrap(response.data);
-      final userMap = data['user'] is Map
+      var userMap = data['user'] is Map
           ? Map<String, dynamic>.from(data['user'] as Map)
           : data;
+      userMap = _normalizeUserMap(userMap);
       return AuthUser.fromUserMap(userMap, token: await _token());
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
@@ -78,14 +78,12 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<String> uploadImage(String filePath, {String? fileName}) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.upload,
+        ApiEndpoints.avatarUpload,
         data: FormData.fromMap({
-          'images': [
-            await MultipartFile.fromFile(
-              filePath,
-              filename: fileName ?? 'avatar.jpg',
-            ),
-          ],
+          'image': await MultipartFile.fromFile(
+            filePath,
+            filename: fileName ?? 'avatar.jpg',
+          ),
         }),
       );
       return _parseUploadUrl(response.data);
@@ -98,17 +96,39 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<String> uploadImageBytes(List<int> bytes, {String fileName = 'avatar.jpg'}) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.upload,
+        ApiEndpoints.avatarUpload,
         data: FormData.fromMap({
-          'images': [
-            MultipartFile.fromBytes(bytes, filename: fileName),
-          ],
+          'image': MultipartFile.fromBytes(bytes, filename: fileName),
         }),
       );
       return _parseUploadUrl(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
+  }
+
+  Map<String, dynamic> _normalizeUserMap(Map<String, dynamic> map) {
+    // التأكد من وجود رابط الصورة تحت مفاتيح مختلفة ومعالجة الروابط النسبية
+    dynamic rawPath = map['image'] ?? map['imageUrl'] ?? map['avatar'];
+
+    // إذا كان المسار عبارة عن Object (مثل Cloudinary في الـ JSON المرفق)
+    if (rawPath is Map) {
+      rawPath = rawPath['url'] ?? rawPath['secure_url'] ?? rawPath['image'];
+    }
+
+    if (rawPath != null && rawPath.toString().isNotEmpty) {
+      String url = rawPath.toString();
+      if (!url.startsWith('http')) {
+        final base = ApiEndpoints.baseUrl.replaceAll('/api', '');
+        url = url.startsWith('/') ? '$base$url' : '$base/$url';
+      }
+      return {
+        ...map,
+        'imageUrl': url,
+        'image': url,
+      };
+    }
+    return map;
   }
 
   String _parseUploadUrl(dynamic body) {
@@ -122,6 +142,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         data['url'],
         data['image'],
         data['imageUrl'],
+        if (data['avatar'] is Map) data['avatar']['url'],
+        data['avatar'],
         _firstImageUrl(data['images']),
       ],
       map['url'],
@@ -131,7 +153,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       if (data is List) _firstImageUrl(data),
     ];
     for (final c in candidates) {
-      if (c != null && c.toString().isNotEmpty) return c.toString();
+      if (c != null && c.toString().isNotEmpty) {
+        String url = c.toString();
+        if (!url.startsWith('http')) {
+          final base = ApiEndpoints.baseUrl.replaceAll('/api', '');
+          url = url.startsWith('/') ? '$base$url' : '$base/$url';
+        }
+        return url;
+      }
     }
     throw Exception('Upload response did not include an image URL');
   }

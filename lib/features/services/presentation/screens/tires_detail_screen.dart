@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
@@ -199,9 +198,9 @@ class _ServiceInfoCard extends StatelessWidget {
             style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
           ),
           const SizedBox(height: 18),
-          _InfoRow(icon: Icons.build_outlined, label: 'SERVICE SCOPE', value: 'Tire repair, rotation, & pressure check'),
+         const _InfoRow(icon: Icons.build_outlined, label: 'SERVICE SCOPE', value: 'Tire repair, rotation, & pressure check'),
           const SizedBox(height: 12),
-          _InfoRow(icon: Icons.schedule_outlined, label: 'ESTIMATED DURATION', value: '45 mins'),
+          const _InfoRow(icon: Icons.schedule_outlined, label: 'ESTIMATED DURATION', value: '45 mins'),
         ],
       ),
     );
@@ -283,9 +282,9 @@ class _PricingBookCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _IncludeCheck(label: 'Genuine Parts'),
+          const _IncludeCheck(label: 'Genuine Parts'),
           const SizedBox(height: 6),
-          _IncludeCheck(label: '1 Year Warranty'),
+          const _IncludeCheck(label: '1 Year Warranty'),
           const SizedBox(height: 18),
           GestureDetector(
             onTap: () => openServiceBooking(context, id: 'tires', title: 'Tires', price: 60, description: 'Tire repair and change'),
@@ -381,19 +380,19 @@ class _WhatsIncludedSection extends StatelessWidget {
           style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.4, height: 1.2),
         ),
         const SizedBox(height: 20),
-        _IncludedItem(
+        const _IncludedItem(
           icon: Icons.sync_rounded,
           title: 'Tire Rotation',
           subtitle: 'Systematic rotation of tires to ensure even tread wear across all four wheels, extending the lifespan of your set.',
         ),
         const SizedBox(height: 14),
-        _IncludedItem(
+        const _IncludedItem(
           icon: Icons.compress_rounded,
           title: 'Pressure Calibration',
           subtitle: 'Precision inflation to manufacturer specifications, optimizing fuel efficiency and handling dynamics.',
         ),
         const SizedBox(height: 14),
-        _IncludedItem(
+        const _IncludedItem(
           icon: Icons.search_rounded,
           title: 'Detailed Inspection',
           subtitle: 'Multi-point check for punctures, sidewall integrity, and suspension alignment indicators by certified techs.',

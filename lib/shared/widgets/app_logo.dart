@@ -163,7 +163,7 @@ class AppLogoLarge extends StatelessWidget {
               bg: AppColors.primary,
               iconColor: Colors.white,
             ),
-            SizedBox(width: 12),
+      const      SizedBox(width: 12),
             _LargeIcon(
               icon: Icons.build,
               bg: AppColors.surfaceContainerHigh,
@@ -171,7 +171,7 @@ class AppLogoLarge extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12),
+  const      SizedBox(height: 12),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -180,7 +180,7 @@ class AppLogoLarge extends StatelessWidget {
               bg: AppColors.surfaceContainerHigh,
               iconColor: AppColors.primary,
             ),
-            SizedBox(width: 12),
+          const  SizedBox(width: 12),
             _LargeIcon(
               icon: Icons.local_gas_station,
               bg: AppColors.surfaceContainerHigh,

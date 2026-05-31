@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -77,7 +77,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1000, // تحديد عرض أقصى لتجنب مشاكل الذاكرة
+      maxHeight: 1000,
+    );
     if (picked == null) return;
     setState(() => _pickedImage = picked);
   }

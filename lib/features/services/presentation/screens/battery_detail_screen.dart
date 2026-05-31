@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 
 class BatteryDetailScreen extends StatelessWidget {
@@ -86,9 +85,9 @@ class BatteryDetailScreen extends StatelessWidget {
                           style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
                         ),
                         const SizedBox(height: 18),
-                        _InfoRow(icon: Icons.battery_charging_full_outlined, label: 'SERVICE SCOPE', value: 'Health check, test & replacement'),
+                      const  _InfoRow(icon: Icons.battery_charging_full_outlined, label: 'SERVICE SCOPE', value: 'Health check, test & replacement'),
                         const SizedBox(height: 12),
-                        _InfoRow(icon: Icons.schedule_outlined, label: 'ESTIMATED DURATION', value: '30 mins'),
+                   const     _InfoRow(icon: Icons.schedule_outlined, label: 'ESTIMATED DURATION', value: '30 mins'),
                       ],
                     ),
                   ),
@@ -126,11 +125,11 @@ class BatteryDetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        _IncludeCheck(label: 'OEM-Grade Battery'),
+                        const _IncludeCheck(label: 'OEM-Grade Battery'),
                         const SizedBox(height: 6),
-                        _IncludeCheck(label: '2 Year Warranty'),
+                        const _IncludeCheck(label: '2 Year Warranty'),
                         const SizedBox(height: 6),
-                        _IncludeCheck(label: 'Free Health Report'),
+                        const _IncludeCheck(label: 'Free Health Report'),
                         const SizedBox(height: 18),
                         GestureDetector(
                           onTap: () => openServiceBooking(context, id: 'battery', title: 'Battery', price: 40, description: 'Battery health check'),

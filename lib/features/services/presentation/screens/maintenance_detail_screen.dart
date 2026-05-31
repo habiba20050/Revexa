@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
@@ -261,7 +260,7 @@ class _InvestmentCard extends StatelessWidget {
 class _DurationCertRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       children: [
         Expanded(
           child: _InfoChip(
@@ -270,7 +269,7 @@ class _DurationCertRow extends StatelessWidget {
             value: '90 Minutes',
           ),
         ),
-        const SizedBox(width: 12),
+         SizedBox(width: 12),
         Expanded(
           child: _InfoChip(
             icon: Icons.verified_outlined,
@@ -337,10 +336,10 @@ class _ServiceChecklistSection extends StatelessWidget {
                     style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.onSurface, letterSpacing: -0.5),
                   ),
                   const SizedBox(height: 16),
-                  _ChecklistItem(label: 'Fluid Level & Top-Off'),
-                  _ChecklistItem(label: 'Tire & Tread Inspection'),
-                  _ChecklistItem(label: 'Battery & System Test'),
-                  _ChecklistItem(label: 'Full OBD2 Diagnostic'),
+                  const _ChecklistItem(label: 'Fluid Level & Top-Off'),
+                  const _ChecklistItem(label: 'Tire & Tread Inspection'),
+                  const _ChecklistItem(label: 'Battery & System Test'),
+                  const _ChecklistItem(label: 'Full OBD2 Diagnostic'),
                 ],
               ),
             ),

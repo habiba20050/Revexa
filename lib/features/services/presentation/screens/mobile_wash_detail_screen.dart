@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
@@ -202,7 +201,7 @@ class _DescriptionSection extends StatelessWidget {
 class _FeaturesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
         _FeatureItem(
           icon: Icons.local_car_wash_rounded,
@@ -277,17 +276,17 @@ class _WorkflowSection extends StatelessWidget {
       children: [
         Text('Service Workflow', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 16),
-        _WorkflowStep(
+   const     _WorkflowStep(
           number: '01',
           title: 'Pre-Wash Assessment',
           subtitle: 'Inspect overall paint condition and target areas.',
         ),
-        _WorkflowStep(
+        const _WorkflowStep(
           number: '02',
           title: 'Snow Foam Treatment',
           subtitle: 'Thick dwell foam to encapsulate and lift road grime safely.',
         ),
-        _WorkflowStep(
+        const _WorkflowStep(
           number: '03',
           title: 'Interior Detailing',
           subtitle: 'Compressed air blowout and upholstery rejuvenation.',
@@ -411,11 +410,11 @@ class _PricingCard extends StatelessWidget {
           const SizedBox(height: 16),
           Divider(color: AppColors.outline),
           const SizedBox(height: 12),
-          _PricingRow(label: 'Duration', value: '60 mins'),
+          const _PricingRow(label: 'Duration', value: '60 mins'),
           const SizedBox(height: 8),
-          _PricingRow(label: 'Mobility', value: 'We come to you'),
+          const _PricingRow(label: 'Mobility', value: 'We come to you'),
           const SizedBox(height: 8),
-          _PricingRow(label: 'Availability', value: 'Daily 8AM–8PM', valueColor: const Color(0xFF22C55E)),
+          const _PricingRow(label: 'Availability', value: 'Daily 8AM–8PM', valueColor:  Color(0xFF22C55E)),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () => openServiceBooking(context, id: 'mobile-wash', title: 'Mobile Wash', price: 45, description: 'Mobile car wash'),
@@ -429,8 +428,8 @@ class _PricingCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
-                  const SizedBox(width: 8),
+             const     Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
                   Text('BOOK NOW', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
                 ],
               ),
@@ -503,7 +502,7 @@ class _BookNowBar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
+                    const Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   ],

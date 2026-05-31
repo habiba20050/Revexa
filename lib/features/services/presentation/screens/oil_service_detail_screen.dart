@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 
@@ -26,25 +25,25 @@ class OilServiceDetailScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   _ServiceHeader(),
                   const SizedBox(height: 24),
-                  _FeatureCard(
+                  const _FeatureCard(
                     icon: Icons.schedule_outlined,
                     title: 'Estimated Duration',
                     subtitle: 'Approximately 30 mins while you wait in our luxury lounge.',
                   ),
                   const SizedBox(height: 12),
-                  _FeatureCard(
+                  const _FeatureCard(
                     icon: Icons.verified_outlined,
                     title: 'Premium Synthetic',
                     subtitle: 'High-grade synthetic blends for maximum engine life.',
                   ),
                   const SizedBox(height: 12),
-                  _FeatureCard(
+                  const _FeatureCard(
                     icon: Icons.build_outlined,
                     title: 'Filter Replacement',
                     subtitle: 'Genuine or OEM-grade filter replacements included.',
                   ),
                   const SizedBox(height: 12),
-                  _FeatureCard(
+                  const _FeatureCard(
                     icon: Icons.security_outlined,
                     title: 'Multi-point Check',
                     subtitle: 'Complimentary 21-point inspection included.',
@@ -335,11 +334,11 @@ class _PricingSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        _IncludeItem(label: 'Full Synthetic Oil (up to 5 qtrs)'),
+   const     _IncludeItem(label: 'Full Synthetic Oil (up to 5 qtrs)'),
         const SizedBox(height: 8),
-        _IncludeItem(label: 'Premium Oil Filter'),
+        const _IncludeItem(label: 'Premium Oil Filter'),
         const SizedBox(height: 8),
-        _IncludeItem(label: 'Fluid Top-off'),
+        const _IncludeItem(label: 'Fluid Top-off'),
         const SizedBox(height: 20),
         GestureDetector(
           onTap: () => openServiceBooking(context, id: 'oil-service', title: 'Oil Service', price: 75, description: 'Synthetic oil change'),
@@ -353,7 +352,7 @@ class _PricingSection extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
+              const    Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
                 Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
               ],
@@ -417,28 +416,28 @@ class _ServiceComparisonTable extends StatelessWidget {
             children: [
               _TableHeader(),
               Divider(color: AppColors.outline, height: 1),
-              _TableRow(
+             const _TableRow(
                 feature: 'Oil Type',
                 standard: 'Conventional',
                 synth: 'Full Synth',
                 isEven: false,
               ),
               Divider(color: AppColors.outline, height: 1),
-              _TableRow(
+             const _TableRow(
                 feature: 'Mileage Interval',
                 standard: '3,000 Miles',
                 synth: '7,500–10,000 Miles',
                 isEven: true,
               ),
               Divider(color: AppColors.outline, height: 1),
-              _TableRow(
+              const _TableRow(
                 feature: 'Engine Protection',
                 standard: 'Basic',
                 synth: 'Maxim / High Temp',
                 isEven: false,
               ),
               Divider(color: AppColors.outline, height: 1),
-              _TableRow(
+              const _TableRow(
                 feature: 'Multi-point Inspection',
                 standard: '✓',
                 synth: '✓',

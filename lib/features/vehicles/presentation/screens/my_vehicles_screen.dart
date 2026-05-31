@@ -26,24 +26,24 @@ class MyVehiclesScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  _VehicleCard(
+                const  _VehicleCard(
                     plate: 'B-MW 005',
                     make: 'BMW M5 Competition',
                     color: 'Marina Bay Blue Metallic',
                     engineStatus: 'ENGINE OK',
-                    engineColor: const Color(0xFF22C55E),
+                    engineColor:  Color(0xFF22C55E),
                     diagnosticsLabel: 'STOCK DIAGNOSTICS',
                     imageUrl: AppConstants.imgMyVehicles1,
-                    gradientColors: const [Color(0xFF1A2540), Color(0xFF243060)],
+                    gradientColors:  [Color(0xFF1A2540), Color(0xFF243060)],
                     warningLabel: null,
-                    metrics: const [],
+                    metrics:  [],
                   ),
                   const SizedBox(height: 16),
 
                   _AddVehicleCard(),
                   const SizedBox(height: 16),
 
-                  _VehicleCard(
+               const   _VehicleCard(
                     plate: '911-LUX',
                     make: 'Porsche 911 Carrera S',
                     color: 'GT Silver Metallic',
@@ -51,9 +51,9 @@ class MyVehiclesScreen extends StatelessWidget {
                     engineColor: null,
                     diagnosticsLabel: null,
                     imageUrl: AppConstants.imgMyVehicles2,
-                    gradientColors: const [Color(0xFF2C3E50), Color(0xFF4A5568)],
+                    gradientColors:  [Color(0xFF2C3E50), Color(0xFF4A5568)],
                     warningLabel: 'SERVICE IN 500KM',
-                    metrics: const [
+                    metrics:  [
                       _MetricData(label: 'TIRE PRESSURE', value: '32 PSI / 34 PSI', hasIndicator: true),
                       _MetricData(label: 'FUEL LEVEL', value: '82%', hasIndicator: true),
                     ],
@@ -449,11 +449,11 @@ class _FleetAnalyticsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _AnalyticRow(label: 'Average Fleet Efficiency', value: '14.2 L/100km'),
+          const _AnalyticRow(label: 'Average Fleet Efficiency', value: '14.2 L/100km'),
           Divider(color: AppColors.outline, height: 20),
-          _AnalyticRow(label: 'Last Global Sync', value: '2 mins ago'),
+          const _AnalyticRow(label: 'Last Global Sync', value: '2 mins ago'),
           Divider(color: AppColors.outline, height: 20),
-          _AnalyticRow(label: 'Active Maintenance Plans', value: '02'),
+          const _AnalyticRow(label: 'Active Maintenance Plans', value: '02'),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () {},
@@ -521,11 +521,11 @@ class _AddVehicleSheet extends StatelessWidget {
             const SizedBox(height: 4),
             Text('Add your vehicle to unlock premium services', style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 24),
-            _SheetField(label: 'Car Model', placeholder: 'e.g. BMW M5 2023'),
+            const _SheetField(label: 'Car Model', placeholder: 'e.g. BMW M5 2023'),
             const SizedBox(height: 12),
-            _SheetField(label: 'Plate Number', placeholder: 'e.g. ABC-1234'),
+            const _SheetField(label: 'Plate Number', placeholder: 'e.g. ABC-1234'),
             const SizedBox(height: 12),
-            _SheetField(label: 'Color', placeholder: 'e.g. Marina Bay Blue'),
+            const _SheetField(label: 'Color', placeholder: 'e.g. Marina Bay Blue'),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

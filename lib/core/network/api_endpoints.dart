@@ -12,8 +12,8 @@ class ApiEndpoints {
   static String resetPassword(String token) => '/auth/reset-password/$token';
 
   // Profile
-  static const String profile = '/user/profile';
-  static const String profileUpdate = '/user/profile/update';
+  static const String profile = '/users/me';
+  static const String profileUpdate = '/users/me';
   static const String deleteAccount = '/user/account';
 
   // Users (legacy)
@@ -37,7 +37,8 @@ class ApiEndpoints {
   static const String services = '/services';
   static String serviceById(String id) => '/services/$id';
 
-  // Upload
+  // Upload & Media
+  static const String avatarUpload = '/users/avatar';
   static const String upload = '/upload';
 
   // Addresses

@@ -105,7 +105,7 @@ class OnboardingTrackingScreen extends StatelessWidget {
                                         // Technician avatar — real image
                                         CircleAvatar(
                                           radius: 28,
-                                          backgroundImage: NetworkImage(AppConstants.imgTechnicianAvatar),
+                                          backgroundImage:const NetworkImage(AppConstants.imgTechnicianAvatar),
                                           backgroundColor: AppColors.surfaceContainerHigh,
                                         ),
                                         Positioned(

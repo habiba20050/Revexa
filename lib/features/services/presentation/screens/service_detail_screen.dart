@@ -203,7 +203,7 @@ class _StatsRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Expanded(
+      const  Expanded(
           child: _StatCard(
             icon: Icons.schedule_outlined,
             label: 'Duration',
@@ -314,9 +314,9 @@ class _WhatsIncludedSection extends StatelessWidget {
       children: [
         Text("What's Included", style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 14),
-        _IncludedItem(icon: Icons.directions_car_outlined, title: 'Exterior Wash', subtitle: 'Hand wash and dry with microfiber'),
-        _IncludedItem(icon: Icons.cleaning_services_outlined, title: 'Interior Vacuuming', subtitle: 'Deep cleaning of carpets and seats'),
-        _IncludedItem(icon: Icons.layers_outlined, title: 'Wax Treatment', subtitle: 'Premium protective wax for long-lasting shine'),
+        const _IncludedItem(icon: Icons.directions_car_outlined, title: 'Exterior Wash', subtitle: 'Hand wash and dry with microfiber'),
+        const _IncludedItem(icon: Icons.cleaning_services_outlined, title: 'Interior Vacuuming', subtitle: 'Deep cleaning of carpets and seats'),
+        const _IncludedItem(icon: Icons.layers_outlined, title: 'Wax Treatment', subtitle: 'Premium protective wax for long-lasting shine'),
       ],
     );
   }
