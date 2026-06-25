@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
+import 'package:revexa/core/network/api_response.dart';
 import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 
@@ -18,6 +20,7 @@ abstract interface class AuthRemoteDataSource {
   });
   Future<void> logout();
   Future<void> forgotPassword(String email);
+  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -31,10 +34,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ApiEndpoints.login,
         data: {'email': email, 'password': password},
       );
-      final data = response.data['data'] as Map<String, dynamic>;
-      final token = data['token'] as String;
-      return AuthUser.fromLoginJson(data, token);
+      final data = ApiResponse.unwrap(response.data);
+      return AuthUser.fromUserMap(data['user'], token: data['token']);
     } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken}) async {
+    // On web: FedCM returns JWT as idToken
+    // On native: both might be present
+    if (idToken == null || idToken.isEmpty) {
+      if (accessToken.isEmpty) {
+        throw ArgumentError('Either accessToken or idToken is required for Google Sign-In');
+      }
+    }
+
+    try {
+      // Backend expects both 'accessToken' and 'idToken'
+      // On web: both will be the FedCM JWT
+      final requestData = {
+        'accessToken': accessToken,
+        if (idToken != null && idToken.isNotEmpty) 'idToken': idToken,
+      };
+      
+      // Debug: log first 50 chars of tokens
+      debugPrint('GoogleAuth Request - accessToken: ${accessToken.substring(0, 50)}...');
+      debugPrint('GoogleAuth Request - idToken: ${idToken?.substring(0, 50) ?? "null"}...');
+      
+      final response = await _dio.post(
+        ApiEndpoints.googleLogin,
+        data: requestData,
+      );
+      final data = ApiResponse.unwrap(response.data);
+      return AuthUser.fromUserMap(data['user'], token: data['token']);
+    } on DioException catch (e) {
+      debugPrint('GoogleAuth DioException: ${e.message}');
       throw ErrorHandler.handleDioError(e);
     }
   }
@@ -64,9 +100,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'address': address,
         },
       );
-      final data = response.data['data'] as Map<String, dynamic>;
-      final token = data['token'] as String;
-      return AuthUser.fromRegisterJson(data, token);
+      final data = ApiResponse.unwrap(response.data);
+      return AuthUser.fromUserMap(data['user'], token: data['token']);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
@@ -75,7 +110,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      await _dio.post(ApiEndpoints.logout);
+      await _dio.post(
+        ApiEndpoints.logout,
+        options: Options(
+          validateStatus: (status) =>
+              status == null ||
+              status == 200 ||
+              status == 204 ||
+              status == 401,
+        ),
+      );
     } on DioException catch (e) {
       // Logout locally regardless
       throw ErrorHandler.handleDioError(e);

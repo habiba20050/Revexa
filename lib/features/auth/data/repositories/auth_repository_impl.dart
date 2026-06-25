@@ -20,6 +20,7 @@ abstract interface class AuthRepository {
   Future<Result<void>> forgotPassword(String email);
   Future<AuthUser?> getStoredUser();
   Future<void> persistUser(AuthUser user);
+  Future<Result<AuthUser>> signInWithGoogle({required String accessToken, String? idToken});
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -74,6 +75,30 @@ class AuthRepositoryImpl implements AuthRepository {
         age: age,
         gender: gender,
         address: address,
+      );
+      await _storage.saveToken(user.token);
+      await _storage.saveUser(
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      );
+      return Success(user);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<AuthUser>> signInWithGoogle({
+    required String accessToken,
+    String? idToken,
+  }) async {
+    try {
+      final user = await _remote.signInWithGoogle(
+        accessToken: accessToken,
+        idToken: idToken,
       );
       await _storage.saveToken(user.token);
       await _storage.saveUser(

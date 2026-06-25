@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,7 @@ import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/shared/widgets/primary_button.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -184,64 +186,70 @@ class _SignInScreenState extends State<SignInScreen> {
                     const SizedBox(height: 16),
 
                     // Social buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _SocialButton(
-                            onTap: () {},
-                            isLight: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    AppConstants.imgGoogleLogo,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (_, __, ___) => const Icon(
-                                        Icons.language,
-                                        size: 20,
-                                        color: Color(0xFF4285F4)),
-                                  ),
+                    IgnorePointer(
+                      ignoring: isLoading,
+                      child: Opacity(
+                        opacity: isLoading ? 0.5 : 1.0,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _SocialButton(
+                                onTap: () => context.read<AuthCubit>().signInWithGoogle(),
+                                isLight: true,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Image.asset(
+                                        AppConstants.imgGoogleLogo,
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (_, __, ___) => const Icon(
+                                            Icons.language,
+                                            size: 20,
+                                            color: Color(0xFF4285F4)),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Google',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Google',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.onSurface,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _SocialButton(
-                            onTap: () {},
-                            isLight: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.apple,
-                                    color: Colors.white, size: 22),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Apple',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _SocialButton(
+                                onTap: () {},
+                                isLight: false,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.apple,
+                                        color: Colors.white, size: 22),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Apple',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 32),
 
