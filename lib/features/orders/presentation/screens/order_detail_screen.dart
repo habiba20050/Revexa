@@ -16,7 +16,7 @@ class OrderDetailScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Order Details',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+            style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
@@ -32,7 +32,7 @@ class OrderDetailScreen extends StatelessWidget {
 
             // Status timeline
             Text('Progress',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface)),
@@ -42,7 +42,7 @@ class OrderDetailScreen extends StatelessWidget {
 
             // Car details
             Text('Vehicle Details',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface)),
@@ -57,7 +57,7 @@ class OrderDetailScreen extends StatelessWidget {
 
             // Appointment details
             Text('Appointment',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface)),
@@ -93,10 +93,10 @@ class OrderDetailScreen extends StatelessWidget {
                           ? SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(
-                                  color: AppColors.error, strokeWidth: 2))
+                              child: CircularProgressIndicator.adaptive(
+                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.error), strokeWidth: 2))
                           : Text('Cancel Booking',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.urbanist(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.error)),
@@ -116,9 +116,9 @@ class OrderDetailScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Cancel Booking',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+            style: GoogleFonts.urbanist(fontWeight: FontWeight.w700)),
         content: Text('Are you sure you want to cancel this service appointment?',
-            style: GoogleFonts.inter()),
+            style: GoogleFonts.urbanist()),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
@@ -180,7 +180,7 @@ class _OrderStatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(order.service?.title ?? 'Service',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: Colors.white)),
@@ -189,7 +189,7 @@ class _OrderStatusCard extends StatelessWidget {
                     DateFormat('MMM dd, yyyy • hh:mm a')
                         .format(order.appointmentDate),
                     style:
-                        GoogleFonts.inter(fontSize: 13, color: Colors.white70)),
+                        GoogleFonts.urbanist(fontSize: 13, color: Colors.white70)),
               ],
             ),
           ),
@@ -203,7 +203,7 @@ class _OrderStatusCard extends StatelessWidget {
             ),
             child: Text(
               order.status.toUpperCase(),
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -264,7 +264,7 @@ class _StatusTimeline extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       _steps[i].label,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 9,
                         fontWeight:
                             active ? FontWeight.w700 : FontWeight.w500,
@@ -331,11 +331,11 @@ class _DetailCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(r.label,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                             fontSize: 13,
                             color: AppColors.onSurfaceVariant)),
                     Text(r.value,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.onSurface)),

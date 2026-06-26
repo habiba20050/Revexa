@@ -69,6 +69,8 @@ class AppConstants {
 
   // Auth
   static const String imgGoogleLogo             = 'assets/images/signin_avatar.png';
+  /// Web OAuth client ID from Google Cloud Console (required for Google Sign-In on Chrome).
+  static const String? googleWebClientId = null;
 
   // Updates
   static const String imgUpdatesProfileAvatar   = 'assets/images/updates_avatar.png';

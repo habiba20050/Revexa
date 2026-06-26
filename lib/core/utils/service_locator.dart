@@ -16,6 +16,7 @@ import 'package:revexa/features/services/presentation/cubit/services_cubit.dart'
 import 'package:revexa/features/updates/data/datasources/news_remote_datasource.dart';
 import 'package:revexa/features/updates/data/repositories/news_repository.dart';
 import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
+import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 
@@ -31,6 +32,7 @@ class ServiceLocator {
   late final CategoriesCubit categoriesCubit;
   late final ServicesCubit servicesCubit;
   late final NewsCubit newsCubit;
+  late final NotificationsCubit notificationsCubit;
   late final ThemeCubit themeCubit;
   late final LocaleCubit localeCubit;
 
@@ -70,6 +72,9 @@ class ServiceLocator {
     final newsDataSource = NewsRemoteDataSource();
     final newsRepo = NewsRepository(newsDataSource);
     newsCubit = NewsCubit(newsRepo);
+
+    // Notifications
+    notificationsCubit = NotificationsCubit();
 
     // Theme
     themeCubit = ThemeCubit();

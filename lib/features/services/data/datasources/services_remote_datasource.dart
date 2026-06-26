@@ -11,21 +11,23 @@ abstract interface class ServicesRemoteDataSource {
   Future<List<Service>> getServicesByCategory(String category);
 }
 
+/// The backend has no /services endpoint (confirmed 404).
+/// The service catalogue is served via /products.
 class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
-  final Dio _dio;
-  ServicesRemoteDataSourceImpl() : _dio = DioClient.instance.dio;
+  // Use a getter so we always reference the current Dio instance,
+  // never a stale one captured at construction time.
+  Dio get _dio => DioClient.instance.dio;
 
   @override
   Future<ServicesPage> getAllServices({int page = 1, int limit = 10}) async {
-    // Vercel backend exposes catalog on /products (not /services).
     try {
-      return await _fetchProductsAsServices(page: page, limit: limit);
-    } on DioException catch (productsError) {
-      try {
-        return await _fetchServicesEndpoint(page: page, limit: limit);
-      } on DioException catch (_) {
-        throw ErrorHandler.handleDioError(productsError);
-      }
+      final response = await _dio.get(
+        ApiEndpoints.products,
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      return _pageFromResponse(response.data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
     }
   }
 
@@ -35,49 +37,33 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       final response = await _dio.get(ApiEndpoints.productById(id));
       final data = _unwrapData(response.data);
       return _serviceFromJson(data);
-    } on DioException catch (_) {
-      try {
-        final response = await _dio.get(ApiEndpoints.serviceById(id));
-        final data = _unwrapData(response.data);
-        return _serviceFromJson(data);
-      } on DioException catch (e) {
-        throw ErrorHandler.handleDioError(e);
-      }
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
     }
   }
 
   @override
   Future<List<Service>> getServicesByCategory(String category) async {
+    // Fetch all (up to 100) and filter client-side since the backend
+    // does not expose a category query parameter on /products.
     final page = await getAllServices(limit: 100);
     return page.services
         .where((s) => s.category.toLowerCase() == category.toLowerCase())
         .toList();
   }
 
-  Future<ServicesPage> _fetchProductsAsServices({required int page, required int limit}) async {
-    final response = await _dio.get(
-      ApiEndpoints.products,
-      queryParameters: {'page': page, 'limit': limit},
-    );
-    return _pageFromResponse(response.data);
-  }
-
-  Future<ServicesPage> _fetchServicesEndpoint({required int page, required int limit}) async {
-    final response = await _dio.get(
-      ApiEndpoints.services,
-      queryParameters: {'page': page, 'limit': limit},
-    );
-    return _pageFromResponse(response.data);
-  }
+  // ─── Parsing helpers ──────────────────────────────────────────────────────
 
   ServicesPage _pageFromResponse(dynamic body) {
     final list = _extractList(body);
-    final pagination = body is Map ? body['pagination'] as Map<String, dynamic>? : null;
+    final pagination =
+        body is Map ? body['pagination'] as Map<String, dynamic>? : null;
     final services = list.map(_serviceFromJson).toList();
     return ServicesPage(
       services: services,
-      totalServices: (pagination?['totalServices'] as num?)?.toInt() ??
-          (pagination?['totalProducts'] as num?)?.toInt() ??
+      totalServices: (pagination?['totalProducts'] as num?)?.toInt() ??
+          (pagination?['totalServices'] as num?)?.toInt() ??
+          (pagination?['total'] as num?)?.toInt() ??
           services.length,
       totalPages: (pagination?['totalPages'] as num?)?.toInt() ?? 1,
       currentPage: (pagination?['currentPage'] as num?)?.toInt() ?? 1,
@@ -93,6 +79,13 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       if (data is List) {
         return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       }
+      // Some endpoints return { products: [...] }
+      final products = body['products'];
+      if (products is List) {
+        return products
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
     }
     return [];
   }
@@ -106,6 +99,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
   }
 
   Service _serviceFromJson(Map<String, dynamic> json) {
+    // Try native Service shape first, then fall back to Product shape.
     try {
       return Service.fromJson(json);
     } catch (_) {

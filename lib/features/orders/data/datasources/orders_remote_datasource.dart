@@ -27,7 +27,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   Future<List<Order>> getAllOrders() async {
     try {
       final response = await _dio.get(ApiEndpoints.orders);
-      final data = response.data['data'] as List<dynamic>;
+      final body = response.data;
+      List<dynamic> data;
+      if (body is Map && body['data'] is List) {
+        data = body['data'] as List<dynamic>;
+      } else if (body is List) {
+        data = body;
+      } else {
+        data = [];
+      }
       return data.map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
@@ -58,13 +66,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         serviceName: serviceName,
       );
 
-      final body = {
+      final body = <String, dynamic>{
         'carDetails': carDetails.toJson(),
         'appointmentDate': appointmentDate.toIso8601String(),
         'location': location.toJson(),
-        'address': location.address,
-        'latitude': location.latitude,
-        'longitude': location.longitude,
       };
 
       final response = await _dio.post(

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 
 class AuthUser extends Equatable {
   final String id;
@@ -81,7 +82,9 @@ class AuthUser extends Equatable {
       token: token,
       phone: json['phone']?.toString(),
       address: json['address']?.toString(),
-      imageUrl: json['image']?.toString() ?? json['imageUrl']?.toString() ?? json['avatar']?.toString(),
+      imageUrl: ImageUrlUtils.resolve(
+        json['image'] ?? json['imageUrl'] ?? json['avatar'],
+      ),
     );
   }
 
@@ -95,7 +98,7 @@ class AuthUser extends Equatable {
       token: '',
       phone: data['phone'],
       address: data['address'],
-      imageUrl: data['imageUrl'],
+      imageUrl: ImageUrlUtils.resolve(data['imageUrl']),
     );
   }
 

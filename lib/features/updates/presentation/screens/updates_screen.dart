@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
+import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/updates/data/models/news_item_model.dart';
 import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class UpdatesBody extends StatefulWidget {
   final VoidCallback? onBackToHome;
@@ -48,19 +49,11 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                   color: AppColors.onSurface,
                   tooltip: 'Back to Home',
                 ),
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 16),
-              ),
+              AppLogo.mini(),
               const SizedBox(width: 8),
               Text(
                 'Auto News',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -89,14 +82,14 @@ class _UpdatesBodyState extends State<UpdatesBody> {
 
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Page header
                 Text(
                   l10n.updates,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
@@ -106,7 +99,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 const SizedBox(height: 4),
                 Text(
                   l10n.updatesSubtitle,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 11,
                     color: AppColors.onSurfaceVariant,
                   ),
@@ -119,7 +112,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                   children: [
                     Text(
                       l10n.updatesRecent,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 2.0,
@@ -135,7 +128,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                       ),
                       child: Text(
                         l10n.updatesNew(2),
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,
@@ -173,7 +166,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 const SizedBox(height: 12),
                 Text(
                   'Latest news',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface,
@@ -183,7 +176,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 BlocBuilder<NewsCubit, NewsState>(
                   builder: (context, state) {
                     if (state is NewsLoading) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator.adaptive());
                     }
                     if (state is NewsError) {
                       return Container(
@@ -195,7 +188,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                         ),
                         child: Text(
                           state.message,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.urbanist(
                             fontSize: 12,
                             color: AppColors.error,
                           ),
@@ -209,7 +202,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                           children: [
                             Text(
                               'No car news in the database yet.',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.urbanist(
                                 fontSize: 12,
                                 color: AppColors.onSurfaceVariant,
                               ),
@@ -242,7 +235,7 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 // Earlier section
                 Text(
                   l10n.updatesEarlier,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 2.0,
@@ -260,9 +253,9 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 const SizedBox(height: 12),
 
                 // Service completed
-                _NotificationCard(
-                  iconBg: const Color(0xFFF1F5F9),
-                  iconColor: const Color(0xFF64748B),
+                 _NotificationCard(
+                  iconBg: AppColors.surfaceContainerHigh,
+                  iconColor: AppColors.onSurfaceVariant,
                   icon: Icons.history,
                   title: l10n.updatesServiceCompleted,
                   time: '3 days ago',
@@ -305,10 +298,11 @@ class _NotificationCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.outline),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
+              color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -333,7 +327,7 @@ class _NotificationCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: AppColors.onSurface,
@@ -341,7 +335,7 @@ class _NotificationCard extends StatelessWidget {
                     ),
                     Text(
                       time,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
                         color: AppColors.onSurfaceVariant,
@@ -352,7 +346,7 @@ class _NotificationCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   body,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 12,
                     color: AppColors.secondary,
                     height: 1.4,
@@ -364,7 +358,7 @@ class _NotificationCard extends StatelessWidget {
                     children: [
                       Text(
                         actionLabel ?? '',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,
@@ -407,11 +401,12 @@ class _NewsItemCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.outline),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0A000000),
-              blurRadius: 8,
+              color: Color(0x08000000),
+              blurRadius: 10,
               offset: Offset(0, 2),
             ),
           ],
@@ -422,12 +417,11 @@ class _NewsItemCard extends StatelessWidget {
             if (imageUrl != null && imageUrl.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
+                child: AppImage(
+                  source: imageUrl,
                   height: 140,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
               const SizedBox(height: 12),
@@ -435,7 +429,7 @@ class _NewsItemCard extends StatelessWidget {
             if (newsItem.sourceName != null && newsItem.sourceName!.isNotEmpty)
               Text(
                 newsItem.sourceName!,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -445,7 +439,7 @@ class _NewsItemCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               newsItem.title,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppColors.onSurface,
@@ -457,7 +451,7 @@ class _NewsItemCard extends StatelessWidget {
                 newsItem.description,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                   fontSize: 12,
                   color: AppColors.secondary,
                   height: 1.4,
@@ -470,7 +464,7 @@ class _NewsItemCard extends StatelessWidget {
                 if (newsItem.publishedAt != null)
                   Text(
                     newsItem.publishedAt!.toLocal().toString().split(' ').first,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                       fontSize: 10,
                       color: AppColors.onSurfaceVariant,
                     ),
@@ -479,7 +473,7 @@ class _NewsItemCard extends StatelessWidget {
                 if (newsItem.articleUrl != null)
                   Text(
                     'Read more',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
@@ -501,10 +495,11 @@ class _ServiceReminderCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.outline),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
+              color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -523,7 +518,7 @@ class _ServiceReminderCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             l10n.updatesServiceReminder,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: AppColors.onSurface,
@@ -532,21 +527,21 @@ class _ServiceReminderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Oil change due for your BMW M5 within the next 200 miles.',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.urbanist(
               fontSize: 12,
               color: AppColors.secondary,
               height: 1.4,
             ),
           ),
           const SizedBox(height: 12),
-          const Divider(color: Color(0xFFF8FAFC), height: 1),
+           Divider(color: AppColors.outline, height: 1),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 l10n.updatesYesterday,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                   fontSize: 10,
                   color: AppColors.onSurfaceVariant,
                 ),
@@ -567,7 +562,7 @@ class _ServiceReminderCard extends StatelessWidget {
                 ),
                 child: Text(
                   l10n.updatesSchedule,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -589,7 +584,7 @@ class _PlatformNewsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.20),
@@ -604,7 +599,7 @@ class _PlatformNewsCard extends StatelessWidget {
           // Image section — real car interior image
           ClipRRect(
             borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(12)),
+                const BorderRadius.vertical(top: Radius.circular(16)),
             child: SizedBox(
               height: 64,
               width: double.infinity,
@@ -619,12 +614,12 @@ class _PlatformNewsCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(color: const Color(0xFF1A2A60)),
                   ),
                   // Gradient overlay (from-transparent to-primary-container)
-                  Container(
-                    decoration: const BoxDecoration(
+                   Container(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Color(0xFF1D3C87)],
+                        colors: [Colors.transparent, AppColors.primaryContainer],
                       ),
                     ),
                   ),
@@ -639,7 +634,7 @@ class _PlatformNewsCard extends StatelessWidget {
               children: [
                 Text(
                   l10n.updatesPlatformNews,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -648,7 +643,7 @@ class _PlatformNewsCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Now offering premium interior detailing packages.',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 11,
                     color: const Color(0xFFE0E7FF),
                     height: 1.4,
@@ -657,7 +652,7 @@ class _PlatformNewsCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   l10n.updatesFeatured,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 9,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 1.5,

@@ -31,16 +31,16 @@ class _BillingScreenState extends State<BillingScreen>
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Billing & Payments',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+            style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
         bottom: TabBar(
           controller: _tabs,
           labelStyle:
-              GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
+              GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700),
           unselectedLabelStyle:
-              GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+              GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w500),
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.onSurfaceVariant,
           indicatorColor: AppColors.primary,
@@ -71,7 +71,7 @@ class _PaymentMethodsTab extends StatelessWidget {
 
           // Saved methods list
           Text('Saved Methods',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurface)),
@@ -114,7 +114,7 @@ class _PaymentMethodsTab extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text('Add Payment Method',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary)),
@@ -137,7 +137,7 @@ class _PaymentMethodsTab extends StatelessWidget {
               Expanded(
                 child: Text(
                   'All payment data is encrypted with 256-bit SSL and PCI-DSS compliant security.',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                       fontSize: 12,
                       color: AppColors.onSurfaceVariant,
                       height: 1.4),
@@ -176,7 +176,7 @@ class _PaymentMethodsTab extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text('Add New Card',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface)),
@@ -197,7 +197,7 @@ class _PaymentMethodsTab extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text('Save Card',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 15, fontWeight: FontWeight.w700)),
               ),
             ),
@@ -250,7 +250,7 @@ class _PremiumCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('REVEXA PAY',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Colors.white70,
@@ -260,7 +260,7 @@ class _PremiumCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text('•••• •••• •••• 4242',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -271,15 +271,15 @@ class _PremiumCard extends StatelessWidget {
                   children: [
                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('CARD HOLDER',
-                          style: GoogleFonts.inter(fontSize: 9, color: Colors.white60, letterSpacing: 1)),
+                          style: GoogleFonts.urbanist(fontSize: 9, color: Colors.white60, letterSpacing: 1)),
                       Text('Ahmed Mohamed',
-                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                          style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
                     ]),
                     Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                       Text('EXPIRES',
-                          style: GoogleFonts.inter(fontSize: 9, color: Colors.white60, letterSpacing: 1)),
+                          style: GoogleFonts.urbanist(fontSize: 9, color: Colors.white60, letterSpacing: 1)),
                       Text('12/26',
-                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                          style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
                     ]),
                   ],
                 ),
@@ -330,12 +330,12 @@ class _PaymentMethodTile extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(label,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppColors.onSurface)),
             Text(sub,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 11, color: AppColors.onSurfaceVariant)),
           ]),
         ),
@@ -346,7 +346,7 @@ class _PaymentMethodTile extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(6)),
             child: Text('Default',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary)),
@@ -378,13 +378,13 @@ class _CardField extends StatelessWidget {
         fillColor: AppColors.surfaceContainerLow,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: AppColors.outline)),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: AppColors.outline)),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide:
                 BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2)),
       ),
@@ -429,15 +429,15 @@ class _PaymentHistoryTab extends StatelessWidget {
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('Total Spent',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                           fontSize: 12, color: Colors.white70)),
                   Text('\$${total.toStringAsFixed(2)}',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
                           color: Colors.white)),
                   Text('${_txns.length} transactions this quarter',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                           fontSize: 12, color: Colors.white70)),
                 ]),
               ),
@@ -454,7 +454,7 @@ class _PaymentHistoryTab extends StatelessWidget {
           const SizedBox(height: 20),
 
           Text('Recent Transactions',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurface)),
@@ -503,25 +503,25 @@ class _TransactionTile extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(txn.service,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppColors.onSurface),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
             Text(txn.date,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 11, color: AppColors.onSurfaceVariant)),
           ]),
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('-\$${txn.amount.toStringAsFixed(2)}',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurface)),
           Text('Paid',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF22C55E))),

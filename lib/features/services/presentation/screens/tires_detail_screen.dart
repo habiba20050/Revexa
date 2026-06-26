@@ -75,7 +75,7 @@ class _TiresAppBar extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             'REVEXA SERVICE',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
           const Spacer(),
           Container(
@@ -108,7 +108,7 @@ class _BackToServices extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               'BACK TO SERVICES',
-              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0),
+              style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0),
             ),
           ],
         ),
@@ -185,17 +185,17 @@ class _ServiceInfoCard extends StatelessWidget {
         children: [
           Text(
             'MAINTENANCE SERVICE',
-            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.5),
+            style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.5),
           ),
           const SizedBox(height: 8),
           Text(
             'Tires',
-            style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1),
+            style: GoogleFonts.urbanist(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1),
           ),
           const SizedBox(height: 10),
           Text(
             'Ensure your safety and optimize your vehicle\'s performance with our comprehensive tire care suite. We provide expert handling for all luxury and performance vehicles.',
-            style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
+            style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
           ),
           const SizedBox(height: 18),
          const _InfoRow(icon: Icons.build_outlined, label: 'SERVICE SCOPE', value: 'Tire repair, rotation, & pressure check'),
@@ -232,9 +232,9 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
+              Text(label, style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
               const SizedBox(height: 2),
-              Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+              Text(value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
             ],
           ),
         ),
@@ -262,11 +262,11 @@ class _PricingBookCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Starting from', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  Text('Starting from', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
                   const SizedBox(height: 2),
                   Text(
                     '\$60.00',
-                    style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8),
+                    style: GoogleFonts.urbanist(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8),
                   ),
                 ],
               ),
@@ -274,9 +274,9 @@ class _PricingBookCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Availability', style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant)),
+                  Text('Availability', style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.onSurfaceVariant)),
                   const SizedBox(height: 2),
-                  Text('Next: Today, 2PM', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF22C55E))),
+                  Text('Next: Today, 2PM', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF22C55E))),
                 ],
               ),
             ],
@@ -298,7 +298,7 @@ class _PricingBookCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(width: 8),
                   const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
                 ],
@@ -326,7 +326,7 @@ class _IncludeCheck extends StatelessWidget {
           child: const Icon(Icons.check, color: Colors.white, size: 12),
         ),
         const SizedBox(width: 8),
-        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -348,9 +348,9 @@ class _AssistanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Need assistance?', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                Text('Need assistance?', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                 const SizedBox(height: 2),
-                Text('Talk to a specialist now', style: GoogleFonts.inter(fontSize: 12, color: Colors.white.withValues(alpha: 0.75))),
+                Text('Talk to a specialist now', style: GoogleFonts.urbanist(fontSize: 12, color: Colors.white.withValues(alpha: 0.75))),
               ],
             ),
           ),
@@ -377,7 +377,7 @@ class _WhatsIncludedSection extends StatelessWidget {
       children: [
         Text(
           "What's included in\nthis service?",
-          style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.4, height: 1.2),
+          style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.4, height: 1.2),
         ),
         const SizedBox(height: 20),
         const _IncludedItem(
@@ -427,9 +427,9 @@ class _IncludedItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              Text(title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
               const SizedBox(height: 4),
-              Text(subtitle, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.55)),
+              Text(subtitle, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.55)),
             ],
           ),
         ),

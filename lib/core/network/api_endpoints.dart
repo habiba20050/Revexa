@@ -11,10 +11,10 @@ class ApiEndpoints {
   static const String forgotPassword = '/auth/forgot-password';
   static String resetPassword(String token) => '/auth/reset-password/$token';
 
-  // Profile
+  // Profile — Swagger: /users/{userId} with userId = "me"
   static const String profile = '/users/me';
   static const String profileUpdate = '/users/me';
-  static const String deleteAccount = '/user/account';
+  static const String deleteAccount = '/users/me';
 
   // Users (legacy)
   static const String users = '/users';
@@ -33,21 +33,23 @@ class ApiEndpoints {
   static const String categories = '/categories';
   static String categoryById(String id) => '/categories/$id';
 
-  // Services
-  static const String services = '/services';
-  static String serviceById(String id) => '/services/$id';
+  // NOTE: There is NO /services endpoint on the Revexa backend.
+  // Swagger confirms it does not exist — calling it returns 404.
+  // The service catalogue is served via /products (see above).
+  // Do NOT add /services back here.
 
-  // Upload & Media
+  // Upload & Media — PATCH /users/avatar (field: image), POST /upload (field: images[])
   static const String avatarUpload = '/users/avatar';
   static const String upload = '/upload';
 
-  // Addresses
+  // Addresses — works on production (undocumented in Swagger)
   static const String addresses = '/addresses';
 
   // News — GET /news, POST /news/sync
   static const String news = '/news';
   static const String newsSync = '/news/sync';
 
-  // Notifications
-  static const String sendNotification = '/notifications/send';
+  // Auth extensions (not wired in UI yet)
+  static const String googleAuth = '/auth/google';
+  static const String fcmToken = '/users/fcm-token';
 }

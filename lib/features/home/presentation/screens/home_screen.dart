@@ -1,4 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,15 +10,21 @@ import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:revexa/shared/locale/locale_cubit.dart';
+import 'package:revexa/shared/theme/theme_cubit.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/shared/widgets/app_bottom_nav_bar.dart';
 import 'package:revexa/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:revexa/features/updates/presentation/screens/updates_screen.dart';
 import 'package:revexa/features/services/presentation/screens/services_screen.dart';
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
-import 'package:revexa/features/settings/presentation/screens/settings_screen.dart';
+import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
+/// الشاشة الرئيسية للتطبيق.
+/// تحتوي على الـ Bottom Navigation Bar وتدير التنقل بين الـ tabs.
+/// تستخدم [MultiBlocListener] للاستجابة لتغييرات الثيم، اللغة، وحالة الـ Auth.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -26,48 +33,81 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  /// التاب النشط حالياً في الـ Bottom Navigation.
   NavTab _activeTab = NavTab.home;
 
-  void _goToTab(NavTab tab) => setState(() => _activeTab = tab);
+  /// الكلمة المبحوث عنها — تُمرر لـ ServicesScreen عند الانتقال إليها.
+  String? _searchQuery;
+
+  /// ينتقل إلى [tab] المحدد، مع دعم تمرير [searchQuery] لشاشة الخدمات.
+  void _goToTab(NavTab tab, {String? searchQuery}) {
+    setState(() {
+      _activeTab = tab;
+      _searchQuery = searchQuery;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    // نحمّل البيانات بعد اكتمال بناء الـ Widget tree أول مرة.
+    // postFrameCallback يضمن إن الـ context جاهز قبل ما نقرأ منه.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductsCubit>().loadProducts();
       context.read<OrdersCubit>().loadOrders();
     });
   }
 
+  /// يرجع الـ Widget المناسب لكل تاب نشط.
+  /// يستخدم switch على [_activeTab] لتحديد أي شاشة يعرضها.
   Widget _buildBody() {
     switch (_activeTab) {
       case NavTab.home:
-        return _HomeBody(onProfileTap: () => _goToTab(NavTab.profile));
+        return _HomeBody(
+          onProfileTap: () => _goToTab(NavTab.settings),
+          onSearchSubmitted: (query) => _goToTab(NavTab.services, searchQuery: query),
+        );
       case NavTab.services:
         return ServicesScreen(
           onBackToHome: () => _goToTab(NavTab.home),
           onOpenSettings: () => _goToTab(NavTab.settings),
+          initialQuery: _searchQuery,
         );
       case NavTab.bookings:
         return const BookingsBody();
       case NavTab.updates:
         return UpdatesBody(onBackToHome: () => _goToTab(NavTab.home));
-      case NavTab.profile:
-        return const ProfileScreen();
       case NavTab.settings:
-        return const Scaffold(body: SettingsBody());
+        return ProfileScreen(onBackToHome: () => _goToTab(NavTab.home));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          Navigator.pushReplacementNamed(context, AppRoutes.signIn);
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        // Force full HomeScreen subtree rebuild when theme changes.
+        // Without this, AppColors.* static values are read by widgets
+        // that only rebuild on their own state changes, not on
+        // AppColors.isDark mutation. This causes stale colors after
+        // theme switch until the user interacts with the screen.
+        BlocListener<ThemeCubit, ThemeState>(
+          listener: (context, _) => setState(() {}),
+        ),
+        // Same for locale — forces text using AppLocalizations to re-render.
+        BlocListener<LocaleCubit, Locale>(
+          listener: (context, _) => setState(() {}),
+        ),
+        BlocListener<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUnauthenticated) {
+              Navigator.pushReplacementNamed(context, AppRoutes.signIn);
+            }
+          },
+        ),
+      ],
       child: Scaffold(
+        extendBody: true,
         backgroundColor: AppColors.background,
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -78,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         bottomNavigationBar: AppBottomNavBar(
           activeTab: _activeTab,
-          onTabChanged: (tab) => setState(() => _activeTab = tab),
+          onTabChanged: (tab) => _goToTab(tab),
         ),
       ),
     );
@@ -87,41 +127,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // ─── Home Body ────────────────────────────────────────────────────────────────
 
+/// الجسم الرئيسي لشاشة Home.
+/// يعرض محتوى الصفحة: Greeting، Search، Vehicle Card، Services، وPromo.
+/// يدعم layout مختلف بين الموبايل (Column) والتابلت (Row بعمودين).
 class _HomeBody extends StatelessWidget {
+  /// Callback لما المستخدم يضغط على الأفاتار في الـ AppBar.
   final VoidCallback? onProfileTap;
 
-  const _HomeBody({this.onProfileTap});
+  /// Callback لما المستخدم يبحث عن خدمة — بيستقبل نص البحث.
+  final ValueChanged<String>? onSearchSubmitted;
+
+  const _HomeBody({this.onProfileTap, this.onSearchSubmitted});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _HomeAppBar(onProfileTap: onProfileTap),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              context.read<ProductsCubit>().loadProducts();
-              context.read<OrdersCubit>().loadOrders();
-            },
-            child: const SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
-              child: Column(
-                children: [
-                  _GreetingBanner(),
-                  SizedBox(height: 20),
-                  _VehicleHealthCard(),
-                  SizedBox(height: 28),
-                  _QuickActionsRow(),
-                  SizedBox(height: 28),
-                  _ServicesSection(),
-                  SizedBox(height: 28),
-                  _ActiveBookingCard(),
-                  SizedBox(height: 28),
-                  _PromoBanner(),
-                ],
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _HomeAppBar(onProfileTap: onProfileTap),
+              const SizedBox(height: 8),
+              const _GreetingBanner(),
+              const SizedBox(height: 20),
+              _HomeSearchBar(
+                onSearchSubmitted: onSearchSubmitted ?? (_) {},
               ),
-            ),
+              const SizedBox(height: 24),
+              const _VehicleHealthCard(),
+              const SizedBox(height: 24),
+              const _QuickActionsRow(),
+              const SizedBox(height: 24),
+              const _ServicesSection(),
+              _ActiveBookingCard(topPadding: 16),
+              const SizedBox(height: 16),
+              const _PromoBanner(),
+              const SizedBox(height: 120),
+            ]),
           ),
         ),
       ],
@@ -129,7 +173,10 @@ class _HomeBody extends StatelessWidget {
   }
 }
 
+/// شريط التطبيق العلوي في شاشة Home.
+/// يعرض شعار Revexa، أيقونة الإشعارات مع badge، وأفاتار المستخدم.
 class _HomeAppBar extends StatelessWidget {
+  /// Callback لما المستخدم يضغط على الأفاتار.
   final VoidCallback? onProfileTap;
 
   const _HomeAppBar({this.onProfileTap});
@@ -140,17 +187,17 @@ class _HomeAppBar extends StatelessWidget {
       builder: (context, state) {
         final user = state is AuthAuthenticated ? state.user : null;
         return Container(
-          color: AppColors.surface,
+          color: Colors.transparent,
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + 12,
-            left: 24, right: 24, bottom: 12,
+            left: 0, right: 0, bottom: 12,
           ),
           child: Row(
             children: [
-              const AppLogoMini(),
+              AppLogo.mini(),
               const SizedBox(width: 12),
               Text('Revexa',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                       fontSize: 22, fontWeight: FontWeight.w700,
                       letterSpacing: -0.3, color: AppColors.primary)),
               const Spacer(),
@@ -164,17 +211,23 @@ class _HomeAppBar extends StatelessWidget {
                     color: AppColors.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Stack(alignment: Alignment.center, children: [
-                    Icon(Icons.notifications_outlined,
-                        color: AppColors.onSurface, size: 22),
-                    Positioned(
-                      top: 8, right: 8,
-                      child: Container(
-                          width: 8, height: 8,
-                          decoration: BoxDecoration(
-                              color: AppColors.error, shape: BoxShape.circle)),
-                    ),
-                  ]),
+                  child: BlocBuilder<NotificationsCubit, NotificationsState>(
+                    builder: (context, state) {
+                      final hasUnread = state.notifications.any((n) => !n.isRead);
+                      return Stack(alignment: Alignment.center, children: [
+                        Icon(Icons.notifications_outlined,
+                            color: AppColors.onSurface, size: 22),
+                        if (hasUnread)
+                          Positioned(
+                            top: 8, right: 8,
+                            child: Container(
+                                width: 8, height: 8,
+                                decoration: BoxDecoration(
+                                    color: AppColors.error, shape: BoxShape.circle)),
+                          ),
+                      ]);
+                    },
+                  ),
                 ),
               ),
               // Avatar
@@ -187,19 +240,14 @@ class _HomeAppBar extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.10),
                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
                   ),
-                  child: ClipOval(
-                    child: user?.imageUrl != null && user!.imageUrl!.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: user.imageUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => const Icon(Icons.person, size: 20),
-                          )
-                        : Center(
-                            child: Text(
-                              user?.firstName.isNotEmpty == true ? user!.firstName[0].toUpperCase() : 'U',
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
-                            ),
-                          ),
+                  child: AppCircleAvatar(
+                    imageUrl: user?.imageUrl,
+                    radius: 20,
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.10),
+                    fallback: Text(
+                      user?.firstName.isNotEmpty == true ? user!.firstName[0].toUpperCase() : 'U',
+                      style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+                    ),
                   ),
                 ),
               ),
@@ -211,6 +259,8 @@ class _HomeAppBar extends StatelessWidget {
   }
 }
 
+/// بانر الترحيب الذي يعرض اسم المستخدم وتحية مناسبة للوقت (صباح/مساء/ليل).
+/// يعرض أيضاً بادج "Gold Member" على اليمين.
 class _GreetingBanner extends StatelessWidget {
   const _GreetingBanner();
 
@@ -228,10 +278,10 @@ class _GreetingBanner extends StatelessWidget {
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(greeting,
-                    style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant),
+                    style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                 Text('$name 👋',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 22, fontWeight: FontWeight.w800,
                         color: AppColors.onSurface, letterSpacing: -0.3),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -248,7 +298,7 @@ class _GreetingBanner extends StatelessWidget {
                 Icon(Icons.workspace_premium, color: AppColors.primary, size: 16),
                 const SizedBox(width: 4),
                 Text(AppLocalizations.of(context)!.goldMember,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
               ]),
             ),
@@ -259,6 +309,8 @@ class _GreetingBanner extends StatelessWidget {
   }
 }
 
+/// كارت حالة السيارة — يعرض نسبة الـ Health بـ Circular Progress،
+/// بالإضافة إلى Stat Bars لـ Engine Power وBattery Life.
 class _VehicleHealthCard extends StatelessWidget {
   const _VehicleHealthCard();
 
@@ -290,7 +342,7 @@ class _VehicleHealthCard extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(
                 'PREMIUM STATUS',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.urbanist(
                     fontSize: 10, fontWeight: FontWeight.w700,
                     letterSpacing: 2.0, color: Colors.white.withValues(alpha: 0.60)),
               ),
@@ -301,7 +353,7 @@ class _VehicleHealthCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text('OPTIMAL',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 10, fontWeight: FontWeight.w700,
                         letterSpacing: 0.8, color: Colors.white)),
               ),
@@ -309,7 +361,7 @@ class _VehicleHealthCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Vehicle Health',
-              style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3),
+              style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3),
             ),
             const SizedBox(height: 20),
             Row(children: [
@@ -331,9 +383,9 @@ class _VehicleHealthCard extends StatelessWidget {
                     RichText(
                       text: TextSpan(children: [
                         TextSpan(text: '85',
-                            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                            style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
                         TextSpan(text: '%',
-                            style: GoogleFonts.inter(fontSize: 10, color: AppColors.neon)),
+                            style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.neon)),
                       ]),
                     ),
                   ],
@@ -355,10 +407,16 @@ class _VehicleHealthCard extends StatelessWidget {
   }
 }
 
+/// شريط إحصائي صغير يُستخدم داخل [_VehicleHealthCard].
+/// يعرض اسم المقياس، قيمته النصية، وـ LinearProgressIndicator.
 class _StatBar extends StatelessWidget {
+  /// اسم المقياس (مثلاً: Engine Power)
   final String label;
+  /// القيمة من 0.0 إلى 1.0 لملء الـ progress bar.
   final double value;
+  /// النص المعروض بجانب الاسم (مثلاً: 92%)
   final String valueStr;
+  /// لون الـ progress bar والـ value text.
   final Color color;
   const _StatBar({required this.label, required this.value, required this.valueStr, required this.color});
 
@@ -367,10 +425,10 @@ class _StatBar extends StatelessWidget {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Flexible(
-          child: Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.white.withValues(alpha: 0.70)), maxLines: 1, overflow: TextOverflow.ellipsis),
+          child: Text(label, style: GoogleFonts.urbanist(fontSize: 10, color: Colors.white.withValues(alpha: 0.70)), maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
         const SizedBox(width: 4),
-        Text(valueStr, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+        Text(valueStr, style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
       ]),
       const SizedBox(height: 4),
       ClipRRect(
@@ -386,6 +444,8 @@ class _StatBar extends StatelessWidget {
   }
 }
 
+/// صف الإجراءات السريعة — 4 أزرار (Wash، Service، Tires، More).
+/// كل زر ينقل المستخدم مباشرةً لشاشة الخدمة المقابلة.
 class _QuickActionsRow extends StatelessWidget {
   const _QuickActionsRow();
 
@@ -410,9 +470,12 @@ class _QuickActionsRow extends StatelessWidget {
   }
 }
 
+/// زر إجراء سريع واحد يُستخدم داخل [_QuickActionsRow].
+/// يعرض أيقونة داخل مربع ملون وعنوان نصي تحتها.
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
+  /// الدالة المستدعاة عند الضغط على الزر.
   final VoidCallback onTap;
   const _QuickAction({required this.icon, required this.label, required this.onTap});
 
@@ -437,7 +500,7 @@ class _QuickAction extends StatelessWidget {
               child: Icon(icon, color: AppColors.primary, size: 18),
             ),
             const SizedBox(height: 6),
-            Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(label, style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
           ]),
         ),
       ),
@@ -445,112 +508,103 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
+/// قسم "Our Services" — يعرض شبكة (Grid) من الخدمات الثابتة.
+/// القائمة ثابتة دائماً ولا تتغير بناءً على استجابة الـ API.
 class _ServicesSection extends StatelessWidget {
   const _ServicesSection();
 
+  // Static service catalogue — always displayed, regardless of API state.
+  // Products API is used only for dynamic data (prices, images) in the future.
+  // The services list must NEVER be gated on an empty products response.
+  static const _staticServices = [
+    _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
+    _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
+    _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
+    _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
+    _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProductsCubit, ProductsState>(
-      builder: (context, state) {
-        return Column(
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('Our Services',
-                  style: GoogleFonts.inter(
-                      fontSize: 18, fontWeight: FontWeight.w700,
-                      color: AppColors.onSurface, letterSpacing: -0.2)),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.services),
-                child: Text('Explore all',
-                    style: GoogleFonts.inter(
-                        fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
-              ),
-            ]),
-            const SizedBox(height: 16),
-            if (state is ProductsLoading)
-              _skeletonRow()
-            else if (state is ProductsLoaded)
-              _buildServiceCards(context, state)
-            else if (state is ProductsError)
-              Text(state.message,
-                  style: GoogleFonts.inter(fontSize: 13, color: AppColors.error)),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _skeletonRow() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.1,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: List.generate(4, (_) => Container(
-        decoration: BoxDecoration(color: AppColors.surfaceContainerHigh, borderRadius: BorderRadius.circular(18)),
-      )),
-    );
-  }
-
-  Widget _buildServiceCards(BuildContext context, ProductsLoaded state) {
-    final products = state.page.products.take(3).toList();
-    if (products.isEmpty) {
-      return Text(AppLocalizations.of(context)!.noServicesAvailable,
-          style: GoogleFonts.inter(color: AppColors.onSurfaceVariant));
-    }
-
-    final staticServices = [
-      const _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
-      const _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
-      const _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
-      const _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
-      const _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
-    ];
-
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.1,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: staticServices.map((s) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, s.route),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.outline),
-            boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
+    return Column(
+      children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Our Services',
+              style: GoogleFonts.urbanist(
+                  fontSize: 18, fontWeight: FontWeight.w700,
+                  color: AppColors.onSurface, letterSpacing: -0.2)),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, AppRoutes.services),
+            child: Text('Explore all',
+                style: GoogleFonts.urbanist(
+                    fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(s.icon, color: AppColors.primary, size: 22),
-              ),
-              const Spacer(),
-              Text(s.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
-              const SizedBox(height: 2),
-              Text(s.subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
-            ],
-          ),
+        ]),
+        const SizedBox(height: 16),
+        // Static service grid — always visible.
+        // These are navigation entry points, not data-driven cards.
+        GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.1,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          children: _staticServices
+              .map((s) => _ServiceCard(item: s))
+              .toList(),
         ),
-      )).toList(),
+      ],
     );
   }
 }
 
+/// كارت خدمة واحدة داخل [_ServicesSection].
+/// يعرض أيقونة وعنوان وعنوان فرعي، وعند الضغط ينقل لمسار [_HomeServiceItem.route].
+class _ServiceCard extends StatelessWidget {
+  final _HomeServiceItem item;
+  const _ServiceCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, item.route),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.outline),
+          boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(item.icon, color: AppColors.primary, size: 22),
+            ),
+            const Spacer(),
+            Text(item.title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            const SizedBox(height: 2),
+            Text(item.subtitle, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// كارد الحجز النشط — يظهر فقط عندما يوجد طلب غير مكتمل وغير ملغي.
+/// يتابع حالة [OrdersCubit] ويعرض أول طلب نشط مع رابط للتفاصيل.
 class _ActiveBookingCard extends StatelessWidget {
-  const _ActiveBookingCard();
+  final double topPadding;
+  const _ActiveBookingCard({this.topPadding = 16});
 
   @override
   Widget build(BuildContext context) {
@@ -561,57 +615,62 @@ class _ActiveBookingCard extends StatelessWidget {
         if (active.isEmpty) return const SizedBox.shrink();
         final order = active.first;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(AppLocalizations.of(context)!.activeBooking,
-                  style: GoogleFonts.inter(
-                      fontSize: 18, fontWeight: FontWeight.w700,
-                      color: AppColors.onSurface, letterSpacing: -0.2)),
+        return Padding(
+          padding: EdgeInsets.only(top: topPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(AppLocalizations.of(context)!.activeBooking,
+                    style: GoogleFonts.urbanist(
+                        fontSize: 18, fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface, letterSpacing: -0.2)),
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.orderDetail, arguments: order),
+                  child: Text(AppLocalizations.of(context)!.details,
+                      style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                ),
+              ]),
+              const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.orderDetail, arguments: order),
-                child: Text(AppLocalizations.of(context)!.details,
-                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
-              ),
-            ]),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.orderDetail, arguments: order),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
+                  ),
+                  child: Row(children: [
+                    Container(
+                      width: 48, height: 48,
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.build_circle_outlined, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(order.service?.title ?? 'Service',
+                            style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(order.status.toUpperCase(),
+                            style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.neon, fontWeight: FontWeight.w600)),
+                      ]),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white70, size: 22),
+                  ]),
                 ),
-                child: Row(children: [
-                  Container(
-                    width: 48, height: 48,
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(Icons.build_circle_outlined, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(order.service?.title ?? 'Service',
-                          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(order.status.toUpperCase(),
-                          style: GoogleFonts.inter(fontSize: 11, color: AppColors.neon, fontWeight: FontWeight.w600)),
-                    ]),
-                  ),
-                  const Icon(Icons.chevron_right, color: Colors.white70, size: 22),
-                ]),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
   }
 }
 
+/// بانر الترويج الموسمي في أسفل الصفحة.
+/// يعرض صورة خلفية مع gradient وعنوان العرض وزر "Claim Now".
 class _PromoBanner extends StatelessWidget {
   const _PromoBanner();
 
@@ -620,7 +679,7 @@ class _PromoBanner extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: SizedBox(
-        height: 160,
+        height: 175,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -649,11 +708,11 @@ class _PromoBanner extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(AppLocalizations.of(context)!.limitedOffer,
-                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700,
+                        style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700,
                             letterSpacing: 2.5, color: AppColors.neon)),
                     const SizedBox(height: 4),
                     Text(AppLocalizations.of(context)!.summerShinePackage,
-                        style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2)),
+                        style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2)),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, AppRoutes.services),
@@ -661,7 +720,7 @@ class _PromoBanner extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
                         child: Text(AppLocalizations.of(context)!.claimNow,
-                            style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: AppColors.primary)),
+                            style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: AppColors.primary)),
                       ),
                     ),
                   ],
@@ -675,10 +734,86 @@ class _PromoBanner extends StatelessWidget {
   }
 }
 
+/// نموذج بيانات ثابت يصف خدمة واحدة في قائمة [_ServicesSection].
+/// يحتوي على الأيقونة والعنوان والعنوان الفرعي ومسار التنقل.
 class _HomeServiceItem {
   final IconData icon;
   final String title;
   final String subtitle;
+  /// مسار التنقل (Route name) لشاشة الخدمة.
   final String route;
   const _HomeServiceItem({required this.icon, required this.title, required this.subtitle, required this.route});
+}
+
+/// شريط البحث التفاعلي في الصفحة الرئيسية.
+/// عند الإرسال (Enter أو السهم) يستدعي [onSearchSubmitted] وينتقل لشاشة الخدمات.
+class _HomeSearchBar extends StatefulWidget {
+  /// الدالة المستدعاة عند إرسال نص البحث.
+  final ValueChanged<String> onSearchSubmitted;
+
+  const _HomeSearchBar({required this.onSearchSubmitted});
+
+  @override
+  State<_HomeSearchBar> createState() => _HomeSearchBarState();
+}
+
+class _HomeSearchBarState extends State<_HomeSearchBar> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.outline),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _controller,
+        onSubmitted: (value) {
+          if (value.trim().isNotEmpty) {
+            widget.onSearchSubmitted(value.trim());
+          }
+        },
+        textInputAction: TextInputAction.search,
+        style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface),
+        decoration: InputDecoration(
+          hintText: l10n.servicesSearch,
+          hintStyle: GoogleFonts.urbanist(color: AppColors.onSurfaceVariant, fontSize: 14),
+          prefixIcon: Icon(Icons.search_rounded, color: AppColors.onSurfaceVariant, size: 20),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+          suffixIcon: IconButton(
+            icon: Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 20),
+            onPressed: () {
+              if (_controller.text.trim().isNotEmpty) {
+                widget.onSearchSubmitted(_controller.text.trim());
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }

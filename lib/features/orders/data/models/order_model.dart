@@ -107,7 +107,7 @@ class Order extends Equatable {
       appointmentDate: DateTime.tryParse(json['appointmentDate']?.toString() ?? '') ?? DateTime.now(),
       status: json['status']?.toString() ?? 'pending',
       totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
-      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? json['created_at']?.toString() ?? '') ?? DateTime.now(),
     );
   }
 

@@ -20,12 +20,11 @@ import 'package:revexa/shared/theme/theme_cubit.dart';
 
 // Auth screens
 import 'package:revexa/features/splash/presentation/screens/splash_screen.dart';
-import 'package:revexa/features/onboarding/presentation/screens/onboarding_booking_screen.dart';
-import 'package:revexa/features/onboarding/presentation/screens/onboarding_tracking_screen.dart';
-import 'package:revexa/features/onboarding/presentation/screens/onboarding_final_screen.dart';
+import 'package:revexa/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/register_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:revexa/features/auth/presentation/screens/reset_password_screen.dart';
 
 // Main
 import 'package:revexa/features/home/presentation/screens/home_screen.dart';
@@ -46,16 +45,17 @@ import 'package:revexa/features/profile/presentation/screens/edit_profile_screen
 import 'package:revexa/features/vehicles/presentation/screens/my_vehicles_screen.dart';
 import 'package:revexa/features/billing/presentation/screens/billing_screen.dart';
 import 'package:revexa/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/features/bookings/presentation/screens/bookings_screen.dart';
-import 'package:revexa/features/settings/presentation/screens/settings_screen.dart';
+// No settings_screen import needed since settings are now in profile_screen.dart
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initial system UI overlay — will be updated reactively inside BlocBuilder.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
     ),
   );
 
@@ -87,6 +87,7 @@ class RevexaApp extends StatelessWidget {
         BlocProvider<CategoriesCubit>.value(value: sl.categoriesCubit),
         BlocProvider<ServicesCubit>.value(value: sl.servicesCubit),
         BlocProvider<NewsCubit>.value(value: sl.newsCubit),
+        BlocProvider<NotificationsCubit>.value(value: sl.notificationsCubit),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
@@ -96,6 +97,16 @@ class RevexaApp extends StatelessWidget {
                   (themeState.mode == AppThemeMode.system &&
                       WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
               AppColors.isDark = isDark;
+              // Update system status-bar icon brightness reactively.
+              // Dark mode → light icons (Brightness.light) on dark background.
+              // Light mode → dark icons (Brightness.dark) on light background.
+              SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness:
+                      isDark ? Brightness.light : Brightness.dark,
+                ),
+              );
 
               return MaterialApp(
                 title: 'Revexa',
@@ -118,12 +129,14 @@ class RevexaApp extends StatelessWidget {
                 initialRoute: AppRoutes.splash,
                 routes: {
                   AppRoutes.splash: (_) => const AppStartupWrapper(),
-                  AppRoutes.onboardingBooking: (_) => const OnboardingBookingScreen(),
-                  AppRoutes.onboardingTracking: (_) => const OnboardingTrackingScreen(),
-                  AppRoutes.onboardingFinal: (_) => const OnboardingFinalScreen(),
+                  AppRoutes.onboardingBooking: (_) => const OnboardingScreen(),
                   AppRoutes.signIn: (_) => const SignInScreen(),
                   AppRoutes.register: (_) => const RegisterScreen(),
                   AppRoutes.forgotPassword: (_) => const ForgotPasswordScreen(),
+                  AppRoutes.resetPassword: (context) {
+                    final token = ModalRoute.of(context)?.settings.arguments as String?;
+                    return ResetPasswordScreen(initialToken: token);
+                  },
                   AppRoutes.home: (_) => const HomeScreen(),
                   // New screens
                   AppRoutes.services: (_) => const ServicesScreen(),
@@ -142,8 +155,8 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.myVehicles: (_) => const MyVehiclesScreen(),
                   AppRoutes.billing: (_) => const BillingScreen(),
                   AppRoutes.notifications: (_) => const NotificationsScreen(),
-                  AppRoutes.bookings: (_) => const Scaffold(body: BookingsBody()),
-                  AppRoutes.settings: (_) => const Scaffold(body: SettingsBody()),
+                  AppRoutes.bookings: (_) => const BookingsScreen(),
+                  AppRoutes.settings: (_) => const ProfileScreen(),
                 },
               );
             },

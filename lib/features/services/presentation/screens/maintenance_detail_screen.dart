@@ -79,7 +79,7 @@ class _MaintenanceSliverAppBar extends StatelessWidget {
         children: [
           Text(
             'REVEXA SERVICE',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ],
       ),
@@ -141,12 +141,12 @@ class _MaintenanceSliverAppBar extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Maintenance',
-                      style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
+                      style: GoogleFonts.urbanist(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Elite-level care for your car to maintain peak performance.',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.white.withValues(alpha: 0.75), height: 1.4),
+                      style: GoogleFonts.urbanist(fontSize: 12, color: Colors.white.withValues(alpha: 0.75), height: 1.4),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -157,7 +157,7 @@ class _MaintenanceSliverAppBar extends StatelessWidget {
                       ),
                       child: Text(
                         'MAINTENANCE PRO',
-                        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.5),
+                        style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.5),
                       ),
                     ),
                   ],
@@ -198,11 +198,11 @@ class _ServiceScopeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Service Scope', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                Text('Service Scope', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 4),
                 Text(
                   'Full vehicle diagnostic and preventative maintenance to ensure peak performance.',
-                  style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
+                  style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
                 ),
               ],
             ),
@@ -242,12 +242,12 @@ class _InvestmentCard extends StatelessWidget {
             children: [
               Text(
                 'INVESTMENT',
-                style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.65), letterSpacing: 1.5),
+                style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.65), letterSpacing: 1.5),
               ),
               const SizedBox(height: 2),
               Text(
                 '\$89.00',
-                style: GoogleFonts.inter(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
+                style: GoogleFonts.urbanist(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5),
               ),
             ],
           ),
@@ -305,9 +305,9 @@ class _InfoChip extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0)),
+              Text(label, style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0)),
               const SizedBox(height: 2),
-              Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              Text(value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             ],
           ),
         ],
@@ -322,7 +322,7 @@ class _ServiceChecklistSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Service Checklist', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text('Service Checklist', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 16),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +333,7 @@ class _ServiceChecklistSection extends StatelessWidget {
                 children: [
                   Text(
                     'EARTH_ENGINE',
-                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.onSurface, letterSpacing: -0.5),
+                    style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.onSurface, letterSpacing: -0.5),
                   ),
                   const SizedBox(height: 16),
                   const _ChecklistItem(label: 'Fluid Level & Top-Off'),
@@ -355,9 +355,9 @@ class _ServiceChecklistSection extends StatelessWidget {
                 children: [
                   Icon(Icons.favorite_border_rounded, color: AppColors.primary, size: 18),
                   const SizedBox(height: 4),
-                  Text('Engine', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                  Text('Health', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                  Text('Check', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                  Text('Engine', style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                  Text('Health', style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                  Text('Check', style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
                 ],
               ),
             ),
@@ -388,7 +388,7 @@ class _ChecklistItem extends StatelessWidget {
             child: Icon(Icons.check, color: AppColors.primary, size: 15),
           ),
           const SizedBox(width: 10),
-          Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+          Text(label, style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -408,12 +408,12 @@ class _ReserveServiceSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Reserve Service', style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+          Text('Reserve Service', style: GoogleFonts.urbanist(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
           const SizedBox(height: 4),
-          Text('Select your preferred options.', style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
+          Text('Select your preferred options.', style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 18),
 
-          Text('Location', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant)),
+          Text('Location', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -425,7 +425,7 @@ class _ReserveServiceSection extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('Downtown Royal Hub', style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurface)),
+                  child: Text('Downtown Royal Hub', style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface)),
                 ),
                 Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceVariant, size: 20),
               ],
@@ -433,7 +433,7 @@ class _ReserveServiceSection extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          Text('Vehicle Model Year', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant)),
+          Text('Vehicle Model Year', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -445,7 +445,7 @@ class _ReserveServiceSection extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('e.g. 2024 BMW M4', style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant.withValues(alpha: 0.5))),
+                  child: Text('e.g. 2024 BMW M4', style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant.withValues(alpha: 0.5))),
                 ),
               ],
             ),
@@ -464,7 +464,7 @@ class _ReserveServiceSection extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Book Now', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                  Text('Book Now', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                   const SizedBox(width: 8),
                   const Icon(Icons.arrow_forward, color: Colors.white, size: 18),
                 ],
@@ -475,7 +475,7 @@ class _ReserveServiceSection extends StatelessWidget {
           Center(
             child: Text(
               'No upfront payment required. Terms apply.',
-              style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant),
+              style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant),
             ),
           ),
         ],
@@ -503,8 +503,8 @@ class _SatisfactionBadge extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Satisfaction Guaranteed', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
-              Text('100-point Royal Standard is assured.', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              Text('Satisfaction Guaranteed', style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              Text('100-point Royal Standard is assured.', style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
             ],
           ),
         ),
@@ -519,7 +519,7 @@ class _WorkshopSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('World-Class Workshop', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text('World-Class Workshop', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 14),
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
@@ -575,8 +575,8 @@ class _BookNowBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Investment', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
-              Text('\$89', style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary)),
+              Text('Investment', style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              Text('\$89', style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary)),
             ],
           ),
           const SizedBox(width: 16),
@@ -593,7 +593,7 @@ class _BookNowBar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                     const SizedBox(width: 8),
                     const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
                   ],

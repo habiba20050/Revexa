@@ -21,19 +21,19 @@ class PrimaryButton extends StatelessWidget {
       width: double.infinity,
       child: Material(
         color: AppColors.primary,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         shadowColor: AppColors.primary.withValues(alpha: 0.20),
-        elevation: 8,
+        elevation: 3,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,

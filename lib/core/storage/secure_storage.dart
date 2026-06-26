@@ -15,6 +15,9 @@ class SecureStorage {
   static const _keyUserRole = 'user_role';
   static const _keyFirstName = 'user_first_name';
   static const _keyLastName = 'user_last_name';
+  static const _keyPhone = 'user_phone';
+  static const _keyAddress = 'user_address';
+  static const _keyImageUrl = 'user_image_url';
 
   Future<void> saveToken(String token) =>
       _storage.write(key: _keyToken, value: token);
@@ -27,6 +30,9 @@ class SecureStorage {
     required String role,
     required String firstName,
     required String lastName,
+    String? phone,
+    String? address,
+    String? imageUrl,
   }) async {
     await Future.wait([
       _storage.write(key: _keyUserId, value: id),
@@ -34,6 +40,9 @@ class SecureStorage {
       _storage.write(key: _keyUserRole, value: role),
       _storage.write(key: _keyFirstName, value: firstName),
       _storage.write(key: _keyLastName, value: lastName),
+      if (phone != null) _storage.write(key: _keyPhone, value: phone),
+      if (address != null) _storage.write(key: _keyAddress, value: address),
+      if (imageUrl != null) _storage.write(key: _keyImageUrl, value: imageUrl),
     ]);
   }
 
@@ -44,6 +53,9 @@ class SecureStorage {
       _storage.read(key: _keyUserRole),
       _storage.read(key: _keyFirstName),
       _storage.read(key: _keyLastName),
+      _storage.read(key: _keyPhone),
+      _storage.read(key: _keyAddress),
+      _storage.read(key: _keyImageUrl),
     ]);
     return {
       'id': results[0],
@@ -51,6 +63,9 @@ class SecureStorage {
       'role': results[2],
       'firstName': results[3],
       'lastName': results[4],
+      'phone': results[5],
+      'address': results[6],
+      'imageUrl': results[7],
     };
   }
 

@@ -18,6 +18,8 @@ abstract interface class AuthRepository {
   });
   Future<Result<void>> logout();
   Future<Result<void>> forgotPassword(String email);
+  Future<Result<AuthUser>> signInWithGoogle(String idToken);
+  Future<Result<AuthUser>> resetPassword({required String token, required String password});
   Future<AuthUser?> getStoredUser();
   Future<void> persistUser(AuthUser user);
 }
@@ -32,6 +34,20 @@ class AuthRepositoryImpl implements AuthRepository {
   })  : _remote = remote,
         _storage = storage;
 
+  Future<void> _persistAuthUser(AuthUser user) async {
+    await _storage.saveToken(user.token);
+    await _storage.saveUser(
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      address: user.address,
+      imageUrl: user.imageUrl,
+    );
+  }
+
   @override
   Future<Result<AuthUser>> login({
     required String email,
@@ -39,14 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final user = await _remote.login(email: email, password: password);
-      await _storage.saveToken(user.token);
-      await _storage.saveUser(
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      );
+      await _persistAuthUser(user);
       return Success(user);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
@@ -75,14 +84,7 @@ class AuthRepositoryImpl implements AuthRepository {
         gender: gender,
         address: address,
       );
-      await _storage.saveToken(user.token);
-      await _storage.saveUser(
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      );
+      await _persistAuthUser(user);
       return Success(user);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
@@ -112,6 +114,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<AuthUser>> signInWithGoogle(String idToken) async {
+    try {
+      final user = await _remote.signInWithGoogle(idToken);
+      await _persistAuthUser(user);
+      return Success(user);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<AuthUser>> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    try {
+      final user = await _remote.resetPassword(token: token, password: password);
+      await _persistAuthUser(user);
+      return Success(user);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
   Future<AuthUser?> getStoredUser() async {
     final hasToken = await _storage.hasToken();
     if (!hasToken) return null;
@@ -129,6 +156,9 @@ class AuthRepositoryImpl implements AuthRepository {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      phone: user.phone,
+      address: user.address,
+      imageUrl: user.imageUrl,
     );
   }
 }

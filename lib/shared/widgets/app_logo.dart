@@ -1,87 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 
-/// Small 4-icon 2x2 grid logo used in headers
-class AppLogoMini extends StatelessWidget {
-  const AppLogoMini({super.key});
+/// A single, unified logo widget used throughout the application.
+/// It provides factory constructors for different standard sizes.
+class AppLogo extends StatelessWidget {
+  final double cellSize;
+  final double spacing;
+  final double padding;
+  final double borderRadius;
+  final bool showBorder;
+
+  const AppLogo({
+    super.key,
+    required this.cellSize,
+    required this.spacing,
+    required this.padding,
+    required this.borderRadius,
+    this.showBorder = true,
+  });
+
+  /// Factory constructor for a mini logo suitable for headers / AppBars.
+  factory AppLogo.mini() {
+    return const AppLogo(
+      cellSize: 18.0,
+      spacing: 3.0,
+      padding: 4.0,
+      borderRadius: 4.0,
+    );
+  }
+
+  /// Factory constructor for a grid logo suitable for splash & onboarding.
+  factory AppLogo.grid() {
+    return const AppLogo(
+      cellSize: 44.0,
+      spacing: 8.0,
+      padding: 12.0,
+      borderRadius: 10.0,
+    );
+  }
+
+  /// Factory constructor for a large logo suitable for the Sign-In / Register screens.
+  factory AppLogo.large() {
+    return const AppLogo(
+      cellSize: 56.0,
+      spacing: 12.0,
+      padding: 16.0,
+      borderRadius: 12.0,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.10)),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 4,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _LogoIconCell(icon: Icons.directions_car),
-              SizedBox(width: 2),
-              _LogoIconCell(icon: Icons.build),
-            ],
-          ),
-          SizedBox(height: 2),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _LogoIconCell(icon: Icons.local_car_wash),
-              SizedBox(width: 2),
-              _LogoIconCell(icon: Icons.local_gas_station),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LogoIconCell extends StatelessWidget {
-  final IconData icon;
-  const _LogoIconCell({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 18,
-      height: 18,
-      child: Center(
-        child: Icon(icon, color: AppColors.primary, size: 11),
-      ),
-    );
-  }
-}
-
-/// Medium 4-icon grid logo used on register/splash screens
-class AppLogoGrid extends StatelessWidget {
-  const AppLogoGrid({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(borderRadius * 2.0),
+        border: showBorder ? Border.all(color: AppColors.outline.withValues(alpha: 0.6)) : null,
+        boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: AppColors.primary.withValues(alpha: 0.05),
+            blurRadius: padding,
+            offset: Offset(0, padding / 3),
           ),
         ],
-        border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -89,33 +71,37 @@ class AppLogoGrid extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _GridIcon(
-                icon: Icons.directions_car,
-                bg: AppColors.primary.withValues(alpha: 0.10),
-                iconColor: AppColors.primary,
+              _GridCell(
+                icon: Icons.directions_car_rounded,
+                isPrimary: true,
+                size: cellSize,
+                borderRadius: borderRadius,
               ),
-              const SizedBox(width: 8),
-              _GridIcon(
-                icon: Icons.build,
-                bg: AppColors.primary,
-                iconColor: Colors.white,
+              SizedBox(width: spacing),
+              _GridCell(
+                icon: Icons.build_rounded,
+                isPrimary: false,
+                size: cellSize,
+                borderRadius: borderRadius,
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _GridIcon(
-                icon: Icons.local_car_wash,
-                bg: AppColors.primary,
-                iconColor: Colors.white,
+              _GridCell(
+                icon: Icons.local_car_wash_rounded,
+                isPrimary: false,
+                size: cellSize,
+                borderRadius: borderRadius,
               ),
-              const SizedBox(width: 8),
-              _GridIcon(
-                icon: Icons.local_gas_station,
-                bg: AppColors.primary.withValues(alpha: 0.10),
-                iconColor: AppColors.primary,
+              SizedBox(width: spacing),
+              _GridCell(
+                icon: Icons.local_gas_station_rounded,
+                isPrimary: false,
+                size: cellSize,
+                borderRadius: borderRadius,
               ),
             ],
           ),
@@ -125,100 +111,42 @@ class AppLogoGrid extends StatelessWidget {
   }
 }
 
-class _GridIcon extends StatelessWidget {
+class _GridCell extends StatelessWidget {
   final IconData icon;
-  final Color bg;
-  final Color iconColor;
+  final bool isPrimary;
+  final double size;
+  final double borderRadius;
 
-  const _GridIcon({required this.icon, required this.bg, required this.iconColor});
+  const _GridCell({
+    required this.icon,
+    required this.isPrimary,
+    required this.size,
+    required this.borderRadius,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 44,
-      height: 44,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(icon, color: iconColor, size: 22),
-    );
-  }
-}
-
-/// Large 4-icon grid for Sign-In screen (56x56 cells)
-class AppLogoLarge extends StatelessWidget {
-  const AppLogoLarge({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _LargeIcon(
-              icon: Icons.directions_car,
-              bg: AppColors.primary,
-              iconColor: Colors.white,
-            ),
-      const      SizedBox(width: 12),
-            _LargeIcon(
-              icon: Icons.build,
-              bg: AppColors.surfaceContainerHigh,
-              iconColor: AppColors.primary,
-            ),
-          ],
-        ),
-  const      SizedBox(height: 12),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _LargeIcon(
-              icon: Icons.home_repair_service,
-              bg: AppColors.surfaceContainerHigh,
-              iconColor: AppColors.primary,
-            ),
-          const  SizedBox(width: 12),
-            _LargeIcon(
-              icon: Icons.local_gas_station,
-              bg: AppColors.surfaceContainerHigh,
-              iconColor: AppColors.primary,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _LargeIcon extends StatelessWidget {
-  final IconData icon;
-  final Color bg;
-  final Color iconColor;
-
-  const _LargeIcon({required this.icon, required this.bg, required this.iconColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: bg == AppColors.primary
+        color: isPrimary ? AppColors.primary : AppColors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.20),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  blurRadius: size * 0.15,
+                  offset: Offset(0, size * 0.07),
                 ),
               ]
             : null,
       ),
-      child: Icon(icon, color: iconColor, size: 28),
+      child: Icon(
+        icon,
+        color: isPrimary ? Colors.white : AppColors.primary,
+        size: size * 0.55,
+      ),
     );
   }
 }

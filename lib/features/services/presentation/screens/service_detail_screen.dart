@@ -6,6 +6,8 @@ import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/services/data/models/service_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 
 class ServiceDetailScreen extends StatelessWidget {
   const ServiceDetailScreen({super.key});
@@ -22,9 +24,7 @@ class ServiceDetailScreen extends StatelessWidget {
             'order': state.order,
           });
         } else if (state is OrdersError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
-          );
+          context.showAppSnackBar(state.message, isError: true);
         }
       },
       child: Scaffold(
@@ -94,12 +94,12 @@ class _DetailAppBar extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'Revexa',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
           const SizedBox(width: 8),
           Text(
             'Service Details',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onSurface),
           ),
           const Spacer(),
           GestureDetector(
@@ -129,13 +129,16 @@ class _HeroImage extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               service.firstImageUrl.isNotEmpty
-                  ? Image.network(
-                      service.firstImageUrl,
+                  ? AppImage(
+                      source: service.firstImageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Image.asset(
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorWidget: Image.asset(
                         AppConstants.imgServiceDetails1,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(color: AppColors.primary),
+                        width: double.infinity,
+                        height: double.infinity,
                       ),
                     )
                   : Image.asset(
@@ -168,13 +171,13 @@ class _HeroImage extends StatelessWidget {
                       ),
                       child: Text(
                         'PREMIUM WASH',
-                        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0),
+                        style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       service.title,
-                      style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
+                      style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
                     ),
                   ],
                 ),
@@ -237,11 +240,11 @@ class _StatCard extends StatelessWidget {
             children: [
               Icon(icon, color: AppColors.primary, size: 18),
               const SizedBox(width: 6),
-              Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
+              Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
             ],
           ),
           const SizedBox(height: 6),
-          Text(value, style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
+          Text(value, style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
         ],
       ),
     );
@@ -273,9 +276,9 @@ class _RatingCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Top Rated Service', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              Text('Top Rated Service', style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
               const SizedBox(height: 2),
-              Text('4.9/5 from 2.4k customers', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+              Text('4.9/5 from 2.4k customers', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
             ],
           ),
         ],
@@ -293,13 +296,13 @@ class _DescriptionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Description', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text('Description', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 10),
         Text(
           service.description.isNotEmpty
               ? service.description
               : 'Get a professional-grade car wash at your doorstep. Our expert team uses eco-friendly products and state-of-the-art equipment to make your vehicle look brand new without you ever leaving your home or office.',
-          style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
+          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
         ),
       ],
     );
@@ -312,7 +315,7 @@ class _WhatsIncludedSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("What's Included", style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text("What's Included", style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 14),
         const _IncludedItem(icon: Icons.directions_car_outlined, title: 'Exterior Wash', subtitle: 'Hand wash and dry with microfiber'),
         const _IncludedItem(icon: Icons.cleaning_services_outlined, title: 'Interior Vacuuming', subtitle: 'Deep cleaning of carpets and seats'),
@@ -355,9 +358,9 @@ class _IncludedItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                  Text(title, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  Text(subtitle, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -395,10 +398,10 @@ class _BookNowBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('TOTAL PRICE', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2)),
+                  Text('TOTAL PRICE', style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2)),
                   const SizedBox(height: 2),
                   Text('\$${service.price.toStringAsFixed(2)}',
-                      style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
+                      style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
                 ],
               ),
               const SizedBox(width: 16),
@@ -414,11 +417,11 @@ class _BookNowBar extends StatelessWidget {
                     ),
                     child: Center(
                       child: isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator.adaptive(valueColor: AlwaysStoppedAnimation<Color>(Colors.white), strokeWidth: 2))
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                                Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
                               ],

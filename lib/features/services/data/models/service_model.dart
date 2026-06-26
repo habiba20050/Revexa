@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 
 class Service extends Equatable {
   final String id;
@@ -13,7 +14,7 @@ class Service extends Equatable {
   final int? reviewsCount;
 
   String get title => name;
-  String get firstImageUrl => image ?? '';
+  String get firstImageUrl => ImageUrlUtils.resolve(image) ?? '';
 
   const Service({
     required this.id,
@@ -44,17 +45,12 @@ class Service extends Equatable {
   }
 
   static String? _readImageUrl(Map<String, dynamic> json) {
-    final direct = json['image']?.toString();
+    final direct = ImageUrlUtils.resolve(json['image']);
     if (direct != null && direct.isNotEmpty) return direct;
     final images = json['images'];
     if (images is List && images.isNotEmpty) {
-      final first = images.first;
-      if (first is Map) {
-        final url = first['url']?.toString();
-        if (url != null && url.isNotEmpty) return url;
-      } else if (first is String && first.isNotEmpty) {
-        return first;
-      }
+      final resolved = ImageUrlUtils.resolve(images.first);
+      if (resolved != null && resolved.isNotEmpty) return resolved;
     }
     return null;
   }

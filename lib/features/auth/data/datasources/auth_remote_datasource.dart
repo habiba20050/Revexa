@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
+import 'package:revexa/features/auth/data/auth_response_parser.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -18,6 +19,8 @@ abstract interface class AuthRemoteDataSource {
   });
   Future<void> logout();
   Future<void> forgotPassword(String email);
+  Future<AuthUser> signInWithGoogle(String idToken);
+  Future<AuthUser> resetPassword({required String token, required String password});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -31,9 +34,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ApiEndpoints.login,
         data: {'email': email, 'password': password},
       );
-      final data = response.data['data'] as Map<String, dynamic>;
-      final token = data['token'] as String;
-      return AuthUser.fromLoginJson(data, token);
+      return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
@@ -64,9 +65,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'address': address,
         },
       );
-      final data = response.data['data'] as Map<String, dynamic>;
-      final token = data['token'] as String;
-      return AuthUser.fromRegisterJson(data, token);
+      return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
@@ -86,6 +85,35 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> forgotPassword(String email) async {
     try {
       await _dio.post(ApiEndpoints.forgotPassword, data: {'email': email});
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<AuthUser> signInWithGoogle(String idToken) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.googleAuth,
+        data: {'idToken': idToken},
+      );
+      return AuthResponseParser.parse(response.data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<AuthUser> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.resetPassword(token),
+        data: {'password': password},
+      );
+      return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

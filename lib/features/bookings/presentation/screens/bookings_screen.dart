@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:revexa/core/theme/app_colors.dart';
@@ -8,6 +9,18 @@ import 'package:revexa/features/orders/data/models/order_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/shared/theme/theme_cubit.dart';
+
+/// Full-screen version of the Bookings tab used when navigating via routes.
+/// When embedded in [HomeScreen] tabs, use [BookingsBody] directly.
+class BookingsScreen extends StatelessWidget {
+  const BookingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: BookingsBody());
+  }
+}
 
 class BookingsBody extends StatefulWidget {
   const BookingsBody({super.key});
@@ -29,131 +42,135 @@ class _BookingsBodyState extends State<BookingsBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // App bar
-        Container(
-          color: Colors.white.withValues(alpha: 0.8),
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top + 16,
-            left: 24,
-            right: 24,
-            bottom: 16,
-          ),
-          child: Row(
-            children: [
-              const AppLogoMini(),
-              const SizedBox(width: 12),
-              Text('Revexa',
-                  style: GoogleFonts.inter(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.3,
-                      color: AppColors.primary)),
-              const Spacer(),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border:
-                      Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    AppConstants.imgProfileAvatar,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.surfaceContainerHigh,
-                      child: Icon(Icons.person, color: AppColors.primary, size: 20),
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        return Column(
+          children: [
+            // App bar
+            Container(
+              color: AppColors.surface.withValues(alpha: 0.8),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 16,
+                left: 24,
+                right: 24,
+                bottom: 16,
+              ),
+              child: Row(
+                children: [
+                  AppLogo.mini(),
+                  const SizedBox(width: 12),
+                  Text('Revexa',
+                      style: GoogleFonts.urbanist(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                          color: AppColors.primary)),
+                  const Spacer(),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border:
+                          Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        AppConstants.imgProfileAvatar,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.surfaceContainerHigh,
+                          child: Icon(Icons.person, color: AppColors.primary, size: 20),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
 
-        Expanded(
-          child: BlocBuilder<OrdersCubit, OrdersState>(
-            builder: (context, state) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(AppLocalizations.of(context)!.bookings,
-                        style: GoogleFonts.inter(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                            color: AppColors.onSurface)),
-                    const SizedBox(height: 4),
-                    Text(AppLocalizations.of(context)!.bookingsSubtitle,
-                        style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.onSurfaceVariant)),
-                    const SizedBox(height: 20),
+            Expanded(
+              child: BlocBuilder<OrdersCubit, OrdersState>(
+                builder: (context, state) {
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(AppLocalizations.of(context)!.bookings,
+                            style: GoogleFonts.urbanist(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.3,
+                                color: AppColors.onSurface)),
+                        const SizedBox(height: 4),
+                        Text(AppLocalizations.of(context)!.bookingsSubtitle,
+                            style: GoogleFonts.urbanist(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.onSurfaceVariant)),
+                        const SizedBox(height: 20),
 
-                    // Tab filter
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _Tab(
-                             label: AppLocalizations.of(context)!.upcoming,
-                             isActive: _upcomingSelected,
-                             onTap: () => setState(() => _upcomingSelected = true),
-                           ),
-                           _Tab(
-                             label: AppLocalizations.of(context)!.past,
-                             isActive: !_upcomingSelected,
-                             onTap: () => setState(() => _upcomingSelected = false),
-                           ),
-                        ],
-                      ),
+                        // Tab filter
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _Tab(
+                                 label: AppLocalizations.of(context)!.upcoming,
+                                 isActive: _upcomingSelected,
+                                 onTap: () => setState(() => _upcomingSelected = true),
+                               ),
+                               _Tab(
+                                 label: AppLocalizations.of(context)!.past,
+                                 isActive: !_upcomingSelected,
+                                 onTap: () => setState(() => _upcomingSelected = false),
+                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Loading state
+                        if (state is OrdersLoading)
+                          const Center(
+                              child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: CircularProgressIndicator.adaptive(),
+                          ))
+
+                        // Error state
+                        else if (state is OrdersError)
+                          _OrdersErrorWidget(
+                            message: state.message,
+                            onRetry: () => context.read<OrdersCubit>().loadOrders(),
+                          )
+
+                        // Loaded state
+                        else if (state is OrdersLoaded) ...[
+                          _buildOrdersContent(context, state.orders),
+                        ]
+
+                        // Initial/fallback
+                        else
+                          const Center(child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: CircularProgressIndicator.adaptive(),
+                          )),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-
-                    // Loading state
-                    if (state is OrdersLoading)
-                      const Center(
-                          child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(),
-                      ))
-
-                    // Error state
-                    else if (state is OrdersError)
-                      _OrdersErrorWidget(
-                        message: state.message,
-                        onRetry: () => context.read<OrdersCubit>().loadOrders(),
-                      )
-
-                    // Loaded state
-                    else if (state is OrdersLoaded) ...[
-                      _buildOrdersContent(context, state.orders),
-                    ]
-
-                    // Initial/fallback
-                    else
-                      const Center(child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(),
-                      )),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -183,7 +200,7 @@ class _BookingsBodyState extends State<BookingsBody> {
                     _upcomingSelected
                         ? AppLocalizations.of(context)!.noUpcomingAppointments
                         : AppLocalizations.of(context)!.noPastAppointments,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.urbanist(
                         fontSize: 14, color: AppColors.onSurfaceVariant),
                   ),
                 ],
@@ -202,14 +219,14 @@ class _BookingsBodyState extends State<BookingsBody> {
         _MainBookingCard(order: first),
         const SizedBox(height: 32),
         Text(AppLocalizations.of(context)!.nextAppointments,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.urbanist(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
                 letterSpacing: -0.1)),
         const SizedBox(height: 16),
         GridView.count(
-          crossAxisCount: 2,
+          crossAxisCount: context.isTabletOrLarger ? 3 : 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           childAspectRatio: 1.05,
@@ -239,7 +256,7 @@ class _Tab extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? Colors.white : Colors.transparent,
+          color: isActive ? AppColors.surface : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isActive
               ? [const BoxShadow(color: Color(0x14000000), blurRadius: 4, offset: Offset(0, 1))]
@@ -247,8 +264,8 @@ class _Tab extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
+          style: GoogleFonts.urbanist(
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: isActive ? AppColors.primary : AppColors.onSurfaceVariant,
           ),
@@ -305,7 +322,7 @@ class _MainBookingCard extends StatelessWidget {
                       children: [
                         Text(
                           order.status.toUpperCase(),
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.urbanist(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 2.0,
@@ -315,7 +332,7 @@ class _MainBookingCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           order.service?.title ?? 'Service',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.urbanist(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                               color: Colors.white),
@@ -335,7 +352,7 @@ class _MainBookingCard extends StatelessWidget {
                     ),
                     child: Text(
                       order.status.toUpperCase(),
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
@@ -360,12 +377,12 @@ class _MainBookingCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(dateStr,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white)),
                         Text(timeStr,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                                 fontSize: 10,
                                 color: Colors.white.withValues(alpha: 0.70))),
                       ],
@@ -373,7 +390,7 @@ class _MainBookingCard extends StatelessWidget {
                     const Spacer(),
                     Text(
                       '\$${order.totalAmount.toStringAsFixed(0)}',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.neon,
@@ -405,7 +422,7 @@ class _MainBookingCardPlaceholder extends StatelessWidget {
       child: Center(
         child: Text(
           AppLocalizations.of(context)!.bookFirst,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.urbanist(
               fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
         ),
       ),
@@ -423,9 +440,9 @@ class _AppointmentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.outline),
         boxShadow: [
           BoxShadow(
               color: AppColors.primary.withValues(alpha: 0.08),
@@ -442,7 +459,7 @@ class _AppointmentCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFF8FAFC)),
+              border: Border.all(color: AppColors.outline),
               boxShadow: const [
                 BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 1)),
               ],
@@ -452,7 +469,7 @@ class _AppointmentCard extends StatelessWidget {
           ),
           const Spacer(),
           Text(order.service?.title ?? 'Service',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurface),
@@ -460,8 +477,8 @@ class _AppointmentCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis),
           const SizedBox(height: 2),
           Text(date,
-              style: GoogleFonts.inter(
-                  fontSize: 9,
+              style: GoogleFonts.urbanist(
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: AppColors.onSurfaceVariant)),
         ],
@@ -476,7 +493,7 @@ class _BookNewCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: AppColors.primary.withValues(alpha: 0.20),
             style: BorderStyle.solid,
@@ -502,10 +519,9 @@ class _BookNewCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(AppLocalizations.of(context)!.bookNew,
-              style: GoogleFonts.inter(
-                  fontSize: 11,
+              style: GoogleFonts.urbanist(
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
                   color: AppColors.primary)),
         ],
       ),
@@ -530,7 +546,7 @@ class _OrdersErrorWidget extends StatelessWidget {
           Text(message,
               textAlign: TextAlign.center,
               style:
-                  GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                  GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 16),
           TextButton.icon(
             onPressed: onRetry,

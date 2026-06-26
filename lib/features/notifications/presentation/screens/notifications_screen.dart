@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
+import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
+/// شاشة الإشعارات (Notifications Screen).
+/// تعرض قائمة بالإشعارات مقسمة إلى "جديد" و"السابق" مع إمكانية تحديد الكل كمقروء أو قراءة إشعار فردي.
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -11,115 +15,61 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final List<_Notif> _notifs = [
-    _Notif(
-      icon: Icons.check_circle_outline,
-      iconColor: const Color(0xFF22C55E),
-      bgColor: const Color(0xFFDCFCE7),
-      title: 'Booking Confirmed',
-      body: 'Your Mobile Wash appointment for Oct 31 at 2:30 PM has been confirmed.',
-      time: 'Just now',
-      isRead: false,
-    ),
-    _Notif(
-      icon: Icons.warning_amber_rounded,
-      iconColor: const Color(0xFFF59E0B),
-      bgColor: const Color(0xFFFEF3C7),
-      title: 'Low Tire Pressure',
-      body: 'Porsche 911 rear-left tire pressure detected at 28 PSI. Recommended: 34 PSI.',
-      time: '1h ago',
-      isRead: false,
-    ),
-    _Notif(
-      icon: Icons.local_offer_outlined,
-      iconColor: AppColors.primary,
-      bgColor: const Color(0xFFEEF2FF),
-      title: 'Summer Shine Package',
-      body: 'Get 20% off full detailing this weekend only. Book before Sunday!',
-      time: '3h ago',
-      isRead: true,
-    ),
-    _Notif(
-      icon: Icons.schedule,
-      iconColor: const Color(0xFF8B5CF6),
-      bgColor: const Color(0xFFF5F3FF),
-      title: 'Service Reminder',
-      body: 'BMW M5 oil change due in 200 miles. Schedule now to avoid penalties.',
-      time: 'Yesterday',
-      isRead: true,
-    ),
-    _Notif(
-      icon: Icons.star_outline,
-      iconColor: const Color(0xFFF59E0B),
-      bgColor: const Color(0xFFFEF3C7),
-      title: 'Rate Your Experience',
-      body: 'How was your Ceramic Coating service? Share your feedback.',
-      time: '2 days ago',
-      isRead: true,
-    ),
-    _Notif(
-      icon: Icons.info_outline,
-      iconColor: const Color(0xFF06B6D4),
-      bgColor: const Color(0xFFECFEFF),
-      title: 'New Services Available',
-      body: 'Premium interior detailing packages are now available in your area.',
-      time: '3 days ago',
-      isRead: true,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final unread = _notifs.where((n) => !n.isRead).length;
+    final notificationsCubit = context.watch<NotificationsCubit>();
+    final notifs = notificationsCubit.state.notifications;
+    final unread = notificationsCubit.unreadCount;
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(l10n.notificationsTitle,
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+            style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
         actions: [
           if (unread > 0)
             TextButton(
-              onPressed: () => setState(() {
-                for (final n in _notifs) {
-                  n.isRead = true;
-                }
-              }),
+              onPressed: () => context.read<NotificationsCubit>().markAllAsRead(),
               child: Text(l10n.notificationsMarkAllRead,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primary)),
             ),
         ],
       ),
-      body: _notifs.isEmpty
+      body: notifs.isEmpty
           ? _buildEmpty(l10n)
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
                 if (unread > 0) ...[
                   _SectionLabel(label: '${l10n.notificationsNew} • $unread'),
-                  ..._notifs
+                  ...notifs
                       .where((n) => !n.isRead)
-                      .map((n) => _NotifTile(notif: n, onTap: () => _markRead(n))),
+                      .map((n) => _NotifTile(
+                            notif: n,
+                            onTap: () => context.read<NotificationsCubit>().markAsRead(n.id),
+                          )),
                   const SizedBox(height: 8),
                 ],
                 _SectionLabel(label: l10n.notificationsEarlier),
-                ..._notifs
+                ...notifs
                     .where((n) => n.isRead)
-                    .map((n) => _NotifTile(notif: n, onTap: () {})),
+                    .map((n) => _NotifTile(
+                          notif: n,
+                          onTap: () {},
+                        )),
               ],
             ),
     );
   }
 
-  void _markRead(_Notif n) => setState(() => n.isRead = true);
-
+  /// واجهة تعرض عندما تكون قائمة الإشعارات فارغة تماماً.
   Widget _buildEmpty(AppLocalizations l10n) {
     return Center(
       child: Column(
@@ -136,13 +86,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(height: 16),
           Text(l10n.notificationsAllCaughtUp,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.onSurface)),
           const SizedBox(height: 8),
           Text(l10n.notificationsEmpty,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.urbanist(
                   fontSize: 14, color: AppColors.onSurfaceVariant)),
         ],
       ),
@@ -150,6 +100,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 }
 
+/// ويدجت تسمية القسم (مثل: جديد / السابقة) داخل القائمة.
 class _SectionLabel extends StatelessWidget {
   final String label;
   const _SectionLabel({required this.label});
@@ -159,7 +110,7 @@ class _SectionLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
       child: Text(label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.urbanist(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: AppColors.onSurfaceVariant,
@@ -168,28 +119,9 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-class _Notif {
-  final IconData icon;
-  final Color iconColor;
-  final Color bgColor;
-  final String title;
-  final String body;
-  final String time;
-  bool isRead;
-
-  _Notif({
-    required this.icon,
-    required this.iconColor,
-    required this.bgColor,
-    required this.title,
-    required this.body,
-    required this.time,
-    required this.isRead,
-  });
-}
-
+/// بطاقة عرض إشعار واحد داخل القائمة.
 class _NotifTile extends StatelessWidget {
-  final _Notif notif;
+  final AppNotification notif;
   final VoidCallback onTap;
   const _NotifTile({required this.notif, required this.onTap});
 
@@ -214,7 +146,7 @@ class _NotifTile extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                  color: notif.bgColor,
+                  color: notif.bgColor.withValues(alpha: AppColors.isDark ? 0.20 : 0.12),
                   borderRadius: BorderRadius.circular(12)),
               child: Icon(notif.icon, color: notif.iconColor, size: 22),
             ),
@@ -228,7 +160,7 @@ class _NotifTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(notif.title,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.onSurface),
@@ -237,14 +169,14 @@ class _NotifTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(notif.time,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.urbanist(
                               fontSize: 10,
                               color: AppColors.onSurfaceVariant)),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(notif.body,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                           fontSize: 12,
                           color: AppColors.secondary,
                           height: 1.4),

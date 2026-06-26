@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:revexa/features/orders/data/models/order_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/shared/widgets/booking_location_section.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 
 class CreateOrderScreen extends StatefulWidget {
   const CreateOrderScreen({super.key});
@@ -70,17 +71,16 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
   void _submit(BuildContext context, Service service) {
     if (!_formKey.currentState!.validate()) return;
     if (_serviceLocation == null || _locationAddress.trim().length < 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select your car location on the map and enter the parking address.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      context.showAppSnackBar(
+        'Please select your car location on the map and enter the parking address.',
+        isError: true,
       );
       return;
     }
     if (_selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select appointment date and time'), behavior: SnackBarBehavior.floating),
+      context.showAppSnackBar(
+        'Please select appointment date and time',
+        isError: true,
       );
       return;
     }
@@ -147,15 +147,13 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
             builder: (_) => _ConfirmationDialog(order: state.order, serviceTitle: serviceTitle),
           );
         } else if (state is OrdersError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
-          );
+          context.showAppSnackBar(state.message, isError: true);
         }
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text('Book Service', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+          title: Text('Book Service', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.onSurface,
           elevation: 0,
@@ -187,9 +185,9 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(serviceTitle, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                            Text(serviceTitle, style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
                             Text('\$${servicePrice.toStringAsFixed(0)}',
-                                style: GoogleFonts.inter(fontSize: 13, color: AppColors.neon, fontWeight: FontWeight.w600)),
+                                style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.neon, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -199,7 +197,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 const SizedBox(height: 28),
 
                 // Car details
-                Text('Car Details', style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                Text('Car Details', style: GoogleFonts.urbanist(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 16),
                 _OrderField(label: 'Car Model', placeholder: 'e.g. BMW M5 Competition 2023', controller: _modelCtrl,
                     validator: (v) => v == null || v.trim().length < 2 ? 'Required' : null),
@@ -219,7 +217,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 const SizedBox(height: 28),
 
                 // Appointment
-                Text('Appointment', style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                Text('Appointment', style: GoogleFonts.urbanist(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -266,7 +264,7 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColors.outline),
                         ),
-                        child: Text(t, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600,
+                        child: Text(t, style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600,
                             color: _selectedTime?.format(context) == t ? Colors.white : AppColors.onSurface)),
                       ),
                     );
@@ -289,11 +287,11 @@ class _CreateOrderScreenState extends State<CreateOrderScreen> {
                 child: ElevatedButton(
                   onPressed: isLoading ? null : () => _submit(context, bookingService),
                   child: isLoading
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator.adaptive(valueColor: AlwaysStoppedAnimation<Color>(Colors.white), strokeWidth: 2))
                       : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           const Icon(Icons.event_available_outlined, size: 20),
                           const SizedBox(width: 8),
-                          Text('Confirm Booking', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700)),
+                          Text('Confirm Booking', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700)),
                         ]),
                 ),
               ),
@@ -320,20 +318,20 @@ class _OrderField extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
+          child: Text(label, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
         ),
         TextFormField(
           controller: controller,
           validator: validator,
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: GoogleFonts.inter(color: AppColors.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 14),
+            hintStyle: GoogleFonts.urbanist(color: AppColors.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 14),
             filled: true, fillColor: AppColors.surface,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2)),
-            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.error)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2)),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.error)),
           ),
         ),
       ],
@@ -357,7 +355,7 @@ class _DateTimeSelector extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
+          child: Text(label, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
         ),
         GestureDetector(
           onTap: onTap,
@@ -365,7 +363,7 @@ class _DateTimeSelector extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: value != null ? AppColors.primary.withValues(alpha: 0.4) : AppColors.outline),
             ),
             child: Row(
@@ -375,7 +373,7 @@ class _DateTimeSelector extends StatelessWidget {
                 Expanded(
                   child: Text(
                     value ?? placeholder,
-                    style: GoogleFonts.inter(fontSize: 13, color: value != null ? AppColors.onSurface : AppColors.onSurfaceVariant),
+                    style: GoogleFonts.urbanist(fontSize: 13, color: value != null ? AppColors.onSurface : AppColors.onSurfaceVariant),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -408,12 +406,12 @@ class _ConfirmationDialog extends StatelessWidget {
               child: const Icon(Icons.check_circle_rounded, color: Color(0xFF22C55E), size: 40),
             ),
             const SizedBox(height: 20),
-            Text('Booking Confirmed!', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            Text('Booking Confirmed!', style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 8),
             Text(
               'Your $serviceTitle appointment has been booked successfully.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
+              style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
             ),
             const SizedBox(height: 16),
             Container(
@@ -437,7 +435,7 @@ class _ConfirmationDialog extends StatelessWidget {
                   Navigator.of(context).pop();
                   Navigator.of(context).popUntil((r) => r.settings.name == AppRoutes.home);
                 },
-                child: Text('View My Bookings', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+                child: Text('View My Bookings', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700)),
               ),
             ),
           ],
@@ -457,8 +455,8 @@ class _ConfirmRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
-        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
+        Text(value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
       ],
     );
   }

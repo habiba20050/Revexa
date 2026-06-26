@@ -14,10 +14,11 @@ class ServicesCubit extends Cubit<ServicesState> {
     try {
       final result = await _repository.getAllServices(page: page, limit: limit);
       if (isClosed) return;
-      if (result is Success) {
-        emit(ServicesLoaded(result.data!));
-      } else {
-        emit(ServicesError(result.failure!.message));
+      switch (result) {
+        case Success<dynamic>():
+          emit(ServicesLoaded((result as Success).value));
+        case ResultFailure<dynamic>():
+          emit(ServicesError((result as ResultFailure).failure.message));
       }
     } catch (e) {
       if (!isClosed) emit(ServicesError('Unexpected error: $e'));
@@ -30,10 +31,11 @@ class ServicesCubit extends Cubit<ServicesState> {
     try {
       final result = await _repository.getServiceById(id);
       if (isClosed) return;
-      if (result is Success) {
-        emit(ServiceDetailLoaded(result.data!));
-      } else {
-        emit(ServicesError(result.failure!.message));
+      switch (result) {
+        case Success<dynamic>():
+          emit(ServiceDetailLoaded((result as Success).value));
+        case ResultFailure<dynamic>():
+          emit(ServicesError((result as ResultFailure).failure.message));
       }
     } catch (e) {
       if (!isClosed) emit(ServicesError('Unexpected error: $e'));
@@ -46,10 +48,11 @@ class ServicesCubit extends Cubit<ServicesState> {
     try {
       final result = await _repository.getServicesByCategory(category);
       if (isClosed) return;
-      if (result is Success) {
-        emit(ServicesByCategory(result.data!, category));
-      } else {
-        emit(ServicesError(result.failure!.message));
+      switch (result) {
+        case Success<dynamic>():
+          emit(ServicesByCategory((result as Success).value, category));
+        case ResultFailure<dynamic>():
+          emit(ServicesError((result as ResultFailure).failure.message));
       }
     } catch (e) {
       if (!isClosed) emit(ServicesError('Unexpected error: $e'));

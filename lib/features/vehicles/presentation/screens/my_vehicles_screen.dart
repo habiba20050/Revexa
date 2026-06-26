@@ -22,7 +22,7 @@ class MyVehiclesScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Manage your premium fleet with real-time health diagnostics and maintenance tracking.',
-                    style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
+                    style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
                   ),
                   const SizedBox(height: 20),
 
@@ -111,7 +111,7 @@ class _VehiclesAppBar extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Revexa',
-                style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary),
               ),
             ],
           ),
@@ -127,7 +127,7 @@ class _VehiclesAppBar extends StatelessWidget {
             child: Center(
               child: Text(
                 'U',
-                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
               ),
             ),
           ),
@@ -219,7 +219,7 @@ class _VehicleCard extends StatelessWidget {
                       ),
                       child: Text(
                         plate,
-                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0),
+                        style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0),
                       ),
                     ),
                   ),
@@ -240,9 +240,9 @@ class _VehicleCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(make, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                          Text(make, style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                           const SizedBox(height: 2),
-                          Text(color, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                          Text(color, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
                         ],
                       ),
                     ),
@@ -260,7 +260,7 @@ class _VehicleCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               warningLabel!,
-                              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFFF59E0B)),
+                              style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFFF59E0B)),
                             ),
                           ],
                         ),
@@ -299,11 +299,11 @@ class _VehicleCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(m.label, style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant, letterSpacing: 0.3)),
+                            Text(m.label, style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.onSurfaceVariant, letterSpacing: 0.3)),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Text(m.value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                                Text(m.value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                                 if (m.hasIndicator) ...[
                                   const SizedBox(width: 6),
                                   Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFF22C55E), shape: BoxShape.circle)),
@@ -346,7 +346,7 @@ class _StatusBadge extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 13),
           const SizedBox(width: 4),
-          Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
+          Text(label, style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: color)),
         ],
       ),
     );
@@ -379,13 +379,13 @@ class _AddVehicleCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'Add New Vehicle',
-            style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
+            style: GoogleFonts.urbanist(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
           ),
           const SizedBox(height: 6),
           Text(
             'Expand your digital garage and unlock premium concierge services for your new car.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.white.withValues(alpha: 0.75), height: 1.5),
+            style: GoogleFonts.urbanist(fontSize: 12, color: Colors.white.withValues(alpha: 0.75), height: 1.5),
           ),
           const SizedBox(height: 18),
           GestureDetector(
@@ -399,7 +399,7 @@ class _AddVehicleCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Register Now',
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
+                  style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
                 ),
               ),
             ),
@@ -445,7 +445,7 @@ class _FleetAnalyticsCard extends StatelessWidget {
                 child: Icon(Icons.analytics_outlined, color: AppColors.primary, size: 18),
               ),
               const SizedBox(width: 10),
-              Text('Fleet Analytics', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+              Text('Fleet Analytics', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             ],
           ),
           const SizedBox(height: 16),
@@ -469,7 +469,7 @@ class _FleetAnalyticsCard extends StatelessWidget {
                 children: [
                   Icon(Icons.bar_chart_rounded, color: AppColors.primary, size: 18),
                   const SizedBox(width: 8),
-                  Text('View Detailed Reports', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                  Text('View Detailed Reports', style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
                 ],
               ),
             ),
@@ -490,8 +490,8 @@ class _AnalyticRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
-        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
+        Text(value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
       ],
     );
   }
@@ -517,9 +517,9 @@ class _AddVehicleSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Register Vehicle', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            Text('Register Vehicle', style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 4),
-            Text('Add your vehicle to unlock premium services', style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
+            Text('Add your vehicle to unlock premium services', style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 24),
             const _SheetField(label: 'Car Model', placeholder: 'e.g. BMW M5 2023'),
             const SizedBox(height: 12),
@@ -532,7 +532,7 @@ class _AddVehicleSheet extends StatelessWidget {
               height: 52,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Add Vehicle', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+                child: Text('Add Vehicle', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700)),
               ),
             ),
           ],
@@ -555,9 +555,9 @@ class _SheetField extends StatelessWidget {
         hintText: placeholder,
         filled: true,
         fillColor: AppColors.surfaceContainerLow,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2)),
       ),
     );
   }

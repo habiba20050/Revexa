@@ -1,7 +1,7 @@
 
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +12,7 @@ import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 import 'package:revexa/features/profile/data/datasources/profile_remote_datasource.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -87,48 +88,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _pickedImage = picked);
   }
 
-  Future<String?> _resolveImageUrl() async {
-    if (_pickedImage == null) return _imageUrl;
-    final file = _pickedImage!;
-    final bytes = await file.readAsBytes();
-    if (kIsWeb || file.path.isEmpty) {
-      return _profileRemote.uploadImageBytes(bytes, fileName: file.name);
-    }
-    return _profileRemote.uploadImage(file.path, fileName: file.name);
-  }
-
   Future<void> _save(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
     try {
-      final imageUrl = await _resolveImageUrl();
-
-      final updated = await _profileRemote.updateProfile(
+      var updated = await _profileRemote.updateProfile(
         firstName: _firstNameCtrl.text.trim(),
         lastName: _lastNameCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
-        imageUrl: imageUrl,
       );
 
-      if (context.mounted) {
-        await context.read<AuthCubit>().applyProfileUpdate(updated);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Color(0xFF22C55E),
-            behavior: SnackBarBehavior.floating,
-          ),
+      if (_pickedImage != null) {
+        final file = _pickedImage!;
+        final bytes = await file.readAsBytes();
+        if (kIsWeb || file.path.isEmpty) {
+          updated = await _profileRemote.uploadAvatarBytes(bytes, fileName: file.name);
+        } else {
+          updated = await _profileRemote.uploadAvatar(file.path, fileName: file.name);
+        }
+        updated = updated.copyWith(
+          firstName: _firstNameCtrl.text.trim(),
+          lastName: _lastNameCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim(),
+          address: _addressCtrl.text.trim(),
         );
-        Navigator.pop(context);
       }
+
+      if (!context.mounted) return;
+      await context.read<AuthCubit>().applyProfileUpdate(updated);
+      if (!context.mounted) return;
+      context.showAppSnackBar('Profile updated successfully');
+      Navigator.pop(context);
     } catch (e) {
       final message = e is DioException ? ErrorHandler.toFailure(e).message : e.toString();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
-        );
+        context.showAppSnackBar(message, isError: true);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -140,13 +136,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Edit Profile', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text('Edit Profile', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
       ),
       body: _loadingProfile
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator.adaptive())
           : Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -179,7 +175,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Tap to change photo',
-                      style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+                      style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
                     ),
                     const SizedBox(height: 32),
                     _EditField(
@@ -207,9 +203,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator.adaptive(valueColor: AlwaysStoppedAnimation<Color>(Colors.white), strokeWidth: 2),
                               )
-                            : Text('Save Changes', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700)),
+                            : Text('Save Changes', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700)),
                       ),
                     ),
                   ],
@@ -233,17 +229,19 @@ class _ProfileAvatar extends StatelessWidget {
         future: picked!.readAsBytes(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const CircleAvatar(radius: 56, child: CircularProgressIndicator(strokeWidth: 2));
+            return const CircleAvatar(radius: 56, child: CircularProgressIndicator.adaptive(strokeWidth: 2));
           }
           return CircleAvatar(radius: 56, backgroundImage: MemoryImage(snapshot.data!));
         },
       );
     }
-    final url = imageUrl;
-    if (url != null && url.isNotEmpty) {
-      return CircleAvatar(
+    final url = ImageUrlUtils.resolve(imageUrl);
+    if (url != null && (ImageUrlUtils.isNetwork(url) || ImageUrlUtils.isAsset(url))) {
+      return AppCircleAvatar(
+        imageUrl: url,
         radius: 56,
-        backgroundImage: CachedNetworkImageProvider(url),
+        backgroundColor: AppColors.primary.withValues(alpha: 0.10),
+        fallback: const SizedBox.shrink(),
       );
     }
     return BlocBuilder<AuthCubit, AuthState>(
@@ -254,7 +252,7 @@ class _ProfileAvatar extends StatelessWidget {
           backgroundColor: AppColors.primary.withValues(alpha: 0.10),
           child: Text(
             user?.firstName.isNotEmpty == true ? user!.firstName[0].toUpperCase() : 'U',
-            style: GoogleFonts.inter(fontSize: 36, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: GoogleFonts.urbanist(fontSize: 36, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
         );
       },
@@ -284,7 +282,7 @@ class _EditField extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
+          child: Text(label, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
         ),
         TextFormField(
           controller: controller,
@@ -295,13 +293,13 @@ class _EditField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.surface,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.outline)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.5), width: 2),
             ),
-            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.error)),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.error)),
           ),
         ),
       ],

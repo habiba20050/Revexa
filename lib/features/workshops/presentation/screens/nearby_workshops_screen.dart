@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:revexa/core/theme/app_colors.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 
 /// Standalone screen to pick an area and open Google Maps for nearby workshops.
 class NearbyWorkshopsScreen extends StatefulWidget {
@@ -19,22 +20,20 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
   LatLng? _selectedPoint;
   String _searchType = 'car repair';
 
-  static const _searchOptions = <String, String>{
-    'car repair': 'Repair shops',
-    'car wash': 'Car wash',
-    'tire shop': 'Tires',
-    'auto parts': 'Parts',
-    'oil change': 'Oil change',
+  static const _searchOptions = <String, ({String label, IconData icon})>{
+    'car repair': (label: 'Repair Shop', icon: Icons.build_rounded),
+    'car wash': (label: 'Car Wash', icon: Icons.local_car_wash_rounded),
+    'tire shop': (label: 'Tires', icon: Icons.tire_repair),
+    'auto parts': (label: 'Parts', icon: Icons.settings_outlined),
+    'oil change': (label: 'Oil Change', icon: Icons.water_drop_outlined),
   };
 
   Future<void> _openOnMaps() async {
     final point = _selectedPoint;
     if (point == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tap the map to choose your area first.'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      context.showAppSnackBar(
+        'Tap the map to choose your area first.',
+        isError: true,
       );
       return;
     }
@@ -52,58 +51,101 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Nearby Workshops',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.onSurface,
           ),
         ),
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.outline),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Find repair shops & service centers',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppColors.onSurfaceVariant,
-                height: 1.45,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Your area',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap the map where you are looking for workshops.',
-              style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 12),
+            // Hero descriptor
             Container(
-              height: 280,
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.12)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44, height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.map_rounded, color: AppColors.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Find Nearby Workshops',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Tap the map to select your area, then open in Google Maps.',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Map section header
+            Text(
+              'Select your area',
+              style: GoogleFonts.urbanist(
+                fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Map container
+            Container(
+              height: 260,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: AppColors.outline),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
                 child: FlutterMap(
                   options: MapOptions(
                     initialCenter: point ?? _defaultCenter,
@@ -112,8 +154,12 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
+                      // Single canonical OSM tile URL — no subdomain rotation.
+                      // Subdomain rotation is deprecated per OSM operations
+                      // issue #737 and generates console warnings in flutter_map.
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.revexa.app',
                     ),
                     if (point != null)
                       MarkerLayer(
@@ -122,7 +168,14 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
                             point: point,
                             width: 48,
                             height: 48,
-                            child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                            child: Icon(
+                              Icons.location_on,
+                              color: AppColors.error,
+                              size: 40,
+                              shadows: [
+                                Shadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 8),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -130,20 +183,51 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
                 ),
               ),
             ),
-            if (point != null) ...[
-              const SizedBox(height: 10),
-              Text(
-                '${point.latitude.toStringAsFixed(5)}, ${point.longitude.toStringAsFixed(5)}',
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant),
-              ),
-            ],
-            const SizedBox(height: 24),
+
+            // Selected point status
+            AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              child: point != null
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Area selected: ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          Icon(Icons.touch_app_rounded, color: AppColors.onSurfaceVariant, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Tap anywhere on the map to pin your location',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 11, color: AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+
+            const SizedBox(height: 28),
+
+            // Service type section
             Text(
               'What are you looking for?',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.onSurface,
+              style: GoogleFonts.urbanist(
+                fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -152,35 +236,73 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
               runSpacing: 8,
               children: _searchOptions.entries.map((e) {
                 final selected = _searchType == e.key;
-                return FilterChip(
-                  label: Text(e.value),
-                  selected: selected,
-                  onSelected: (_) => setState(() => _searchType = e.key),
-                  selectedColor: AppColors.primary.withValues(alpha: 0.15),
-                  checkmarkColor: AppColors.primary,
+                return GestureDetector(
+                  onTap: () => setState(() => _searchType = e.key),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: selected ? AppColors.primary : AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: selected ? AppColors.primary : AppColors.outline,
+                        width: selected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          e.value.icon,
+                          size: 15,
+                          color: selected ? Colors.white : AppColors.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          e.value.label,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: selected ? Colors.white : AppColors.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 28),
+
+            const SizedBox(height: 32),
+
+            // CTA button
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
+              height: 54,
+              child: ElevatedButton.icon(
                 onPressed: _openOnMaps,
-                icon: const Icon(Icons.map_outlined),
-                label: const Text('Open on Google Maps'),
-                style: FilledButton.styleFrom(
+                icon: const Icon(Icons.map_outlined, size: 20),
+                label: Text(
+                  'Open on Google Maps',
+                  style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'Google Maps will show places near the point you selected.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+            Center(
+              child: Text(
+                'Google Maps will show places near the point you selected.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.urbanist(
+                  fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4,
+                ),
+              ),
             ),
           ],
         ),
@@ -188,3 +310,4 @@ class _NearbyWorkshopsScreenState extends State<NearbyWorkshopsScreen> {
     );
   }
 }
+

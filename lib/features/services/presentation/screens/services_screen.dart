@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
@@ -8,27 +9,43 @@ import 'package:revexa/features/services/data/models/service_model.dart';
 import 'package:revexa/features/services/presentation/cubit/services_cubit.dart';
 import 'package:revexa/features/services/presentation/cubit/services_state.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/shared/widgets/shimmer_widgets.dart';
+import 'package:revexa/shared/widgets/app_logo.dart';
 
 class ServicesScreen extends StatefulWidget {
   final VoidCallback? onBackToHome;
   final VoidCallback? onOpenSettings;
+  final String? initialQuery;
 
-  const ServicesScreen({super.key, this.onBackToHome, this.onOpenSettings});
+  const ServicesScreen({
+    super.key,
+    this.onBackToHome,
+    this.onOpenSettings,
+    this.initialQuery,
+  });
 
   @override
   State<ServicesScreen> createState() => _ServicesScreenState();
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  final _searchCtrl = TextEditingController();
+  late final TextEditingController _searchCtrl;
   String _query = '';
 
   @override
   void initState() {
     super.initState();
+    _searchCtrl = TextEditingController(text: widget.initialQuery);
+    _query = (widget.initialQuery ?? '').toLowerCase();
+    
+    // Only load if not already loaded — prevents duplicate calls on every
+    // tab switch because HomeScreen recreates this widget each time.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ServicesCubit>().loadServices(limit: 20);
+      final cubit = context.read<ServicesCubit>();
+      if (cubit.state is ServicesInitial) {
+        cubit.loadServices(limit: 20);
+      }
     });
   }
 
@@ -57,7 +74,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       children: [
                         Text(
                           'Precision Care',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.urbanist(
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
                             color: AppColors.onSurface,
@@ -68,7 +85,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'Select from our range of executive automotive\nservices brought directly to you.',
-                          style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
+                          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.5),
                         ),
                         const SizedBox(height: 20),
                         _SearchBar(
@@ -119,6 +136,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       return const SizedBox.shrink();
                     },
                   ),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -129,61 +147,33 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 
   Widget _buildSkeletons() {
+    final isTablet = context.isTabletOrLarger;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const ShimmerBox(width: double.infinity, height: 180, radius: 20),
           const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.88,
+          // Use GridView.builder with shrinkWrap inside a Column that lives
+          // inside SingleChildScrollView — this prevents RenderFlex overflow.
+          GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            children: List.generate(4, (_) => const ServiceCardSkeleton()),
+            itemCount: 4,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isTablet ? 3 : 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.88,
+            ),
+            itemBuilder: (_, __) => const ServiceCardSkeleton(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, String msg) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          children: [
-            Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text(msg, textAlign: TextAlign.center, style: GoogleFonts.inter(color: AppColors.onSurfaceVariant, fontSize: 14)),
-            const SizedBox(height: 16),
-            TextButton.icon(
-              onPressed: () => context.read<ServicesCubit>().loadServices(limit: 20),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          children: [
-            Icon(Icons.search_off_rounded, size: 48, color: AppColors.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text('No services found', style: GoogleFonts.inter(color: AppColors.onSurfaceVariant, fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _NearbyWorkshopsEntry extends StatelessWidget {
@@ -217,7 +207,7 @@ class _NearbyWorkshopsEntry extends StatelessWidget {
                   children: [
                     Text(
                       'Nearby Workshops',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: AppColors.onSurface,
@@ -226,7 +216,7 @@ class _NearbyWorkshopsEntry extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Find repair shops and service centers on the map',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.urbanist(
                         fontSize: 12,
                         color: AppColors.onSurfaceVariant,
                       ),
@@ -267,19 +257,11 @@ class _ServicesAppBar extends StatelessWidget {
               color: AppColors.onSurface,
               tooltip: 'Back to Home',
             ),
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 16),
-          ),
+          AppLogo.mini(),
           const SizedBox(width: 8),
           Text(
             'REVEXA',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary, letterSpacing: 0.5),
+            style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary, letterSpacing: 0.5),
           ),
           const Spacer(),
           Container(
@@ -322,10 +304,10 @@ class _SearchBar extends StatelessWidget {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
-        style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurface),
+        style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface),
         decoration: InputDecoration(
           hintText: 'Search for a service...',
-          hintStyle: GoogleFonts.inter(color: AppColors.onSurfaceVariant, fontSize: 14),
+          hintStyle: GoogleFonts.urbanist(color: AppColors.onSurfaceVariant, fontSize: 14),
           prefixIcon: Icon(Icons.search_rounded, color: AppColors.onSurfaceVariant, size: 20),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 15),
@@ -402,6 +384,7 @@ class _ServicesContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fromApi = services.isNotEmpty && !useStaticFallback;
+    final isTablet = context.isTabletOrLarger;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -409,7 +392,7 @@ class _ServicesContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (fromApi) ...[
-            Text('Available Services', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            Text('Available Services', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 14),
             if (services.isNotEmpty) ...[
               _ApiFeaturedCard(service: services.first),
@@ -420,11 +403,11 @@ class _ServicesContent extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: services.length - 1,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isTablet ? 3 : 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 0.72,
+                  childAspectRatio: 0.82,
                 ),
                 itemBuilder: (context, index) => _ServiceCard(service: services[index + 1]),
               ),
@@ -432,7 +415,7 @@ class _ServicesContent extends StatelessWidget {
             _FeaturedCard(service: _staticServices[0]),
             const SizedBox(height: 12),
             GridView.count(
-              crossAxisCount: 2,
+              crossAxisCount: isTablet ? 3 : 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               childAspectRatio: 0.92,
@@ -490,25 +473,71 @@ class _ServiceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            Flexible(
+              flex: 5,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 child: service.firstImageUrl.isNotEmpty
-                    ? Image.network(service.firstImageUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceContainerHigh))
-                    : Image.asset(AppConstants.imgServices1, fit: BoxFit.cover, width: double.infinity),
+                    ? AppImage(
+                        source: service.firstImageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorWidget: Image.asset(
+                          AppConstants.imgServices1,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      )
+                    : Image.asset(
+                        AppConstants.imgServices1,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(service.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
-                  const SizedBox(height: 4),
-                  Text(service.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4)),
-                  const SizedBox(height: 10),
-                  Text('\$${service.price.toStringAsFixed(0)}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                ],
+            Flexible(
+              flex: 4,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      service.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Text(
+                        service.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.urbanist(
+                          fontSize: 11,
+                          color: AppColors.onSurfaceVariant,
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '\$${service.price.toStringAsFixed(0)}',
+                      style: GoogleFonts.urbanist(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -554,11 +583,11 @@ class _FeaturedCard extends StatelessWidget {
                       child: Icon(service.icon, color: AppColors.primary, size: 24),
                     ),
                     const SizedBox(height: 10),
-                    Text(service.title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.3)),
+                    Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.3)),
                     const SizedBox(height: 4),
-                    Text(service.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35)),
+                    Text(service.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35)),
                     const SizedBox(height: 10),
-                    Text(service.price, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                    Text(service.price, style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary)),
                     const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () => openServiceBooking(
@@ -574,7 +603,7 @@ class _FeaturedCard extends StatelessWidget {
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text('Book Now', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                        child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -636,18 +665,18 @@ class _ApiFeaturedCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(service.title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface)),
+                      Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface)),
                       const SizedBox(height: 6),
                       Text(
                         service.description,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
+                        style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
                       ),
                       const SizedBox(height: 10),
                       Text(
                         'From \$${service.price.toStringAsFixed(2)}',
-                        style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
+                        style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -656,7 +685,7 @@ class _ApiFeaturedCard extends StatelessWidget {
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text('Book Now', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                        child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -667,10 +696,10 @@ class _ApiFeaturedCard extends StatelessWidget {
                   borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
                   child: SizedBox(
                     width: 120,
-                    child: Image.network(
-                      service.firstImageUrl,
+                    child: AppImage(
+                      source: service.firstImageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      height: double.infinity,
                     ),
                   ),
                 ),
@@ -711,11 +740,11 @@ class _GridCard extends StatelessWidget {
               child: Icon(service.icon, color: AppColors.primary, size: 22),
             ),
             const Spacer(),
-            Text(service.title, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+            Text(service.title, style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
             const SizedBox(height: 2),
-            Text(service.subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+            Text(service.subtitle, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 6),
-            Text(service.price, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
+            Text(service.price, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
           ],
         ),
       ),
@@ -729,7 +758,7 @@ class _EliteServiceBanner extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: SizedBox(
-        height: 140,
+        height: 180,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -764,19 +793,19 @@ class _EliteServiceBanner extends StatelessWidget {
                 children: [
                   Text(
                     'ELITE SERVICE',
-                    style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: const Color(0xFF06B6D4), letterSpacing: 2.0),
+                    style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF06B6D4), letterSpacing: 2.0),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Signature\nDetailing',
-                    style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2, letterSpacing: -0.3),
+                    style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2, letterSpacing: -0.3),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Text('\$249.00', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
+                      Text('\$249.00', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white)),
                       const SizedBox(width: 8),
-                      Text('\$320.00', style: GoogleFonts.inter(fontSize: 12, color: Colors.white54, decoration: TextDecoration.lineThrough)),
+                      Text('\$320.00', style: GoogleFonts.urbanist(fontSize: 12, color: Colors.white54, decoration: TextDecoration.lineThrough)),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -796,7 +825,7 @@ class _EliteServiceBanner extends StatelessWidget {
                       ),
                       child: Text(
                         'BOOK PACKAGE',
-                        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.0),
+                        style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.0),
                       ),
                     ),
                   ),
@@ -828,13 +857,13 @@ class _ConciergeCard extends StatelessWidget {
         children: [
           Text(
             'Custom Fleet Care?',
-            style: GoogleFonts.inter(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+            style: GoogleFonts.urbanist(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.onSurface),
           ),
           const SizedBox(height: 6),
           Text(
             'Our concierge team is available 24/7 for\ncustom maintenance plans.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
+            style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5),
           ),
           const SizedBox(height: 16),
           Row(
@@ -882,7 +911,7 @@ class _ConciergeBtn extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: primary ? Colors.white : AppColors.onSurface),
+            style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: primary ? Colors.white : AppColors.onSurface),
           ),
         ),
       ),

@@ -127,4 +127,39 @@ class AuthCubit extends Cubit<AuthState> {
       if (!isClosed) emit(AuthError('Unexpected error: $e'));
     }
   }
+
+  Future<void> signInWithGoogle(String idToken) async {
+    if (isClosed) return;
+    emit(const AuthLoading());
+    try {
+      final result = await _repository.signInWithGoogle(idToken);
+      if (isClosed) return;
+      if (result is Success) {
+        emit(AuthAuthenticated(result.data!));
+      } else {
+        emit(AuthError(result.failure!.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(AuthError('Unexpected error: $e'));
+    }
+  }
+
+  Future<void> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    if (isClosed) return;
+    emit(const AuthLoading());
+    try {
+      final result = await _repository.resetPassword(token: token, password: password);
+      if (isClosed) return;
+      if (result is Success) {
+        emit(AuthAuthenticated(result.data!));
+      } else {
+        emit(AuthError(result.failure!.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(AuthError('Unexpected error: $e'));
+    }
+  }
 }

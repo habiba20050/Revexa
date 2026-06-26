@@ -73,7 +73,7 @@ class _MobileWashAppBar extends StatelessWidget {
       ),
       title: Text(
         'REVEXA SERVICE',
-        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+        style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
       ),
       actions: [
         Padding(
@@ -111,7 +111,7 @@ class _ImageGallery extends StatelessWidget {
               ),
               child: Text(
                 'PREMIUM DETAIL',
-                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.0),
+                style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.0),
               ),
             ),
           ],
@@ -119,7 +119,7 @@ class _ImageGallery extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           'Mobile Wash',
-          style: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5),
+          style: GoogleFonts.urbanist(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5),
         ),
         const SizedBox(height: 10),
         Container(
@@ -133,7 +133,7 @@ class _ImageGallery extends StatelessWidget {
             children: [
               Icon(Icons.timer_outlined, color: AppColors.primary, size: 16),
               const SizedBox(width: 6),
-              Text('Estimated 60 mins', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
+              Text('Estimated 60 mins', style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.onSurface)),
             ],
           ),
         ),
@@ -187,11 +187,11 @@ class _DescriptionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Description', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text('Description', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 10),
         Text(
           'Full exterior foam wash and interior detailing at your door. We bring the luxury showroom finish to your driveway. Our eco-friendly foam technology safely lifts dirt, while our meticulous interior process ensures every corner is sanitized and refreshed.',
-          style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
+          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
         ),
       ],
     );
@@ -256,9 +256,9 @@ class _FeatureItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                Text(title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 3),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.5)),
+                Text(subtitle, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.5)),
               ],
             ),
           ),
@@ -274,7 +274,7 @@ class _WorkflowSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Service Workflow', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
+        Text('Service Workflow', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.2)),
         const SizedBox(height: 16),
    const     _WorkflowStep(
           number: '01',
@@ -327,7 +327,7 @@ class _WorkflowStep extends StatelessWidget {
               child: Center(
                 child: Text(
                   number,
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                  style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
                 ),
               ),
             ),
@@ -351,9 +351,9 @@ class _WorkflowStep extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 6),
-                Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                Text(title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
                 const SizedBox(height: 3),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.5)),
+                Text(subtitle, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.5)),
               ],
             ),
           ),
@@ -381,16 +381,16 @@ class _PricingCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('STARTING FROM', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2)),
+                  Text('STARTING FROM', style: GoogleFonts.urbanist(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2)),
                   const SizedBox(height: 4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('\$45.00', style: GoogleFonts.inter(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
+                      Text('\$45.00', style: GoogleFonts.urbanist(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.5)),
                       const SizedBox(width: 4),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: Text('/ vehicle', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                        child: Text('/ vehicle', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
                       ),
                     ],
                   ),
@@ -430,7 +430,7 @@ class _PricingCard extends StatelessWidget {
                 children: [
              const     Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
-                  Text('BOOK NOW', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
+                  Text('BOOK NOW', style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
                 ],
               ),
             ),
@@ -439,7 +439,7 @@ class _PricingCard extends StatelessWidget {
           Text(
             'Terms without service fee may apply at checkout. Final price confirmed with 24h before appointment.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant, height: 1.5),
+            style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.onSurfaceVariant, height: 1.5),
           ),
         ],
       ),
@@ -459,10 +459,10 @@ class _PricingRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant)),
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? AppColors.onSurface),
+          style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: valueColor ?? AppColors.onSurface),
         ),
       ],
     );
@@ -484,8 +484,8 @@ class _BookNowBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Starting from', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
-              Text('\$45', style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary)),
+              Text('Starting from', style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              Text('\$45', style: GoogleFonts.urbanist(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary)),
             ],
           ),
           const SizedBox(width: 16),
@@ -504,7 +504,7 @@ class _BookNowBar extends StatelessWidget {
                   children: [
                     const Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
-                    Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                   ],
                 ),
               ),

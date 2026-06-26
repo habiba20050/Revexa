@@ -26,7 +26,7 @@ class BatteryDetailScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant, size: 15),
                         const SizedBox(width: 6),
-                        Text('BACK TO SERVICES', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0)),
+                        Text('BACK TO SERVICES', style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.0)),
                       ],
                     ),
                   ),
@@ -58,7 +58,7 @@ class BatteryDetailScreen extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
-                              child: Text('BATTERY SERVICE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
+                              child: Text('BATTERY SERVICE', style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.0)),
                             ),
                           ),
                         ],
@@ -76,13 +76,13 @@ class BatteryDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('MAINTENANCE SERVICE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.5)),
+                        Text('MAINTENANCE SERVICE', style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary, letterSpacing: 1.5)),
                         const SizedBox(height: 8),
-                        Text('Battery', style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1)),
+                        Text('Battery', style: GoogleFonts.urbanist(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1)),
                         const SizedBox(height: 10),
                         Text(
                           'Complete battery health diagnostics and replacement service. We test, calibrate, and replace batteries for all vehicle makes using OEM-grade components.',
-                          style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
+                          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
                         ),
                         const SizedBox(height: 18),
                       const  _InfoRow(icon: Icons.battery_charging_full_outlined, label: 'SERVICE SCOPE', value: 'Health check, test & replacement'),
@@ -108,18 +108,18 @@ class BatteryDetailScreen extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Starting from', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                                Text('Starting from', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
                                 const SizedBox(height: 2),
-                                Text('\$40.00', style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8)),
+                                Text('\$40.00', style: GoogleFonts.urbanist(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8)),
                               ],
                             ),
                             const Spacer(),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('Availability', style: GoogleFonts.inter(fontSize: 10, color: AppColors.onSurfaceVariant)),
+                                Text('Availability', style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.onSurfaceVariant)),
                                 const SizedBox(height: 2),
-                                Text('Same Day', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF22C55E))),
+                                Text('Same Day', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF22C55E))),
                               ],
                             ),
                           ],
@@ -143,7 +143,7 @@ class BatteryDetailScreen extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                                Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
                               ],
@@ -180,7 +180,7 @@ class _BatteryAppBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Text('REVEXA SERVICE', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
+          Text('REVEXA SERVICE', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
           const Spacer(),
           Container(
             width: 36, height: 36,
@@ -214,9 +214,9 @@ class _InfoRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
+              Text(label, style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
               const SizedBox(height: 2),
-              Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+              Text(value, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
             ],
           ),
         ),
@@ -239,7 +239,7 @@ class _IncludeCheck extends StatelessWidget {
           child: const Icon(Icons.check, color: Colors.white, size: 12),
         ),
         const SizedBox(width: 8),
-        Text(label, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
       ],
     );
   }

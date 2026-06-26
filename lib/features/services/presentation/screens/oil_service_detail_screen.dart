@@ -92,7 +92,7 @@ class _OilServiceAppBar extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             'REVEXA SERVICE',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
           const Spacer(),
           Container(
@@ -123,7 +123,7 @@ class _BackToServices extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             'Back to Services',
-            style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w500),
+            style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -158,7 +158,7 @@ class _ServiceHeader extends StatelessWidget {
               ),
               child: Text(
                 'MAINTENANCE',
-                style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2),
+                style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 1.2),
               ),
             ),
           ],
@@ -166,12 +166,12 @@ class _ServiceHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Oil Service',
-          style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1),
+          style: GoogleFonts.urbanist(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.8, height: 1.1),
         ),
         const SizedBox(height: 10),
         Text(
           'Keep your engine running at peak performance with our premium synthetic oil change and filter replacement. We use high-quality oils tailored to your vehicle\'s specifications.',
-          style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
+          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurfaceVariant, height: 1.65),
         ),
       ],
     );
@@ -208,9 +208,9 @@ class _FeatureCard extends StatelessWidget {
             child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+          Text(title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface)),
           const SizedBox(height: 4),
-          Text(subtitle, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5)),
+          Text(subtitle, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurfaceVariant, height: 1.5)),
         ],
       ),
     );
@@ -287,7 +287,7 @@ class _NextAvailableCard extends StatelessWidget {
                     ),
                     child: Text(
                       'Next Available: Today, 2:30 PM',
-                      style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                      style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
                   ),
                 ],
@@ -314,12 +314,12 @@ class _PricingSection extends StatelessWidget {
               children: [
                 Text(
                   'Starting from',
-                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+                  style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '\$75.00',
-                  style: GoogleFonts.inter(fontSize: 34, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -1.0),
+                  style: GoogleFonts.urbanist(fontSize: 34, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -1.0),
                 ),
               ],
             ),
@@ -328,7 +328,7 @@ class _PricingSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 6),
               child: Text(
                 'Full synthetic blend',
-                style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+                style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
               ),
             ),
           ],
@@ -354,7 +354,7 @@ class _PricingSection extends StatelessWidget {
               children: [
               const    Icon(Icons.calendar_today_outlined, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
-                Text('Book Now', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                Text('Book Now', style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
               ],
             ),
           ),
@@ -363,7 +363,7 @@ class _PricingSection extends StatelessWidget {
         Center(
           child: Text(
             'No credit card required to reserve.',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant),
+            style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant),
           ),
         ),
       ],
@@ -389,7 +389,7 @@ class _IncludeItem extends StatelessWidget {
           child: const Icon(Icons.check, color: Colors.white, size: 13),
         ),
         const SizedBox(width: 10),
-        Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+        Text(label, style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -403,7 +403,7 @@ class _ServiceComparisonTable extends StatelessWidget {
       children: [
         Text(
           'Service Comparison',
-          style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.3),
+          style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.onSurface, letterSpacing: -0.3),
         ),
         const SizedBox(height: 16),
         Container(
@@ -465,11 +465,11 @@ class _TableHeader extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Text('Features', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant)),
+            child: Text('Features', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant)),
           ),
           Expanded(
             flex: 2,
-            child: Text('Standard', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant), textAlign: TextAlign.center),
+            child: Text('Standard', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant), textAlign: TextAlign.center),
           ),
           Expanded(
             flex: 2,
@@ -481,7 +481,7 @@ class _TableHeader extends StatelessWidget {
               ),
               child: Text(
                 'Synth (This Service)',
-                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
+                style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -516,13 +516,13 @@ class _TableRow extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Text(feature, style: GoogleFonts.inter(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+            child: Text(feature, style: GoogleFonts.urbanist(fontSize: 13, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
           ),
           Expanded(
             flex: 2,
             child: Text(
               standard,
-              style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+              style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ),
@@ -530,7 +530,7 @@ class _TableRow extends StatelessWidget {
             flex: 2,
             child: Text(
               synth,
-              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary),
+              style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary),
               textAlign: TextAlign.center,
             ),
           ),

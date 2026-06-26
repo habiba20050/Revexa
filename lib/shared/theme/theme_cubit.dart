@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:revexa/core/theme/app_colors.dart';
 
 enum AppThemeMode { light, dark, system }
 
@@ -30,6 +31,15 @@ class ThemeCubit extends Cubit<ThemeState> {
 
   ThemeCubit() : super(const ThemeState(AppThemeMode.system));
 
+  @override
+  void onChange(Change<ThemeState> change) {
+    super.onChange(change);
+    final mode = change.nextState.mode;
+    AppColors.isDark = mode == AppThemeMode.dark ||
+        (mode == AppThemeMode.system &&
+            WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
+  }
+
   Future<void> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString(_key) ?? 'system';
@@ -41,13 +51,14 @@ class ThemeCubit extends Cubit<ThemeState> {
   }
 
   Future<void> setTheme(AppThemeMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, mode.name);
-    emit(ThemeState(mode));
+    emit(ThemeState(mode)); // Rebuild the UI instantly!
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString(_key, mode.name);
+    });
   }
 
   Future<void> toggleTheme() async {
     final next = state.mode == AppThemeMode.light ? AppThemeMode.dark : AppThemeMode.light;
-    await setTheme(next);
+    setTheme(next); // No await needed for writing to finish
   }
 }

@@ -58,13 +58,17 @@ class SettingsLanguageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<LocaleCubit, Locale>(
-      builder: (context, locale) {
-        return _SettingsPreferenceCard(
-          icon: Icons.language_rounded,
-          title: l10n.language,
-          subtitle: locale.languageCode == 'ar' ? l10n.languageArabic : l10n.languageEnglish,
-          trailing: _LanguageSegment(currentLocale: locale),
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        return BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return _SettingsPreferenceCard(
+              icon: Icons.language_rounded,
+              title: l10n.language,
+              subtitle: locale.languageCode == 'ar' ? l10n.languageArabic : l10n.languageEnglish,
+              trailing: _LanguageSegment(currentLocale: locale),
+            );
+          },
         );
       },
     );
@@ -101,7 +105,7 @@ class _SettingsPreferenceCard extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),
           ),
@@ -110,8 +114,8 @@ class _SettingsPreferenceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
+                Text(title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                Text(subtitle, style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
               ],
             ),
           ),
@@ -133,7 +137,7 @@ class _LanguageSegment extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -162,11 +166,11 @@ class _LangBtn extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.urbanist(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : AppColors.onSurfaceVariant,

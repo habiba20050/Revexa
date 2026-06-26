@@ -32,11 +32,11 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const AppLogoGrid(),
+                AppLogo.grid(),
                 const SizedBox(height: 40),
                 Text(
                   'REVEXA',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 36,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Automotive Intelligence Reimagined',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: AppColors.onSurfaceVariant,
@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         children: [
                           Text(
                             'SYSTEM INTEGRITY',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2,
@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                           Text(
                             '84%',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       const SizedBox(height: 8),
                       Text(
                         'Initializing neural sync...',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.urbanist(
                           fontSize: 11,
                           fontStyle: FontStyle.italic,
                           color: const Color(0xFF94A3B8),
@@ -151,7 +151,7 @@ class _BottomDecorIcon extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.urbanist(
               fontSize: 9,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.2,

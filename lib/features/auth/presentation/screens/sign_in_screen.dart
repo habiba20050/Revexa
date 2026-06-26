@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
+import 'package:revexa/features/auth/data/google_sign_in_service.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
@@ -38,6 +39,23 @@ class _SignInScreenState extends State<SignInScreen> {
         );
   }
 
+  Future<void> _onGoogleSignIn(BuildContext context) async {
+    try {
+      final idToken = await GoogleSignInService.signInAndGetIdToken();
+      if (idToken == null || !context.mounted) return;
+      context.read<AuthCubit>().signInWithGoogle(idToken);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
@@ -62,31 +80,31 @@ class _SignInScreenState extends State<SignInScreen> {
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(32, 48, 32, 0),
+                padding: const EdgeInsets.fromLTRB(28, 40, 28, 0),
                 child: Column(
                   children: [
-                    const AppLogoLarge(),
+                    AppLogo.large(),
                     const SizedBox(height: 24),
                     Text(
                       'REVEXA',
-                      style: GoogleFonts.inter(
-                        fontSize: 36,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 28,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: -1.0,
+                        letterSpacing: -0.8,
                         color: AppColors.primary,
                         height: 1,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       AppLocalizations.of(context)!.appTagline,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: AppColors.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 36),
 
                     // Email field
                     _AuthTextField(
@@ -121,8 +139,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             context, AppRoutes.forgotPassword),
                         child: Text(
                           AppLocalizations.of(context)!.forgotPassword,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),
@@ -149,11 +167,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Sign In Button
                     isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const Center(child: CircularProgressIndicator.adaptive())
                         : PrimaryButton(
                             label: AppLocalizations.of(context)!.signIn,
                             trailing: const Icon(Icons.arrow_forward,
@@ -161,7 +179,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             onPressed: () => _onSignIn(context),
                           ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     // Divider
                     Row(
                       children: [
@@ -170,7 +188,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             AppLocalizations.of(context)!.orContinueWith,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.urbanist(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.5,
@@ -187,69 +205,45 @@ class _SignInScreenState extends State<SignInScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: _SocialButton(
-                            onTap: () {},
-                            isLight: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    AppConstants.imgGoogleLogo,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (_, __, ___) => const Icon(
-                                        Icons.language,
-                                        size: 20,
-                                        color: Color(0xFF4285F4)),
-                                  ),
+                          child: _UnifiedSocialButton(
+                            label: 'Google',
+                            onTap: isLoading ? () {} : () => _onGoogleSignIn(context),
+                            iconBuilder: (fgColor) => SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                AppConstants.imgGoogleLogo,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.language,
+                                  size: 20,
+                                  color: fgColor,
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'Google',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.onSurface,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: _SocialButton(
+                          child: _UnifiedSocialButton(
+                            label: 'Apple',
                             onTap: () {},
-                            isLight: true,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.apple,
-                                    color: Colors.white, size: 22),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Apple',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                            iconBuilder: (fgColor) => Icon(
+                              Icons.apple,
+                              color: fgColor,
+                              size: 22,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     Text.rich(
                       TextSpan(
                         text: AppLocalizations.of(context)!.noAccount,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
+                        style: GoogleFonts.urbanist(
+                          fontSize: 13,
                           color: AppColors.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
@@ -260,8 +254,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                   context, AppRoutes.register),
                               child: Text(
                                 AppLocalizations.of(context)!.signUp,
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
+                                style: GoogleFonts.urbanist(
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.primary,
                                 ),
@@ -272,7 +266,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -292,7 +286,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)!.securedEncryption,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.urbanist(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
@@ -343,8 +337,8 @@ class _AuthTextField extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
+                style: GoogleFonts.urbanist(
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.onSurface,
                 ),
@@ -358,38 +352,38 @@ class _AuthTextField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
-          style: GoogleFonts.inter(fontSize: 16, color: AppColors.onSurface),
+          style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface),
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: GoogleFonts.inter(
-                fontSize: 16,
-                color: AppColors.onSurfaceVariant.withValues(alpha: 0.5)),
+            hintStyle: GoogleFonts.urbanist(
+                fontSize: 14,
+                color: AppColors.onSurfaceVariant.withValues(alpha: 0.45)),
             filled: true,
             fillColor: AppColors.surface,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             prefixIcon: prefixIcon != null
                 ? Icon(prefixIcon, color: const Color(0xFF94A3B8), size: 22)
                 : null,
             suffixIcon: suffixIcon,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(
                   color: AppColors.primary.withValues(alpha: 0.20), width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: AppColors.error, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: AppColors.error, width: 2),
             ),
           ),
@@ -399,26 +393,48 @@ class _AuthTextField extends StatelessWidget {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  final Widget child;
+class _UnifiedSocialButton extends StatelessWidget {
+  final String label;
+  final Widget Function(Color fgColor) iconBuilder;
   final VoidCallback onTap;
-  final bool isLight;
 
-  const _SocialButton(
-      {required this.child, required this.onTap, required this.isLight});
+  const _UnifiedSocialButton({
+    required this.label,
+    required this.iconBuilder,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final bgColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final fgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 56,
         decoration: BoxDecoration(
-          color: isLight ? AppColors.surface : AppColors.inverseSurface,
-          borderRadius: BorderRadius.circular(12),
-          border: isLight ? Border.all(color: AppColors.outline) : null,
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: isDark ? Border.all(color: const Color(0xFFE2E8F0), width: 1) : null,
         ),
-        child: child,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconBuilder(fgColor),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.urbanist(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: fgColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

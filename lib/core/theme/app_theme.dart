@@ -20,13 +20,13 @@ class AppTheme {
           onSecondaryContainer: AppColors.onSecondaryContainer,
         ),
         scaffoldBackgroundColor: AppColors.background,
-        fontFamily: GoogleFonts.inter().fontFamily,
-        textTheme: GoogleFonts.interTextTheme(),
+        fontFamily: GoogleFonts.urbanist().fontFamily,
+        textTheme: GoogleFonts.urbanistTextTheme(),
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.onSurface,
           elevation: 0,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: GoogleFonts.urbanist(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: AppColors.primary,
@@ -36,27 +36,27 @@ class AppTheme {
           filled: true,
           fillColor: AppColors.surface,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: AppColors.outline),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: AppColors.outline),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: AppColors.primary, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.onPrimary,
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             minimumSize: const Size(double.infinity, 56),
-            textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
+            textStyle: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700),
           ),
         ),
       );
@@ -76,13 +76,13 @@ class AppTheme {
           onSecondaryContainer: Color(0xFFE2E8F0),
         ),
         scaffoldBackgroundColor: const Color(0xFF0F172A),
-        fontFamily: GoogleFonts.inter().fontFamily,
-        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+        fontFamily: GoogleFonts.urbanist().fontFamily,
+        textTheme: GoogleFonts.urbanistTextTheme(ThemeData.dark().textTheme),
         appBarTheme: AppBarTheme(
           backgroundColor: const Color(0xFF1E2432),
           foregroundColor: const Color(0xFFF1F5F9),
           elevation: 0,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: GoogleFonts.urbanist(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF6B8FFF),
@@ -92,27 +92,27 @@ class AppTheme {
           filled: true,
           fillColor: const Color(0xFF1E2432),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Color(0xFF2D3748)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Color(0xFF2D3748)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Color(0xFF6B8FFF), width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF6B8FFF),
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             minimumSize: const Size(double.infinity, 56),
-            textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
+            textStyle: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700),
           ),
         ),
       );

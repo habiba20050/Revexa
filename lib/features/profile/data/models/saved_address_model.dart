@@ -18,10 +18,10 @@ class SavedAddress {
   factory SavedAddress.fromJson(Map<String, dynamic> json) {
     return SavedAddress(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
-      title: json['title'] as String,
-      address: json['address'] as String,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      title: json['title']?.toString() ?? '',
+      address: json['address']?.toString() ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
     );
   }
 

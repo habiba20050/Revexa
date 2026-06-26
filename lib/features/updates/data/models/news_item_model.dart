@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 
 class NewsItem extends Equatable {
   final String id;
@@ -39,9 +40,9 @@ class NewsItem extends Equatable {
       id: id,
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
-      imageUrl: json['urlToImage']?.toString() ??
-          json['image']?.toString() ??
-          json['imageUrl']?.toString(),
+      imageUrl: ImageUrlUtils.resolve(
+        json['urlToImage'] ?? json['image'] ?? json['imageUrl'],
+      ),
       articleUrl: articleUrl,
       sourceName: json['sourceName']?.toString() ?? json['source']?.toString(),
       publishedAt: publishedAt,

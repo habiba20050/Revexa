@@ -9,6 +9,7 @@ import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/features/profile/data/models/saved_address_model.dart';
+import 'package:revexa/shared/extensions/context_extensions.dart';
 
 class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
@@ -47,7 +48,6 @@ class _AddressesScreenState extends State<AddressesScreen> {
   }
 
   Future<void> _loadSavedAddresses() async {
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _fetching = true);
     try {
       final response = await DioClient.instance.dio.get(ApiEndpoints.addresses);
@@ -62,9 +62,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     } on DioException catch (e) {
       final failure = ErrorHandler.toFailure(e);
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
-        );
+        context.showAppSnackBar(failure.message, isError: true);
       }
     } finally {
       if (mounted) setState(() => _fetching = false);
@@ -73,13 +71,13 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
   Future<void> _addAddress() async {
     if (_titleCtrl.text.trim().isEmpty || _addressCtrl.text.trim().isEmpty || _selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter title, address and select a location on the map.'), behavior: SnackBarBehavior.floating),
+      context.showAppSnackBar(
+        'Please enter title, address and select a location on the map.',
+        isError: true,
       );
       return;
     }
 
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _loading = true);
     try {
       final response = await DioClient.instance.dio.post(
@@ -105,9 +103,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     } on DioException catch (e) {
       final failure = ErrorHandler.toFailure(e);
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
-        );
+        context.showAppSnackBar(failure.message, isError: true);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -115,14 +111,13 @@ class _AddressesScreenState extends State<AddressesScreen> {
   }
 
   Future<void> _openInGoogleMaps(SavedAddress address) async {
-    final messenger = ScaffoldMessenger.of(context);
     final url = 'https://www.google.com/maps/search/?api=1&query=${address.latitude},${address.longitude}';
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Cannot open Google Maps.'), behavior: SnackBarBehavior.floating),
-      );
+      if (mounted) {
+        context.showAppSnackBar('Cannot open Google Maps.', isError: true);
+      }
     }
   }
 
@@ -131,7 +126,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Saved Locations', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text('Saved Locations', style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
@@ -141,7 +136,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Mark a place for the company to visit', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+            Text('Mark a place for the company to visit', style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
             const SizedBox(height: 12),
             Container(
               height: 280,
@@ -162,8 +157,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     ),
                     if (_selectedLocation != null)
                       MarkerLayer(
@@ -181,7 +175,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text('Tap the map to select a point', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+            Text('Tap the map to select a point', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 24),
             _InputField(label: 'Location title', controller: _titleCtrl),
             const SizedBox(height: 12),
@@ -193,21 +187,21 @@ class _AddressesScreenState extends State<AddressesScreen> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _addAddress,
                 child: _loading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text('Save location', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator.adaptive(valueColor: AlwaysStoppedAnimation(Colors.white), strokeWidth: 2))
+                    : Text('Save location', style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700)),
               ),
             ),
             const SizedBox(height: 24),
-            Text('Saved locations', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+            Text('Saved locations', style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
             const SizedBox(height: 12),
             if (_fetching)
-              const Center(child: CircularProgressIndicator())
+              const Center(child: CircularProgressIndicator.adaptive())
             else if (_savedAddresses.isEmpty)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16)),
-                child: Text('No saved locations yet. Add one by selecting a point on the map.', style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                child: Text('No saved locations yet. Add one by selecting a point on the map.', style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant)),
               )
             else
               Column(
@@ -234,7 +228,7 @@ class _InputField extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
+          child: Text(label, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondary)),
         ),
         TextField(
           controller: controller,
@@ -243,8 +237,8 @@ class _InputField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.surface,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.outline)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.outline)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.outline)),
           ),
         ),
       ],
@@ -272,23 +266,23 @@ class _SavedAddressCard extends StatelessWidget {
             children: [
               const Icon(Icons.place, color: Color(0xFF174EA6), size: 20),
               const SizedBox(width: 8),
-              Expanded(child: Text(address.title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface))),
+              Expanded(child: Text(address.title, style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface))),
             ],
           ),
           const SizedBox(height: 8),
-          Text(address.address, style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4)),
+          Text(address.address, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: 12),
           Row(
             children: [
-              Text('Lat: ${address.latitude.toStringAsFixed(5)}', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              Text('Lat: ${address.latitude.toStringAsFixed(5)}', style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
               const SizedBox(width: 12),
-              Text('Lng: ${address.longitude.toStringAsFixed(5)}', style: GoogleFonts.inter(fontSize: 11, color: AppColors.onSurfaceVariant)),
+              Text('Lng: ${address.longitude.toStringAsFixed(5)}', style: GoogleFonts.urbanist(fontSize: 11, color: AppColors.onSurfaceVariant)),
               const Spacer(),
               GestureDetector(
                 onTap: onOpen,
                 child: Row(
                   children: [
-                    Text('Open in Maps', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                    Text('Open in Maps', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
                     const SizedBox(width: 4),
                     Icon(Icons.launch, size: 16, color: AppColors.primary),
                   ],

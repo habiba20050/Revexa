@@ -51,18 +51,22 @@ class NewsCubit extends Cubit<NewsState> {
   Future<void> loadNews({int page = 1, int limit = 20}) async {
     if (isClosed) return;
     emit(const NewsLoading());
-    final result = await _repository.getStoredNews(page: page, limit: limit);
-    if (isClosed) return;
-    if (result is Success) {
-      final pageData = result.data!;
-      emit(NewsLoaded(
-        pageData.items,
-        total: pageData.total,
-        currentPage: pageData.currentPage,
-        totalPages: pageData.totalPages,
-      ));
-    } else {
-      emit(NewsError(result.failure!.message));
+    try {
+      final result = await _repository.getStoredNews(page: page, limit: limit);
+      if (isClosed) return;
+      if (result is Success) {
+        final pageData = result.data!;
+        emit(NewsLoaded(
+          pageData.items,
+          total: pageData.total,
+          currentPage: pageData.currentPage,
+          totalPages: pageData.totalPages,
+        ));
+      } else {
+        emit(NewsError(result.failure!.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(NewsError('Unexpected error: $e'));
     }
   }
 
@@ -72,7 +76,7 @@ class NewsCubit extends Cubit<NewsState> {
     final syncResult = await _repository.syncCarsNews();
     if (isClosed) return;
     if (syncResult is ResultFailure) {
-      emit(NewsError(syncResult.failure!.message));
+      emit(NewsError(syncResult.failure.message));
       return;
     }
     await loadNews();

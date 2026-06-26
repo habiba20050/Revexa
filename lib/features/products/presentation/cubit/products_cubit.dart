@@ -58,10 +58,12 @@ class ProductsCubit extends Cubit<ProductsState> {
     try {
       final result = await _repository.getAllProducts(page: page, limit: limit);
       if (isClosed) return;
-      if (result is Success) {
-        emit(ProductsLoaded(result.data!));
-      } else {
-        emit(ProductsError(result.failure!.message));
+      // Use sealed-class pattern match \u2014 never null-force result.data!
+      switch (result) {
+        case Success<dynamic>():
+          emit(ProductsLoaded((result as Success).value));
+        case ResultFailure<dynamic>():
+          emit(ProductsError((result as ResultFailure).failure.message));
       }
     } catch (e) {
       if (!isClosed) emit(ProductsError('Unexpected error: $e'));
@@ -74,10 +76,11 @@ class ProductsCubit extends Cubit<ProductsState> {
     try {
       final result = await _repository.getProductById(id);
       if (isClosed) return;
-      if (result is Success) {
-        emit(ProductDetailLoaded(result.data!));
-      } else {
-        emit(ProductsError(result.failure!.message));
+      switch (result) {
+        case Success<dynamic>():
+          emit(ProductDetailLoaded((result as Success).value));
+        case ResultFailure<dynamic>():
+          emit(ProductsError((result as ResultFailure).failure.message));
       }
     } catch (e) {
       if (!isClosed) emit(ProductsError('Unexpected error: $e'));

@@ -34,7 +34,15 @@ class CategoriesRemoteDataSource {
   Future<List<Category>> getAllCategories() async {
     try {
       final response = await _dio.get(ApiEndpoints.categories);
-      final data = response.data['data'] as List<dynamic>;
+      final body = response.data;
+      List<dynamic> data;
+      if (body is Map && body['data'] is List) {
+        data = body['data'] as List<dynamic>;
+      } else if (body is List) {
+        data = body;
+      } else {
+        data = [];
+      }
       return data.map((e) => Category.fromJson(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
@@ -93,7 +101,8 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   CategoriesCubit(this._repository) : super(const CategoriesInitial());
 
   Future<void> loadCategories() async {
-    if (state is CategoriesLoaded) return; // avoid re-fetching
+    if (state is CategoriesLoaded) return; // avoid re-fetching on success
+    // Always retry if in error state or initial
     emit(const CategoriesLoading());
     final result = await _repository.getAllCategories();
     if (result is Success) {

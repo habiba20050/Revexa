@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:dio/dio.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/core/theme/app_colors.dart';
@@ -30,6 +31,76 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
   final _addressCtrl = TextEditingController();
   List<SavedAddress> _saved = [];
   bool _loadingAddresses = false;
+  bool _fetchingAddress = false;
+
+  Future<void> _handleMapTap(LatLng latLng) async {
+    widget.onPointSelected(latLng);
+    setState(() {
+      _fetchingAddress = true;
+      _addressCtrl.text = 'Fetching address...';
+    });
+    widget.onAddressChanged('Fetching address...');
+
+    try {
+      final dio = Dio();
+      dio.options.headers = {
+        'User-Agent': 'Revexa-App/1.0.0 (contact@revexa.com)',
+      };
+      final response = await dio.get(
+        'https://nominatim.openstreetmap.org/reverse',
+        queryParameters: {
+          'format': 'jsonv2',
+          'lat': latLng.latitude,
+          'lon': latLng.longitude,
+          'accept-language': 'ar,en',
+        },
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data is Map) {
+          String parsedAddress = '';
+          final address = data['address'] as Map?;
+          if (address != null) {
+            final parts = <String>[];
+            final building = address['building'] ?? address['amenity'] ?? address['house_number'];
+            final road = address['road'] ?? address['street'];
+            final suburb = address['suburb'] ?? address['neighbourhood'] ?? address['quarter'];
+            final city = address['city'] ?? address['town'] ?? address['village'] ?? address['state'];
+
+            if (building != null) parts.add(building.toString());
+            if (road != null) parts.add(road.toString());
+            if (suburb != null) parts.add(suburb.toString());
+            if (city != null) parts.add(city.toString());
+
+            if (parts.isNotEmpty) {
+              parsedAddress = parts.join(', ');
+            }
+          }
+
+          if (parsedAddress.isEmpty) {
+            parsedAddress = data['display_name'] as String? ?? '';
+          }
+
+          if (parsedAddress.isNotEmpty) {
+            _addressCtrl.text = parsedAddress;
+            widget.onAddressChanged(parsedAddress);
+            return;
+          }
+        }
+      }
+      _addressCtrl.text = '';
+      widget.onAddressChanged('');
+    } catch (e) {
+      debugPrint('Geocoding error: $e');
+      _addressCtrl.text = '';
+      widget.onAddressChanged('');
+    } finally {
+      if (mounted) {
+        setState(() => _fetchingAddress = false);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -87,7 +158,7 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
       children: [
         Text(
           'Car parking location',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.urbanist(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppColors.onSurface,
@@ -96,7 +167,7 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
         const SizedBox(height: 6),
         Text(
           'Tap the map where your car is parked, then enter the address.',
-          style: GoogleFonts.inter(fontSize: 12, color: AppColors.onSurfaceVariant),
+          style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
         Container(
@@ -111,12 +182,11 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
               options: MapOptions(
                 initialCenter: point ?? const LatLng(30.0444, 31.2357),
                 initialZoom: point != null ? 14 : 10,
-                onTap: (_, latLng) => widget.onPointSelected(latLng),
+                onTap: (_, latLng) => _handleMapTap(latLng),
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: const ['a', 'b', 'c'],
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 ),
                 if (point != null)
                   MarkerLayer(
@@ -143,7 +213,17 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
             hintText: 'e.g. 90th Street, Building 5, Cairo',
             filled: true,
             fillColor: AppColors.surface,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+            suffixIcon: _fetchingAddress
+                ? const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : null,
           ),
         ),
         if (_loadingAddresses)
@@ -155,7 +235,7 @@ class _BookingLocationSectionState extends State<BookingLocationSection> {
           const SizedBox(height: 12),
           Text(
             'Saved locations',
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+            style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Wrap(

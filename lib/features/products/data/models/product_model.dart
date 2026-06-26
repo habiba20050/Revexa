@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 
 class ProductImage extends Equatable {
   final String url;
@@ -8,7 +9,7 @@ class ProductImage extends Equatable {
 
   factory ProductImage.fromJson(Map<String, dynamic> json) {
     return ProductImage(
-      url: json['url']?.toString() ?? '',
+      url: ImageUrlUtils.resolve(json['url']) ?? '',
       publicId: json['public_id']?.toString() ?? '',
     );
   }
