@@ -26,11 +26,11 @@ class AppConstants {
   // ── Local Asset Images ───────────────────────────────────────────────────
 
   static const String imgProfileAvatar         = 'assets/images/avatar_profile.png';
-  static const String imgTechnicianAvatar       = 'assets/images/avatar_technician.png';
+  static const String imgTechnicianAvatar       = 'assets/images/cartoon technician.png';
   static const String imgBookingsTechnician     = 'assets/images/bookings_technician.png';
   static const String imgPromoCarBanner         = 'assets/images/car_home.png';
   static const String imgOnboardingCarDashboard = 'assets/images/onboarding_car.png';
-  static const String imgOnboardingMap          = 'assets/images/onboarding_map.png';
+  static const String imgOnboardingMap          = 'assets/images/onboarding_map.jpg';
   static const String imgOnboardingMechanic     = 'assets/images/onboarding_service.png';
 
   // Maintenance Detail

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
@@ -19,7 +20,7 @@ abstract interface class AuthRemoteDataSource {
   });
   Future<void> logout();
   Future<void> forgotPassword(String email);
-  Future<AuthUser> signInWithGoogle(String idToken);
+  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken});
   Future<AuthUser> resetPassword({required String token, required String password});
 }
 
@@ -36,6 +37,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken}) async {
+    if (idToken == null || idToken.isEmpty) {
+      if (accessToken.isEmpty) {
+        throw ArgumentError('Either accessToken or idToken is required for Google Sign-In');
+      }
+    }
+
+    try {
+      final requestData = {
+        'accessToken': accessToken,
+        if (idToken != null && idToken.isNotEmpty) 'idToken': idToken,
+      };
+
+      debugPrint('GoogleAuth Request - accessToken: ${accessToken.substring(0, 50)}...');
+      debugPrint('GoogleAuth Request - idToken: ${idToken?.substring(0, 50) ?? "null"}...');
+
+      final response = await _dio.post(
+        ApiEndpoints.googleLogin,
+        data: requestData,
+      );
+      return AuthResponseParser.parse(response.data);
+    } on DioException catch (e) {
+      debugPrint('GoogleAuth DioException: ${e.message}');
       throw ErrorHandler.handleDioError(e);
     }
   }
@@ -74,9 +103,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      await _dio.post(ApiEndpoints.logout);
+      await _dio.post(
+        ApiEndpoints.logout,
+        options: Options(
+          validateStatus: (status) =>
+              status == null ||
+              status == 200 ||
+              status == 204 ||
+              status == 401,
+        ),
+      );
     } on DioException catch (e) {
-      // Logout locally regardless
       throw ErrorHandler.handleDioError(e);
     }
   }
@@ -85,19 +122,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> forgotPassword(String email) async {
     try {
       await _dio.post(ApiEndpoints.forgotPassword, data: {'email': email});
-    } on DioException catch (e) {
-      throw ErrorHandler.handleDioError(e);
-    }
-  }
-
-  @override
-  Future<AuthUser> signInWithGoogle(String idToken) async {
-    try {
-      final response = await _dio.post(
-        ApiEndpoints.googleAuth,
-        data: {'idToken': idToken},
-      );
-      return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

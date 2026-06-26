@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/constants/app_routes.dart';
-import 'package:revexa/features/auth/data/google_sign_in_service.dart';
 import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/shared/widgets/primary_button.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -37,23 +37,6 @@ class _SignInScreenState extends State<SignInScreen> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-  }
-
-  Future<void> _onGoogleSignIn(BuildContext context) async {
-    try {
-      final idToken = await GoogleSignInService.signInAndGetIdToken();
-      if (idToken == null || !context.mounted) return;
-      context.read<AuthCubit>().signInWithGoogle(idToken);
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
   }
 
   @override
@@ -207,7 +190,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         Expanded(
                           child: _UnifiedSocialButton(
                             label: 'Google',
-                            onTap: isLoading ? () {} : () => _onGoogleSignIn(context),
+                            onTap: isLoading
+                                ? () {}
+                                : () => context.read<AuthCubit>().signInWithGoogle(),
                             iconBuilder: (fgColor) => SizedBox(
                               width: 20,
                               height: 20,
