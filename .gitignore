@@ -45,3 +45,8 @@ app.*.map.json
 /android/app/release
 
 .vscode/templates
+
+# Environment Variables (secrets - never commit these)
+.env
+*.env
+chatbot_backend/.env

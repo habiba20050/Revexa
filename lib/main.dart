@@ -47,6 +47,7 @@ import 'package:revexa/features/billing/presentation/screens/billing_screen.dart
 import 'package:revexa/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/features/bookings/presentation/screens/bookings_screen.dart';
+import 'package:revexa/features/chatbot/presentation/cubit/chatbot_cubit.dart';
 // No settings_screen import needed since settings are now in profile_screen.dart
 
 void main() async {
@@ -88,6 +89,7 @@ class RevexaApp extends StatelessWidget {
         BlocProvider<ServicesCubit>.value(value: sl.servicesCubit),
         BlocProvider<NewsCubit>.value(value: sl.newsCubit),
         BlocProvider<NotificationsCubit>.value(value: sl.notificationsCubit),
+        BlocProvider<ChatbotCubit>.value(value: sl.chatbotCubit),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {

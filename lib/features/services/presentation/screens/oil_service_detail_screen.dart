@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
+import 'package:revexa/shared/widgets/app_bar_avatar.dart';
 
 class OilServiceDetailScreen extends StatelessWidget {
   const OilServiceDetailScreen({super.key});
@@ -95,16 +96,7 @@ class _OilServiceAppBar extends StatelessWidget {
             style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
           const Spacer(),
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primary.withValues(alpha: 0.10),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
-            ),
-            child: Icon(Icons.person_outline, color: AppColors.primary, size: 18),
-          ),
+          const AppAppBarAvatar(),
         ],
       ),
     );

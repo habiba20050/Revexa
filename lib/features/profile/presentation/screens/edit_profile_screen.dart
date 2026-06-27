@@ -103,16 +103,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (_pickedImage != null) {
         final file = _pickedImage!;
         final bytes = await file.readAsBytes();
+        AuthUser avatarUpdated;
         if (kIsWeb || file.path.isEmpty) {
-          updated = await _profileRemote.uploadAvatarBytes(bytes, fileName: file.name);
+          avatarUpdated = await _profileRemote.uploadAvatarBytes(bytes, fileName: file.name);
         } else {
-          updated = await _profileRemote.uploadAvatar(file.path, fileName: file.name);
+          avatarUpdated = await _profileRemote.uploadAvatar(file.path, fileName: file.name);
         }
+
         updated = updated.copyWith(
-          firstName: _firstNameCtrl.text.trim(),
-          lastName: _lastNameCtrl.text.trim(),
-          phone: _phoneCtrl.text.trim(),
-          address: _addressCtrl.text.trim(),
+          imageUrl: avatarUpdated.imageUrl,
         );
       }
 

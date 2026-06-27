@@ -235,7 +235,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         children: [
                           WidgetSpan(
                             child: GestureDetector(
-                              onTap: () => Navigator.pushNamed(
+                              onTap: () => Navigator.pushReplacementNamed(
                                   context, AppRoutes.register),
                               child: Text(
                                 AppLocalizations.of(context)!.signUp,

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/core/constants/app_constants.dart';
+import 'package:revexa/shared/widgets/app_bar_avatar.dart';
 
 class MaintenanceDetailScreen extends StatelessWidget {
   const MaintenanceDetailScreen({super.key});
@@ -83,18 +84,10 @@ class _MaintenanceSliverAppBar extends StatelessWidget {
           ),
         ],
       ),
-      actions: [
+      actions: const [
         Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.15),
-            ),
-            child: const Icon(Icons.person_outline, color: Colors.white, size: 20),
-          ),
+          padding: EdgeInsets.only(right: 16),
+          child: AppAppBarAvatar(),
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(

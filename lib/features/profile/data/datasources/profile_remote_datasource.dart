@@ -125,7 +125,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   Map<String, dynamic> _normalizeUserMap(Map<String, dynamic> map) {
     final url = ImageUrlUtils.resolve(
-      map['image'] ?? map['imageUrl'] ?? map['avatar'],
+      map['image'] ?? map['imageUrl'] ?? map['avatar'] ?? map['url'],
     );
     if (url != null && url.isNotEmpty) {
       return {

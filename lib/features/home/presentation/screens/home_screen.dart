@@ -21,6 +21,7 @@ import 'package:revexa/features/services/presentation/screens/services_screen.da
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
 import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/features/chatbot/presentation/widgets/chatbot_fab.dart';
 
 /// الشاشة الرئيسية للتطبيق.
 /// تحتوي على الـ Bottom Navigation Bar وتدير التنقل بين الـ tabs.
@@ -106,19 +107,36 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
-      child: Scaffold(
-        extendBody: true,
-        backgroundColor: AppColors.background,
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: KeyedSubtree(
-            key: ValueKey(_activeTab),
-            child: _buildBody(),
+      child: PopScope(
+        canPop: _activeTab == NavTab.home,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          _goToTab(NavTab.home);
+        },
+        child: Scaffold(
+          extendBody: true,
+          backgroundColor: AppColors.background,
+          body: Stack(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: KeyedSubtree(
+                  key: ValueKey(_activeTab),
+                  child: _buildBody(),
+                ),
+              ),
+              if (_activeTab == NavTab.home)
+                const Positioned(
+                  right: 16,
+                  bottom: 100,
+                  child: ChatbotFab(),
+                ),
+            ],
           ),
-        ),
-        bottomNavigationBar: AppBottomNavBar(
-          activeTab: _activeTab,
-          onTabChanged: (tab) => _goToTab(tab),
+          bottomNavigationBar: AppBottomNavBar(
+            activeTab: _activeTab,
+            onTabChanged: (tab) => _goToTab(tab),
+          ),
         ),
       ),
     );
@@ -141,34 +159,43 @@ class _HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              _HomeAppBar(onProfileTap: onProfileTap),
-              const SizedBox(height: 8),
-              const _GreetingBanner(),
-              const SizedBox(height: 20),
-              _HomeSearchBar(
-                onSearchSubmitted: onSearchSubmitted ?? (_) {},
-              ),
-              const SizedBox(height: 24),
-              const _VehicleHealthCard(),
-              const SizedBox(height: 24),
-              const _QuickActionsRow(),
-              const SizedBox(height: 24),
-              const _ServicesSection(),
-              _ActiveBookingCard(topPadding: 16),
-              const SizedBox(height: 16),
-              const _PromoBanner(),
-              const SizedBox(height: 120),
-            ]),
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.wait([
+          context.read<ProductsCubit>().loadProducts(),
+          context.read<OrdersCubit>().loadOrders(),
+          context.read<AuthCubit>().checkAuthStatus(),
+        ]);
+      },
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _HomeAppBar(onProfileTap: onProfileTap),
+                const SizedBox(height: 8),
+                const _GreetingBanner(),
+                const SizedBox(height: 20),
+                _HomeSearchBar(
+                  onSearchSubmitted: onSearchSubmitted ?? (_) {},
+                ),
+                const SizedBox(height: 24),
+                const _VehicleHealthCard(),
+                const SizedBox(height: 24),
+                const _QuickActionsRow(),
+                const SizedBox(height: 24),
+                const _ServicesSection(),
+                _ActiveBookingCard(topPadding: 16),
+                const SizedBox(height: 16),
+                const _PromoBanner(),
+                const SizedBox(height: 120),
+              ]),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -319,12 +346,23 @@ class _VehicleHealthCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withValues(alpha: 0.80),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.15),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.35),
-            blurRadius: 32, offset: const Offset(0, 16),
+            color: AppColors.primary.withValues(alpha: 0.30),
+            blurRadius: 28, offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -464,7 +502,14 @@ class _QuickActionsRow extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, AppRoutes.tiresDetail)),
         const SizedBox(width: 12),
         _QuickAction(icon: Icons.more_horiz_rounded, label: l10n.quickMore,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.services)),
+            onTap: () {
+              final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+              if (homeState != null) {
+                homeState._goToTab(NavTab.services);
+              } else {
+                Navigator.pushNamed(context, AppRoutes.services);
+              }
+            }),
       ],
     );
   }
@@ -487,9 +532,9 @@ class _QuickAction extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surface.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.outline),
+            border: Border.all(color: AppColors.outline.withValues(alpha: 0.40)),
           ),
           child: Column(children: [
             Container(
@@ -534,7 +579,14 @@ class _ServicesSection extends StatelessWidget {
                   fontSize: 18, fontWeight: FontWeight.w700,
                   color: AppColors.onSurface, letterSpacing: -0.2)),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.services),
+            onTap: () {
+              final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+              if (homeState != null) {
+                homeState._goToTab(NavTab.services);
+              } else {
+                Navigator.pushNamed(context, AppRoutes.services);
+              }
+            },
             child: Text('Explore all',
                 style: GoogleFonts.urbanist(
                     fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
@@ -569,7 +621,16 @@ class _ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, item.route),
+      onTap: () {
+        if (item.route == AppRoutes.services) {
+          final homeState = context.findAncestorStateOfType<_HomeScreenState>();
+          if (homeState != null) {
+            homeState._goToTab(NavTab.services);
+            return;
+          }
+        }
+        Navigator.pushNamed(context, item.route);
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -637,9 +698,20 @@ class _ActiveBookingCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withValues(alpha: 0.80),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 6))],
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      width: 1.5,
+                    ),
+                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.20), blurRadius: 16, offset: const Offset(0, 6))],
                   ),
                   child: Row(children: [
                     Container(
@@ -778,9 +850,9 @@ class _HomeSearchBarState extends State<_HomeSearchBar> {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surface.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.outline),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.40)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.05),

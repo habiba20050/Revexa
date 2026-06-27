@@ -12,6 +12,8 @@ import 'package:revexa/core/utils/booking_navigation.dart';
 import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/shared/widgets/shimmer_widgets.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 
 class ServicesScreen extends StatefulWidget {
   final VoidCallback? onBackToHome;
@@ -240,48 +242,55 @@ class _ServicesAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.surface,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 12,
-        left: 12,
-        right: 20,
-        bottom: 14,
-      ),
-      child: Row(
-        children: [
-          if (onBackToHome != null)
-            IconButton(
-              onPressed: onBackToHome,
-              icon: const Icon(Icons.arrow_back_rounded),
-              color: AppColors.onSurface,
-              tooltip: 'Back to Home',
-            ),
-          AppLogo.mini(),
-          const SizedBox(width: 8),
-          Text(
-            'REVEXA',
-            style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary, letterSpacing: 0.5),
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        final user = state is AuthAuthenticated ? state.user : null;
+        return Container(
+          color: AppColors.surface,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 12,
+            right: 20,
+            bottom: 14,
           ),
-          const Spacer(),
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.surfaceContainerHigh,
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                AppConstants.imgProfileAvatar,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(Icons.person_outline, color: AppColors.primary, size: 20),
+          child: Row(
+            children: [
+              if (onBackToHome != null || Navigator.canPop(context))
+                IconButton(
+                  onPressed: onBackToHome ?? () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  color: AppColors.onSurface,
+                  tooltip: 'Back',
+                ),
+              AppLogo.mini(),
+              const SizedBox(width: 8),
+              Text(
+                'REVEXA',
+                style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary, letterSpacing: 0.5),
               ),
-            ),
+              const Spacer(),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.surfaceContainerHigh,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
+                ),
+                child: AppCircleAvatar(
+                  imageUrl: user?.imageUrl,
+                  radius: 19,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.10),
+                  fallback: Text(
+                    user?.firstName.isNotEmpty == true ? user!.firstName[0].toUpperCase() : 'U',
+                    style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

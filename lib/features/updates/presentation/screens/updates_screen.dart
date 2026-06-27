@@ -8,7 +8,11 @@ import 'package:revexa/features/updates/data/models/news_item_model.dart';
 import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 import 'package:revexa/shared/widgets/app_image.dart';
+import 'package:revexa/features/updates/presentation/screens/news_webview_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 
 class UpdatesBody extends StatefulWidget {
   final VoidCallback? onBackToHome;
@@ -60,21 +64,25 @@ class _UpdatesBodyState extends State<UpdatesBody> {
                 ),
               ),
               const Spacer(),
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.surfaceContainerHigh,
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    AppConstants.imgUpdatesProfileAvatar,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Icon(Icons.person_outline, color: AppColors.primary, size: 18),
-                  ),
-                ),
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, state) {
+                  final user = state is AuthAuthenticated ? state.user : null;
+                  return Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.surfaceContainerHigh,
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
+                    ),
+                    child: AppCircleAvatar(
+                      imageUrl: user?.imageUrl,
+                      radius: 18,
+                      backgroundColor: Colors.transparent,
+                      fallback: Icon(Icons.person_outline, color: AppColors.primary, size: 18),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -383,12 +391,38 @@ class _NewsItemCard extends StatelessWidget {
 
   const _NewsItemCard({required this.newsItem});
 
-  Future<void> _openArticle(BuildContext context) async {
+  void _openArticle(BuildContext context) {
     final url = newsItem.articleUrl;
     if (url == null || url.isEmpty) return;
-    if (await canLaunchUrlString(url)) {
-      await launchUrlString(url, mode: LaunchMode.externalApplication);
+
+    if (kIsWeb) {
+      launchUrlString(url, mode: LaunchMode.externalApplication);
+      return;
     }
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black.withValues(alpha: 0.15),
+        pageBuilder: (context, _, __) => NewsWebViewScreen(
+          url: url,
+          title: newsItem.title,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.05),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override

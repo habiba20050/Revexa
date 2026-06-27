@@ -4,12 +4,14 @@ import 'package:revexa/shared/extensions/context_extensions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:revexa/core/theme/app_colors.dart';
-import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/features/orders/data/models/order_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
+import 'package:revexa/shared/widgets/app_image.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 
 /// Full-screen version of the Bookings tab used when navigating via routes.
 /// When embedded in [HomeScreen] tabs, use [BookingsBody] directly.
@@ -66,24 +68,24 @@ class _BookingsBodyState extends State<BookingsBody> {
                           letterSpacing: -0.3,
                           color: AppColors.primary)),
                   const Spacer(),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border:
-                          Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        AppConstants.imgProfileAvatar,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.surfaceContainerHigh,
-                          child: Icon(Icons.person, color: AppColors.primary, size: 20),
+                  BlocBuilder<AuthCubit, AuthState>(
+                    builder: (context, state) {
+                      final user = state is AuthAuthenticated ? state.user : null;
+                      return Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primary.withValues(alpha: 0.20), width: 2),
                         ),
-                      ),
-                    ),
+                        child: AppCircleAvatar(
+                          imageUrl: user?.imageUrl,
+                          radius: 20,
+                          backgroundColor: Colors.transparent,
+                          fallback: Icon(Icons.person_outline, color: AppColors.primary, size: 20),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

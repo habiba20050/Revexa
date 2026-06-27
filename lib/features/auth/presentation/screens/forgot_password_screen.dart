@@ -41,6 +41,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               behavior: SnackBarBehavior.floating,
             ),
           );
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (context.mounted) {
+              Navigator.pushNamed(context, AppRoutes.resetPassword);
+            }
+          });
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

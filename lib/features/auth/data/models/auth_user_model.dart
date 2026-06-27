@@ -83,7 +83,7 @@ class AuthUser extends Equatable {
       phone: json['phone']?.toString(),
       address: json['address']?.toString(),
       imageUrl: ImageUrlUtils.resolve(
-        json['image'] ?? json['imageUrl'] ?? json['avatar'],
+        json['image'] ?? json['imageUrl'] ?? json['avatar'] ?? json['url'],
       ),
     );
   }

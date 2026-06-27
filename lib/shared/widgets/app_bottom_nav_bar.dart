@@ -21,6 +21,7 @@ class AppBottomNavBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Align(
       alignment: Alignment.bottomCenter,
+      heightFactor: 1.0,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: SafeArea(

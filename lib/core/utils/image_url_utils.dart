@@ -19,14 +19,30 @@ class ImageUrlUtils {
     return value;
   }
 
+  static String avatarCacheBuster = DateTime.now().millisecondsSinceEpoch.toString();
+
   static String? resolve(dynamic raw) {
     final value = extract(raw);
     if (value == null || value.isEmpty) return null;
-    if (isAsset(value)) return value;
-    if (isNetwork(value)) return value;
-    if (value.startsWith('//')) return 'https:$value';
-    if (value.startsWith('/')) return '$_origin$value';
-    return '$_origin/$value';
+    
+    String resolved;
+    if (isAsset(value)) {
+      resolved = value;
+    } else if (isNetwork(value)) {
+      resolved = value;
+    } else if (value.startsWith('//')) {
+      resolved = 'https:$value';
+    } else if (value.startsWith('/')) {
+      resolved = '$_origin$value';
+    } else {
+      resolved = '$_origin/$value';
+    }
+
+    if (resolved.contains('/avatars/') && avatarCacheBuster.isNotEmpty) {
+      final sep = resolved.contains('?') ? '&' : '?';
+      resolved = '$resolved${sep}cb=$avatarCacheBuster';
+    }
+    return resolved;
   }
 
   static bool isNetwork(String? url) {

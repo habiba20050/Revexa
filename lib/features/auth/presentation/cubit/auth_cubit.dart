@@ -6,6 +6,7 @@ import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 import 'package:revexa/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/profile/data/datasources/profile_remote_datasource.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
@@ -48,7 +49,7 @@ class AuthCubit extends Cubit<AuthState> {
 
         // On web: use serverAuthCode or idToken (idToken is typically null on web)
         // On native: idToken is usually available
-        final String? authToken = idToken ?? googleAuth.serverAuthCode;
+        final String? authToken = idToken ?? googleUser.serverAuthCode;
         if (authToken == null || authToken.isEmpty) {
           if (!isClosed) emit(const AuthError('Failed to get Google authentication token (idToken/serverAuthCode) on Web'));
           return;
@@ -199,7 +200,7 @@ class AuthCubit extends Cubit<AuthState> {
       }
 
       // On native platforms and web: prefer idToken, fallback to serverAuthCode
-      final String? authToken = idToken ?? googleAuth.serverAuthCode;
+      final String? authToken = idToken ?? googleUser.serverAuthCode;
       if (authToken == null || authToken.isEmpty) {
         if (!isClosed) emit(const AuthError('Failed to get Google authentication token (idToken/serverAuthCode)'));
         return;
@@ -251,6 +252,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> applyProfileUpdate(AuthUser user) async {
     if (isClosed) return;
+    ImageUrlUtils.avatarCacheBuster = DateTime.now().millisecondsSinceEpoch.toString();
     final current = state;
     final token = current is AuthAuthenticated ? current.user.token : user.token;
     final updated = user.copyWith(token: token);

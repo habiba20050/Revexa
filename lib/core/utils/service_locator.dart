@@ -19,6 +19,8 @@ import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
+import 'package:revexa/features/chatbot/data/datasources/chatbot_remote_datasource.dart';
+import 'package:revexa/features/chatbot/presentation/cubit/chatbot_cubit.dart';
 
 /// Simple service locator — no external package required.
 class ServiceLocator {
@@ -33,6 +35,7 @@ class ServiceLocator {
   late final ServicesCubit servicesCubit;
   late final NewsCubit newsCubit;
   late final NotificationsCubit notificationsCubit;
+  late final ChatbotCubit chatbotCubit;
   late final ThemeCubit themeCubit;
   late final LocaleCubit localeCubit;
 
@@ -75,6 +78,10 @@ class ServiceLocator {
 
     // Notifications
     notificationsCubit = NotificationsCubit();
+
+    // Chatbot
+    final chatbotDataSource = ChatbotRemoteDataSourceImpl();
+    chatbotCubit = ChatbotCubit(chatbotDataSource);
 
     // Theme
     themeCubit = ThemeCubit();
