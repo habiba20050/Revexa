@@ -18,6 +18,7 @@ abstract interface class AuthRepository {
   });
   Future<Result<void>> logout();
   Future<Result<void>> forgotPassword(String email);
+  Future<Result<String>> verifyResetCode({required String email, required String code});
   Future<Result<AuthUser>> signInWithGoogle({required String accessToken, String? idToken});
   Future<Result<AuthUser>> resetPassword({required String token, required String password});
   Future<AuthUser?> getStoredUser();
@@ -125,6 +126,19 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _remote.forgotPassword(email);
       return const Success(null);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<String>> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final token = await _remote.verifyResetCode(email: email, code: code);
+      return Success(token);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
     }

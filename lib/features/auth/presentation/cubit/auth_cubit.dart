@@ -276,6 +276,25 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    if (isClosed) return;
+    emit(const AuthLoading());
+    try {
+      final result = await _repository.verifyResetCode(email: email, code: code);
+      if (isClosed) return;
+      if (result is Success) {
+        emit(VerifyResetCodeSuccess(result.data!));
+      } else {
+        emit(AuthError(result.failure!.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(AuthError('Unexpected error: $e'));
+    }
+  }
+
   Future<void> resetPassword({
     required String token,
     required String password,

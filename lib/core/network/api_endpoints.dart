@@ -10,7 +10,8 @@ class ApiEndpoints {
   static const String googleLogin = '/auth/google';
   static const String logout = '/auth/logout';
   static const String forgotPassword = '/auth/forgot-password';
-  static String resetPassword(String token) => '/auth/reset-password/$token';
+  static const String verifyResetCode = '/auth/verify-reset-code';
+  static const String resetPassword = '/auth/reset-password';
 
   // Profile — Swagger: /users/{userId} with userId = "me"
   static const String profile = '/users/me';

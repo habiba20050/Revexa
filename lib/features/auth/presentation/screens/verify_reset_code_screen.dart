@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:revexa/core/constants/app_routes.dart';
@@ -7,49 +8,49 @@ import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/shared/widgets/primary_button.dart';
 
-class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+class VerifyResetCodeScreen extends StatefulWidget {
+  final String email;
+  const VerifyResetCodeScreen({super.key, required this.email});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  State<VerifyResetCodeScreen> createState() => _VerifyResetCodeScreenState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _codeCtrl.dispose();
     super.dispose();
   }
 
   void _onSubmit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
-    context.read<AuthCubit>().forgotPassword(_emailCtrl.text.trim());
+    context.read<AuthCubit>().verifyResetCode(
+          email: widget.email,
+          code: _codeCtrl.text.trim(),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is ForgotPasswordSuccess) {
+        if (state is VerifyResetCodeSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('OTP sent! Check your email for the verification code.'),
+              content: Text('Code verified! Set your new password.'),
               backgroundColor: Color(0xFF22C55E),
               behavior: SnackBarBehavior.floating,
             ),
           );
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            if (context.mounted) {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.verifyResetCode,
-                arguments: _emailCtrl.text.trim(),
-              );
-            }
-          });
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.resetPassword,
+            arguments: state.resetToken,
+          );
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -93,6 +94,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               SafeArea(
                 child: Column(
                   children: [
+                    // Top bar
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       child: Row(
@@ -163,12 +165,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   color: AppColors.primary.withValues(alpha: 0.10),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.lock_reset,
+                                child: Icon(Icons.mark_email_read_outlined,
                                     color: AppColors.primary, size: 36),
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                'Forgot Password?',
+                                'Verify OTP Code',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
@@ -177,14 +179,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Text(
-                                "Enter your email address and we'll send you instructions to reset your password.",
-                                style: GoogleFonts.urbanist(
-                                  fontSize: 14,
-                                  color: AppColors.onSurfaceVariant,
-                                  height: 1.6,
-                                ),
+                              RichText(
                                 textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: GoogleFonts.urbanist(
+                                    fontSize: 14,
+                                    color: AppColors.onSurfaceVariant,
+                                    height: 1.6,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'Enter the OTP code sent to '),
+                                    TextSpan(
+                                      text: widget.email.isEmpty
+                                          ? 'your email'
+                                          : widget.email,
+                                      style: GoogleFonts.urbanist(
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(height: 32),
                               Container(
@@ -204,7 +219,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Email Address',
+                                      'OTP Code',
                                       style: GoogleFonts.urbanist(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -213,39 +228,48 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     TextFormField(
-                                      controller: _emailCtrl,
-                                      keyboardType: TextInputType.emailAddress,
+                                      controller: _codeCtrl,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(6),
+                                      ],
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 8,
+                                        color: AppColors.onSurface,
+                                      ),
                                       validator: (v) {
                                         if (v == null || v.trim().isEmpty) {
-                                          return 'Email is required';
+                                          return 'Code is required';
                                         }
-                                        if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,}$')
-                                            .hasMatch(v.trim())) {
-                                          return 'Enter a valid email';
+                                        if (v.trim().length < 4) {
+                                          return 'Enter the full OTP code';
                                         }
                                         return null;
                                       },
-                                      style: GoogleFonts.urbanist(
-                                          fontSize: 16, color: AppColors.onSurface),
                                       decoration: InputDecoration(
-                                        hintText: 'name@company.com',
+                                        hintText: '• • • • • •',
                                         hintStyle: GoogleFonts.urbanist(
-                                            color: AppColors.onSurfaceVariant.withValues(alpha: 0.5)),
+                                          color: AppColors.onSurfaceVariant.withValues(alpha: 0.4),
+                                          fontSize: 22,
+                                          letterSpacing: 6,
+                                        ),
                                         filled: true,
                                         fillColor: AppColors.surface,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                        prefixIcon: const Icon(Icons.mail_outline,
+                                        contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 18),
+                                        prefixIcon: const Icon(Icons.pin_outlined,
                                             color: Color(0xFF94A3B8), size: 22),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(16),
-                                          borderSide:
-                                              BorderSide(color: AppColors.outline),
+                                          borderSide: BorderSide(color: AppColors.outline),
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(16),
-                                          borderSide:
-                                              BorderSide(color: AppColors.outline),
+                                          borderSide: BorderSide(color: AppColors.outline),
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(16),
@@ -255,17 +279,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         ),
                                         errorBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(16),
-                                          borderSide:
-                                              BorderSide(color: AppColors.error),
+                                          borderSide: BorderSide(color: AppColors.error),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(height: 24),
                                     isLoading
-                                        ? const Center(child: CircularProgressIndicator.adaptive())
+                                        ? const Center(
+                                            child: CircularProgressIndicator.adaptive())
                                         : PrimaryButton(
-                                            label: 'Send Reset Link',
-                                            trailing: const Icon(Icons.send,
+                                            label: 'Verify Code',
+                                            trailing: const Icon(Icons.verified_user_outlined,
                                                 color: Colors.white, size: 18),
                                             onPressed: () => _onSubmit(context),
                                           ),
@@ -273,6 +297,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24),
+                              // Resend hint
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
@@ -280,7 +305,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(8),
@@ -294,53 +318,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                               offset: Offset(0, 1)),
                                         ],
                                       ),
-                                      child: Icon(Icons.verified_user,
+                                      child: Icon(Icons.info_outline,
                                           color: AppColors.primary, size: 20),
                                     ),
                                     const SizedBox(width: 16),
                                     Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Secure Recovery',
-                                            style: GoogleFonts.urbanist(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.onSurface,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Your data is protected with enterprise-grade encryption.',
-                                            style: GoogleFonts.urbanist(
-                                              fontSize: 12,
-                                              color: AppColors.onSurfaceVariant,
-                                              height: 1.4,
-                                            ),
-                                          ),
-                                        ],
+                                      child: Text(
+                                        "Didn't receive the code? Go back and request a new one.",
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 12,
+                                          color: AppColors.onSurfaceVariant,
+                                          height: 1.4,
+                                        ),
                                       ),
                                     ),
                                   ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Center(
-                                child: TextButton(
-                                  onPressed: () => Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.verifyResetCode,
-                                    arguments: _emailCtrl.text.trim(),
-                                  ),
-                                  child: Text(
-                                    'Already have a code?',
-                                    style: GoogleFonts.urbanist(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
                                 ),
                               ),
                               const Spacer(),
@@ -353,7 +345,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         color: AppColors.primary, size: 16),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Back to Sign In',
+                                      'Back to Forgot Password',
                                       style: GoogleFonts.urbanist(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,

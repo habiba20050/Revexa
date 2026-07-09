@@ -20,6 +20,7 @@ abstract interface class AuthRemoteDataSource {
   });
   Future<void> logout();
   Future<void> forgotPassword(String email);
+  Future<String> verifyResetCode({required String email, required String code});
   Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken});
   Future<AuthUser> resetPassword({required String token, required String password});
 }
@@ -128,14 +129,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<String> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.verifyResetCode,
+        data: {'email': email, 'code': code},
+      );
+      final body = response.data;
+      // Expected shape: { data: { resetToken: '...' } } or { resetToken: '...' }
+      String? token;
+      if (body is Map) {
+        final map = Map<String, dynamic>.from(body as Map);
+        if (map['data'] is Map) {
+          token = (map['data'] as Map)['resetToken']?.toString();
+        }
+        token ??= map['resetToken']?.toString();
+      }
+      if (token == null || token.isEmpty) {
+        throw const FormatException('Server did not return a reset token');
+      }
+      return token;
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
   Future<AuthUser> resetPassword({
     required String token,
     required String password,
   }) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.resetPassword(token),
-        data: {'password': password},
+        ApiEndpoints.resetPassword,
+        data: {'token': token, 'password': password},
       );
       return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {

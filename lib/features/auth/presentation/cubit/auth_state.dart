@@ -48,3 +48,11 @@ class AuthError extends AuthState {
 class ForgotPasswordSuccess extends AuthState {
   const ForgotPasswordSuccess();
 }
+
+class VerifyResetCodeSuccess extends AuthState {
+  /// The short-lived reset token returned by POST /auth/verify-reset-code.
+  final String resetToken;
+  const VerifyResetCodeSuccess(this.resetToken);
+  @override
+  List<Object?> get props => [resetToken];
+}

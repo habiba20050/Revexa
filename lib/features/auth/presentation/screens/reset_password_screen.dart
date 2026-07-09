@@ -93,7 +93,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Enter the reset token from your email and choose a new password.',
+                      'Choose a new password for your account.',
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         color: AppColors.onSurfaceVariant,
