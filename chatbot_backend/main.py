@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google import genai
-from google.genai import types
+from google.genai import Client, types
 import uvicorn
 import os
 from dotenv import load_dotenv
@@ -26,7 +25,7 @@ if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY environment variable is not set. Please create a .env file.")
 
 # Initialize the modern Gemini Client
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = Client(api_key=GEMINI_API_KEY)
 
 class ChatMessagePayload(BaseModel):
     role: str
