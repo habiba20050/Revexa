@@ -1,13 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import uvicorn
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file and override any system variables
+load_dotenv(override=True)
 
 app = FastAPI(title="REVEXA Bot Backend")
 
@@ -24,19 +25,8 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY environment variable is not set. Please create a .env file.")
 
-genai.configure(api_key=GEMINI_API_KEY)
-
-# Initialize Gemini 2.5 Flash model with system instructions
-model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash",
-    system_instruction=(
-        "You are REVEXA Bot, the premium AI assistant for the Revexa car service app. "
-        "Your mission is to help users with car-related questions, troubleshooting, maintenance tips, "
-        "and queries about Revexa services (mobile wash, expert maintenance, tire service, etc.). "
-        "Keep your responses extremely helpful, professional, friendly, and structured. "
-        "Answer in the same language the user uses (Arabic or English)."
-    )
-)
+# Initialize the modern Gemini Client
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 class ChatMessagePayload(BaseModel):
     role: str
@@ -55,13 +45,27 @@ async def chat(request: ChatRequest):
         # Build conversational history
         formatted_history = []
         for msg in request.history:
-            formatted_history.append({
-                "role": "user" if msg.role == "user" else "model",
-                "parts": [msg.text]
-            })
+            formatted_history.append(
+                types.Content(
+                    role="user" if msg.role == "user" else "model",
+                    parts=[types.Part.from_text(text=msg.text)]
+                )
+            )
 
-        # Start chat session with history
-        chat_session = model.start_chat(history=formatted_history)
+        # Start chat session with history and system instructions using the modern SDK
+        chat_session = client.chats.create(
+            model="gemini-2.5-flash",
+            history=formatted_history,
+            config=types.GenerateContentConfig(
+                system_instruction=(
+                    "You are REVEXA Bot, the premium AI assistant for the Revexa car service app. "
+                    "Your mission is to help users with car-related questions, troubleshooting, maintenance tips, "
+                    "and queries about Revexa services (mobile wash, expert maintenance, tire service, etc.). "
+                    "Keep your responses extremely helpful, professional, friendly, and structured. "
+                    "Answer in the same language the user uses (Arabic or English)."
+                )
+            )
+        )
         
         # Send new message
         response = chat_session.send_message(request.message)
