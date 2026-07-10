@@ -26,11 +26,13 @@ class ApiEndpoints {
   // Products
   static const String products = '/products';
   static String productById(String id) => '/products/$id';
+  static String productsByUserId(String userId) => '/products?userId=$userId';
 
   // Orders
   static const String orders = '/orders';
   static String createOrder(String productId) => '/orders/$productId';
   static String orderById(String id) => '/orders/$id';
+  static String updateOrderStatus(String id) => '/orders/$id';
 
   // Categories
   static const String categories = '/categories';

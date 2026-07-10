@@ -9,12 +9,14 @@ abstract interface class AuthRepository {
   Future<Result<AuthUser>> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
-    required int age,
-    required String gender,
-    required String address,
+    String? role,
+    String? name,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    int? age,
+    String? gender,
+    String? address,
   });
   Future<Result<void>> logout();
   Future<Result<void>> forgotPassword(String email);
@@ -67,17 +69,21 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<AuthUser>> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
-    required int age,
-    required String gender,
-    required String address,
+    String? role,
+    String? name,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    int? age,
+    String? gender,
+    String? address,
   }) async {
     try {
       final user = await _remote.register(
         email: email,
         password: password,
+        role: role,
+        name: name,
         firstName: firstName,
         lastName: lastName,
         phone: phone,

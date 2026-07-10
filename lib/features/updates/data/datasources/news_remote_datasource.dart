@@ -5,9 +5,11 @@ import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/features/updates/data/models/news_item_model.dart';
 
 class NewsRemoteDataSource {
-  final Dio _dio;
+  // Use a getter to always reference the current Dio instance from the client.
+  Dio get _dio => _dioClient.dio;
 
-  NewsRemoteDataSource() : _dio = DioClient.instance.dio;
+  final DioClient _dioClient;
+  NewsRemoteDataSource({DioClient? dioClient}) : _dioClient = dioClient ?? DioClient.instance;
 
   /// GET /api/news?page=1&limit=10 — matches backend [getStoredNews].
   Future<NewsPage> getStoredNews({int page = 1, int limit = 20}) async {

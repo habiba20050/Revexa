@@ -105,15 +105,21 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// يسجل مستخدمًا جديدًا (شخصيًا أو شركة).
+  ///
+  /// يجمع كل المعلمات في خريطة واحدة ويرسلها إلى الـ repository.
+  /// المعلمات غير المطلوبة (مثل `firstName` لحساب الشركة) يجب أن تكون `null`.
   Future<void> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
-    required int age,
-    required String gender,
-    required String address,
+    String? role,
+    String? name,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    int? age,
+    String? gender,
+    String? address,
   }) async {
     if (isClosed) return;
     emit(const AuthLoading());
@@ -121,6 +127,8 @@ class AuthCubit extends Cubit<AuthState> {
       final result = await _repository.register(
         email: email,
         password: password,
+        role: role,
+        name: name,
         firstName: firstName,
         lastName: lastName,
         phone: phone,
@@ -128,6 +136,7 @@ class AuthCubit extends Cubit<AuthState> {
         gender: gender,
         address: address,
       );
+
       if (isClosed) return;
       if (result is Success) {
         emit(AuthAuthenticated(result.data!));
@@ -138,6 +147,7 @@ class AuthCubit extends Cubit<AuthState> {
       if (!isClosed) emit(AuthError('Unexpected error: $e'));
     }
   }
+
 
   Future<void> signInWithGoogle() async {
     if (isClosed) return;

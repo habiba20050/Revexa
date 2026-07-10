@@ -6,12 +6,14 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final Widget? trailing;
   final VoidCallback? onPressed;
+  final bool isLoading;
 
   const PrimaryButton({
     super.key,
     required this.label,
     this.trailing,
     this.onPressed,
+    this.isLoading = false,
   });
 
   @override
@@ -25,12 +27,23 @@ class PrimaryButton extends StatelessWidget {
         shadowColor: AppColors.primary.withValues(alpha: 0.20),
         elevation: 3,
         child: InkWell(
-          onTap: onPressed,
+          onTap: isLoading ? null : onPressed,
           borderRadius: BorderRadius.circular(16),
           child: Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (isLoading) ...[
+                  const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 Text(
                   label,
                   style: GoogleFonts.urbanist(
@@ -39,7 +52,7 @@ class PrimaryButton extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                if (trailing != null) ...[
+                if (!isLoading && trailing != null) ...[
                   const SizedBox(width: 8),
                   trailing!,
                 ],

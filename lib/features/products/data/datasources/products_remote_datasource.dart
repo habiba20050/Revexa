@@ -7,6 +7,13 @@ import 'package:revexa/features/products/data/models/product_model.dart';
 abstract interface class ProductsRemoteDataSource {
   Future<ProductsPage> getAllProducts({int page = 1, int limit = 10});
   Future<Product> getProductById(String id);
+  Future<Product> createProduct({
+    required String title,
+    required String description,
+    required double price,
+    String? category,
+    String? location,
+  });
 }
 
 class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
@@ -47,6 +54,32 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
   Future<Product> getProductById(String id) async {
     try {
       final response = await _dio.get(ApiEndpoints.productById(id));
+      final data = _unwrapSingle(response.data);
+      return Product.fromJson(data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<Product> createProduct({
+    required String title,
+    required String description,
+    required double price,
+    String? category,
+    String? location,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.products,
+        data: {
+          'title': title,
+          'description': description,
+          'price': price,
+          if (category != null && category.isNotEmpty) 'category': category,
+          if (location != null && location.isNotEmpty) 'location': location,
+        },
+      );
       final data = _unwrapSingle(response.data);
       return Product.fromJson(data);
     } on DioException catch (e) {

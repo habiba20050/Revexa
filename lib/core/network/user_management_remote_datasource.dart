@@ -4,6 +4,7 @@ import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
+import 'package:revexa/features/products/data/models/product_model.dart';
 
 /// Abstract interface for the user management remote data source.
 abstract interface class UserManagementRemoteDataSource {
@@ -18,13 +19,19 @@ abstract interface class UserManagementRemoteDataSource {
 
   /// Deletes a user by their ID via the API.
   Future<void> deleteUser(String userId);
+
+  /// Fetches all products/services offered by a specific user (company).
+  Future<List<Product>> getProductsByUserId(String userId);
 }
 
 /// Implementation of the [UserManagementRemoteDataSource].
 class UserManagementRemoteDataSourceImpl implements UserManagementRemoteDataSource {
-  final Dio _dio;
+  // Use a getter so we always reference the current Dio instance from the client,
+  // never a stale one captured at construction time.
+  Dio get _dio => _dioClient.dio;
 
-  UserManagementRemoteDataSourceImpl() : _dio = DioClient.instance.dio;
+  final DioClient _dioClient;
+  UserManagementRemoteDataSourceImpl({DioClient? dioClient}) : _dioClient = dioClient ?? DioClient.instance;
 
   @override
   Future<List<AuthUser>> getAllUsers({required int page, required int limit}) async {
@@ -33,8 +40,8 @@ class UserManagementRemoteDataSourceImpl implements UserManagementRemoteDataSour
         ApiEndpoints.users,
         queryParameters: {'page': page, 'limit': limit},
       );
-      final data = response.data;
-      final users = (data['data'] as List).map((userJson) => AuthUser.fromJson(userJson)).toList();
+      final userList = _unwrapList(response.data);
+      final users = userList.map((userJson) => AuthUser.fromJson(userJson)).toList();
       return users;
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
@@ -45,7 +52,8 @@ class UserManagementRemoteDataSourceImpl implements UserManagementRemoteDataSour
   Future<AuthUser> getUserById(String userId) async {
     try {
       final response = await _dio.get(ApiEndpoints.userById(userId));
-      return AuthUser.fromJson(response.data['data']);
+      final userMap = _unwrapData(response.data);
+      return AuthUser.fromJson(userMap);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
@@ -68,13 +76,46 @@ class UserManagementRemoteDataSourceImpl implements UserManagementRemoteDataSour
   @override
   Future<AuthUser> updateUser(String userId, Map<String, dynamic> data) async {
     try {
-      final response = await _dio.patch(
+      final response = await _dio.put(
         ApiEndpoints.userById(userId),
         data: data,
       );
-      return AuthUser.fromJson(response.data['data']);
+      final userMap = _unwrapData(response.data);
+      return AuthUser.fromJson(userMap);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
+  }
+
+  @override
+  Future<List<Product>> getProductsByUserId(String userId) async {
+    try {
+      // NOTE: This assumes the backend supports `GET /products?userId={id}`
+      final response = await _dio.get(ApiEndpoints.productsByUserId(userId));
+      final productList = _unwrapList(response.data);
+      final products = productList.map((json) => Product.fromJson(json)).toList();
+      return products;
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  // ─── Parsing Helpers ──────────────────────────────────────────────────────
+
+  Map<String, dynamic> _unwrapData(dynamic body) {
+    if (body is Map && body['data'] is Map) {
+      return Map<String, dynamic>.from(body['data'] as Map);
+    }
+    if (body is Map) return Map<String, dynamic>.from(body);
+    throw const FormatException('Invalid API response format: Expected a data object.');
+  }
+
+  List<Map<String, dynamic>> _unwrapList(dynamic body) {
+    if (body is Map && body['data'] is List) {
+      return (body['data'] as List)
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
+    }
+    throw const FormatException('Invalid API response format: Expected a data list.');
   }
 }

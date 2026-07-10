@@ -9,6 +9,11 @@ import 'package:revexa/shared/widgets/primary_button.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 
+/// يحدد نوع الحساب الذي يتم إنشاؤه.
+enum AccountType {
+  personal, // حساب مستخدم عادي
+  company, // حساب شركة/مقدم خدمة
+}
 /// شاشة إنشاء حساب جديد (Registration Screen).
 /// تمكن المستخدم من إدخال بياناته الشخصية (الاسم، البريد الإلكتروني، الهاتف، العمر، الجنس، العنوان، وكلمة المرور) وإنشاء حساب.
 class RegisterScreen extends StatefulWidget {
@@ -28,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// متحكمات حقول النص لإدخال البيانات الشخصية.
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
+  final _companyNameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _ageCtrl = TextEditingController();
@@ -37,11 +43,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// الجنس المختار (male كقيمة افتراضية).
   String _gender = 'male';
 
+  /// نوع الحساب المختار (شخصي كقيمة افتراضية).
+  AccountType _accountType = AccountType.personal;
+
   @override
   void dispose() {
     // تنظيف المتحكمات عند التخلص من الـ Widget لتفادي تسريبات الذاكرة.
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
+    _companyNameCtrl.dispose();
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
     _ageCtrl.dispose();
@@ -54,17 +64,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// تقوم بالتحقق من المدخلات ثم استدعاء [AuthCubit.register].
   void _onRegister(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
-    final age = int.tryParse(_ageCtrl.text.trim()) ?? 0;
-    context.read<AuthCubit>().register(
+
+    if (_accountType == AccountType.personal) {
+      final age = int.tryParse(_ageCtrl.text.trim()) ?? 0;
+      context.read<AuthCubit>().register(
+            email: _emailCtrl.text.trim(),
+            password: _passwordCtrl.text,
+            firstName: _firstNameCtrl.text.trim(),
+            lastName: _lastNameCtrl.text.trim(),
+            phone: _phoneCtrl.text.trim(),
+            age: age,
+            gender: _gender,
+            address: _addressCtrl.text.trim(),
+            role: 'user', // إرسال دور المستخدم
+          );
+    } else {
+      // منطق تسجيل الشركة
+      context.read<AuthCubit>().register(
           email: _emailCtrl.text.trim(),
           password: _passwordCtrl.text,
-          firstName: _firstNameCtrl.text.trim(),
-          lastName: _lastNameCtrl.text.trim(),
+          name: _companyNameCtrl.text.trim(), // استخدام اسم الشركة
           phone: _phoneCtrl.text.trim(),
-          age: age,
-          gender: _gender,
           address: _addressCtrl.text.trim(),
-        );
+          role: 'company'); // إرسال دور الشركة
+    }
   }
 
   @override
@@ -150,36 +173,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // First & Last name row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _RegField(
-                                label: l10n.firstName,
-                                placeholder: 'Ahmed',
-                                controller: _firstNameCtrl,
-                                prefixIcon: Icons.person_outline,
-                                validator: (v) =>
-                                    (v == null || v.trim().length < 2)
-                                        ? l10n.minCharacters(2)
-                                        : null,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _RegField(
-                                label: l10n.lastName,
-                                placeholder: 'Mohamed',
-                                controller: _lastNameCtrl,
-                                prefixIcon: Icons.person_outline,
-                                validator: (v) =>
-                                    (v == null || v.trim().length < 2)
-                                        ? l10n.minCharacters(2)
-                                        : null,
-                              ),
-                            ),
-                          ],
+                        // Account Type Selector
+                        _AccountTypeSelector(
+                          selectedType: _accountType,
+                          onChanged: (type) => setState(() => _accountType = type),
                         ),
+                        const SizedBox(height: 16),
+
+                        // AnimatedSwitcher للتبديل بين حقول الحساب الشخصي والشركة
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SizeTransition(sizeFactor: animation, child: child),
+                            );
+                          },
+                          child: _accountType == AccountType.personal
+                              ? _buildPersonalFields(l10n)
+                              : _buildCompanyFields(l10n),
+                        ),
+
                         const SizedBox(height: 12),
                         _RegField(
                           label: l10n.emailAddress,
@@ -205,82 +219,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: (v) => (v == null || v.trim().isEmpty)
                               ? l10n.phoneNumber
                               : null,
-                        ),
-                        const SizedBox(height: 12),
-                        // Age & Gender row
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: _RegField(
-                                label: l10n.age,
-                                placeholder: '25',
-                                controller: _ageCtrl,
-                                keyboardType: TextInputType.number,
-                                prefixIcon: Icons.cake_outlined,
-                                validator: (v) {
-                                  final age = int.tryParse(v ?? '');
-                                  if (age == null || age < 18) return l10n.minAge;
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 4, bottom: 6),
-                                    child: Text(
-                                      l10n.gender,
-                                      style: GoogleFonts.urbanist(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 52,
-                                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.surface,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.people_outline, color: Color(0xFF94A3B8), size: 20),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<String>(
-                                              value: _gender,
-                                              isExpanded: true,
-                                              icon: Icon(Icons.keyboard_arrow_down_rounded,
-                                                  color: AppColors.onSurfaceVariant, size: 20),
-                                              style: GoogleFonts.urbanist(
-                                                fontSize: 14,
-                                                color: AppColors.onSurface,
-                                              ),
-                                              dropdownColor: AppColors.surface,
-                                              items: [
-                                                DropdownMenuItem(
-                                                    value: 'male', child: Text(l10n.male)),
-                                                DropdownMenuItem(
-                                                    value: 'female', child: Text(l10n.female)),
-                                              ],
-                                              onChanged: (v) => setState(() => _gender = v ?? 'male'),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                         ),
                         const SizedBox(height: 12),
                         _RegField(
@@ -399,6 +337,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
     );
   }
+
+  /// يبني حقول التسجيل الخاصة بالحساب الشخصي.
+  Widget _buildPersonalFields(AppLocalizations l10n) {
+    return Column(
+      key: const ValueKey('personal_fields'),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _RegField(
+                label: l10n.firstName,
+                placeholder: 'Ahmed',
+                controller: _firstNameCtrl,
+                prefixIcon: Icons.person_outline,
+                validator: (v) => (v == null || v.trim().length < 2) ? l10n.minCharacters(2) : null,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _RegField(
+                label: l10n.lastName,
+                placeholder: 'Mohamed',
+                controller: _lastNameCtrl,
+                prefixIcon: Icons.person_outline,
+                validator: (v) => (v == null || v.trim().length < 2) ? l10n.minCharacters(2) : null,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _RegField(
+                label: l10n.age,
+                placeholder: '25',
+                controller: _ageCtrl,
+                keyboardType: TextInputType.number,
+                prefixIcon: Icons.cake_outlined,
+                validator: (v) {
+                  final age = int.tryParse(v ?? '');
+                  if (age == null || age < 18) return l10n.minAge;
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 6),
+                    child: Text(
+                      l10n.gender,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.people_outline, color: Color(0xFF94A3B8), size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _gender,
+                              isExpanded: true,
+                              icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceVariant, size: 20),
+                              style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface),
+                              dropdownColor: AppColors.surface,
+                              items: [
+                                DropdownMenuItem(value: 'male', child: Text(l10n.male)),
+                                DropdownMenuItem(value: 'female', child: Text(l10n.female)),
+                              ],
+                              onChanged: (v) => setState(() => _gender = v ?? 'male'),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// يبني حقول التسجيل الخاصة بحساب الشركة.
+  Widget _buildCompanyFields(AppLocalizations l10n) {
+    return Column(
+      key: const ValueKey('company_fields'),
+      children: [
+        _RegField(
+          label: l10n.companyName,
+          placeholder: 'Revexa Corp',
+          controller: _companyNameCtrl,
+          prefixIcon: Icons.business_rounded,
+          validator: (v) => (v == null || v.trim().length < 2) ? l10n.minCharacters(2) : null,
+        ),
+      ],
+    );
+  }
 }
 
 /// حقل إدخال مخصص لشاشة التسجيل (_RegField).
@@ -494,6 +549,63 @@ class _RegField extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(color: AppColors.error, width: 2),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// ويدجت لاختيار نوع الحساب (شخصي أو شركة).
+class _AccountTypeSelector extends StatelessWidget {
+  final AccountType selectedType;
+  final ValueChanged<AccountType> onChanged;
+
+  const _AccountTypeSelector({required this.selectedType, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            l10n.accountType,
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.onSurface,
+            ),
+          ),
+        ),
+        SegmentedButton<AccountType>(
+          segments: [
+            ButtonSegment(
+              value: AccountType.personal,
+              label: Text(l10n.personalAccount),
+              icon: const Icon(Icons.person_outline),
+            ),
+            ButtonSegment(
+              value: AccountType.company,
+              label: Text(l10n.companyAccount),
+              icon: const Icon(Icons.business_rounded),
+            ),
+          ],
+          selected: {selectedType},
+          onSelectionChanged: (selection) => onChanged(selection.first),
+          style: SegmentedButton.styleFrom(
+            backgroundColor: AppColors.surface,
+            foregroundColor: AppColors.onSurfaceVariant,
+            selectedForegroundColor: AppColors.onPrimary,
+            selectedBackgroundColor: AppColors.primary,
+            textStyle: GoogleFonts.urbanist(fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            side: BorderSide.none,
+          ).copyWith(
+            // Override to make it full width
+            minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 52)),
           ),
         ),
       ],

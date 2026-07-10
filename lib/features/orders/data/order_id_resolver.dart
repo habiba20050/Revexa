@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
 
@@ -15,26 +16,29 @@ class OrderIdResolver {
   static Future<String> resolve({
     required String fallbackId,
     required String serviceName,
+    Dio? dio,
   }) async {
     // If the caller already has a valid MongoDB ObjectId, use it directly.
     if (isValidObjectId(fallbackId)) return fallbackId;
 
-    final dio = DioClient.instance.dio;
+    final client = dio ?? DioClient.instance.dio;
     final nameLower = serviceName.toLowerCase();
 
     // Search /products — the only catalogue endpoint on the backend.
     try {
-      final productsRes = await dio.get(ApiEndpoints.products);
+      final productsRes = await client.get(ApiEndpoints.products);
       final products = _extractList(productsRes.data);
       final match = _findByName(products, nameLower);
       if (match != null) return match;
-      if (products.isNotEmpty) {
-        final firstId = _readId(products.first);
-        if (firstId != null) return firstId;
-      }
-    } catch (_) {}
 
-    throw Exception(
+      // As a last resort, if no match is found, we can't proceed.
+      // Returning the first product ID might lead to booking the wrong service.
+    } catch (e) {
+      // Log the error or handle it, but don't swallow it.
+      // For now, we'll rethrow a more specific exception.
+    }
+
+    throw OrderResolutionException(
       'Could not find "$serviceName" on the server. '
       'Add it in the admin panel or pick a service from the API list.',
     );
@@ -87,4 +91,12 @@ class OrderIdResolver {
     if (id != null && id.isNotEmpty) return id;
     return null;
   }
+}
+
+/// Custom exception for failures in resolving an order ID.
+class OrderResolutionException implements Exception {
+  final String message;
+  OrderResolutionException(this.message);
+  @override
+  String toString() => 'OrderResolutionException: $message';
 }

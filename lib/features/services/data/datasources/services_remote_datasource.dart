@@ -16,7 +16,9 @@ abstract interface class ServicesRemoteDataSource {
 class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
   // Use a getter so we always reference the current Dio instance,
   // never a stale one captured at construction time.
-  Dio get _dio => DioClient.instance.dio;
+  Dio get _dio => _dioClient.dio;
+  final DioClient _dioClient;
+  ServicesRemoteDataSourceImpl({DioClient? dioClient}) : _dioClient = dioClient ?? DioClient.instance;
 
   @override
   Future<ServicesPage> getAllServices({int page = 1, int limit = 10}) async {

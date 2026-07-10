@@ -218,6 +218,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get lastName => 'اسم العائلة';
 
   @override
+  String get companyName => 'اسم الشركة';
+
+  @override
+  String get accountType => 'نوع الحساب';
+
+  @override
+  String get personalAccount => 'حساب شخصي';
+
+  @override
+  String get companyAccount => 'حساب شركة';
+
+  @override
   String get phoneNumber => 'رقم الهاتف';
 
   @override
@@ -245,6 +257,36 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get createMyAccount => 'إنشاء حسابي';
+
+  @override
+  String get addServiceTitle => 'إضافة خدمة';
+
+  @override
+  String get serviceAddedSuccessfully => 'تمت إضافة الخدمة بنجاح';
+
+  @override
+  String get serviceTitle => 'عنوان الخدمة';
+
+  @override
+  String get serviceTitlePlaceholder => 'أدخل عنوان الخدمة';
+
+  @override
+  String get serviceDescription => 'وصف الخدمة';
+
+  @override
+  String get serviceDescriptionPlaceholder => 'صف خدمتك';
+
+  @override
+  String get servicePrice => 'سعر الخدمة';
+
+  @override
+  String get saveService => 'حفظ الخدمة';
+
+  @override
+  String get serviceCategoryHint => 'اختر التصنيف';
+
+  @override
+  String get serviceCategory => 'تصنيف الخدمة';
 
   @override
   String get goodMorning => 'صباح الخير';

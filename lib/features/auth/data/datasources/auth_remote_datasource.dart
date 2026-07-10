@@ -11,12 +11,14 @@ abstract interface class AuthRemoteDataSource {
   Future<AuthUser> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
-    required int age,
-    required String gender,
-    required String address,
+    String? role,
+    String? name,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    int? age,
+    String? gender,
+    String? address,
   });
   Future<void> logout();
   Future<void> forgotPassword(String email);
@@ -74,12 +76,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUser> register({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
-    required int age,
-    required String gender,
-    required String address,
+    String? role,
+    String? name,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    int? age,
+    String? gender,
+    String? address,
   }) async {
     try {
       final response = await _dio.post(
@@ -87,12 +91,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {
           'email': email,
           'password': password,
-          'firstName': firstName,
-          'lastName': lastName,
-          'phone': phone,
-          'age': age,
-          'gender': gender,
-          'address': address,
+          if (role != null) 'role': role,
+          if (name != null) 'name': name,
+          if (firstName != null) 'firstName': firstName,
+          if (lastName != null) 'lastName': lastName,
+          if (phone != null) 'phone': phone,
+          if (age != null) 'age': age,
+          if (gender != null) 'gender': gender,
+          if (address != null) 'address': address,
         },
       );
       return AuthResponseParser.parse(response.data);

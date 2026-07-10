@@ -2,6 +2,7 @@ import 'package:revexa/core/error/failures.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/core/network/user_management_remote_datasource.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
+import 'package:revexa/features/products/data/models/product_model.dart';
 
 /// Abstract interface for the user management repository.
 abstract interface class UserManagementRepository {
@@ -16,6 +17,9 @@ abstract interface class UserManagementRepository {
 
   /// Deletes a user by their ID.
   Future<Result<void>> deleteUser(String userId);
+
+  /// Fetches all products/services for a given user ID.
+  Future<Result<List<Product>>> getProductsByUserId(String userId);
 }
 
 /// Implementation of the [UserManagementRepository].
@@ -59,6 +63,16 @@ class UserManagementRepositoryImpl implements UserManagementRepository {
     try {
       final user = await remoteDataSource.updateUser(userId, data);
       return Success(user);
+    } catch (e) {
+      return ResultFailure(ServerFailure.fromException(e as Exception));
+    }
+  }
+
+  @override
+  Future<Result<List<Product>>> getProductsByUserId(String userId) async {
+    try {
+      final products = await remoteDataSource.getProductsByUserId(userId);
+      return Success(products);
     } catch (e) {
       return ResultFailure(ServerFailure.fromException(e as Exception));
     }

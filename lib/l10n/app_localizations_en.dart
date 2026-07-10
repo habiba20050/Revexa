@@ -219,6 +219,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastName => 'Last Name';
 
   @override
+  String get companyName => 'Company Name';
+
+  @override
+  String get accountType => 'Account Type';
+
+  @override
+  String get personalAccount => 'Personal Account';
+
+  @override
+  String get companyAccount => 'Company Account';
+
+  @override
   String get phoneNumber => 'Phone Number';
 
   @override
@@ -246,6 +258,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createMyAccount => 'Create My Account';
+
+  @override
+  String get addServiceTitle => 'Add Service';
+
+  @override
+  String get serviceAddedSuccessfully => 'Service added successfully';
+
+  @override
+  String get serviceTitle => 'Service Title';
+
+  @override
+  String get serviceTitlePlaceholder => 'Enter service title';
+
+  @override
+  String get serviceDescription => 'Service Description';
+
+  @override
+  String get serviceDescriptionPlaceholder => 'Describe your service';
+
+  @override
+  String get servicePrice => 'Service Price';
+
+  @override
+  String get saveService => 'Save Service';
+
+  @override
+  String get serviceCategoryHint => 'Select category';
+
+  @override
+  String get serviceCategory => 'Service Category';
 
   @override
   String get goodMorning => 'Good Morning';

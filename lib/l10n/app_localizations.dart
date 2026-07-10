@@ -506,6 +506,30 @@ abstract class AppLocalizations {
   /// **'Last Name'**
   String get lastName;
 
+  /// No description provided for @companyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Name'**
+  String get companyName;
+
+  /// No description provided for @accountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get accountType;
+
+  /// No description provided for @personalAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Account'**
+  String get personalAccount;
+
+  /// No description provided for @companyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Account'**
+  String get companyAccount;
+
   /// No description provided for @phoneNumber.
   ///
   /// In en, this message translates to:
@@ -559,6 +583,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create My Account'**
   String get createMyAccount;
+
+  /// No description provided for @addServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Service'**
+  String get addServiceTitle;
+
+  /// No description provided for @serviceAddedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Service added successfully'**
+  String get serviceAddedSuccessfully;
+
+  /// No description provided for @serviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Title'**
+  String get serviceTitle;
+
+  /// No description provided for @serviceTitlePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter service title'**
+  String get serviceTitlePlaceholder;
+
+  /// No description provided for @serviceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Description'**
+  String get serviceDescription;
+
+  /// No description provided for @serviceDescriptionPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your service'**
+  String get serviceDescriptionPlaceholder;
+
+  /// No description provided for @servicePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Price'**
+  String get servicePrice;
+
+  /// No description provided for @saveService.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Service'**
+  String get saveService;
+
+  /// No description provided for @serviceCategoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get serviceCategoryHint;
+
+  /// No description provided for @serviceCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Category'**
+  String get serviceCategory;
 
   /// No description provided for @goodMorning.
   ///

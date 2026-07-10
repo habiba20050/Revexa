@@ -21,6 +21,7 @@ import 'package:revexa/features/services/presentation/screens/services_screen.da
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
 import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/features/home/presentation/screens/company_dashboard_screen.dart';
 import 'package:revexa/features/chatbot/presentation/widgets/chatbot_fab.dart';
 
 /// الشاشة الرئيسية للتطبيق.
@@ -107,37 +108,50 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
-      child: PopScope(
-        canPop: _activeTab == NavTab.home,
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) return;
-          _goToTab(NavTab.home);
-        },
-        child: Scaffold(
-          extendBody: true,
-          backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: KeyedSubtree(
-                  key: ValueKey(_activeTab),
-                  child: _buildBody(),
-                ),
+      child: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) {
+          // التحقق من دور المستخدم
+          final isCompany = state is AuthAuthenticated && state.user.role == 'company';
+
+          // إذا كان المستخدم شركة، اعرض لوحة التحكم الخاصة به
+          if (isCompany) {
+            return CompanyDashboardScreen();
+          }
+
+          // وإلا، اعرض الواجهة الرئيسية العادية للمستخدم
+          return PopScope(
+            canPop: _activeTab == NavTab.home,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              _goToTab(NavTab.home);
+            },
+            child: Scaffold(
+              extendBody: true,
+              backgroundColor: AppColors.background,
+              body: Stack(
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: KeyedSubtree(
+                      key: ValueKey(_activeTab),
+                      child: _buildBody(),
+                    ),
+                  ),
+                  if (_activeTab == NavTab.home)
+                    const Positioned(
+                      right: 16,
+                      bottom: 100,
+                      child: ChatbotFab(),
+                    ),
+                ],
               ),
-              if (_activeTab == NavTab.home)
-                const Positioned(
-                  right: 16,
-                  bottom: 100,
-                  child: ChatbotFab(),
-                ),
-            ],
-          ),
-          bottomNavigationBar: AppBottomNavBar(
-            activeTab: _activeTab,
-            onTabChanged: (tab) => _goToTab(tab),
-          ),
-        ),
+              bottomNavigationBar: AppBottomNavBar(
+                activeTab: _activeTab,
+                onTabChanged: (tab) => _goToTab(tab),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

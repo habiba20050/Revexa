@@ -6,6 +6,13 @@ import 'package:revexa/features/products/data/models/product_model.dart';
 abstract interface class ProductsRepository {
   Future<Result<ProductsPage>> getAllProducts({int page = 1, int limit = 10});
   Future<Result<Product>> getProductById(String id);
+  Future<Result<Product>> createProduct({
+    required String title,
+    required String description,
+    required double price,
+    String? category,
+    String? location,
+  });
 }
 
 class ProductsRepositoryImpl implements ProductsRepository {
@@ -26,6 +33,28 @@ class ProductsRepositoryImpl implements ProductsRepository {
   Future<Result<Product>> getProductById(String id) async {
     try {
       final result = await _remote.getProductById(id);
+      return Success(result);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<Product>> createProduct({
+    required String title,
+    required String description,
+    required double price,
+    String? category,
+    String? location,
+  }) async {
+    try {
+      final result = await _remote.createProduct(
+        title: title,
+        description: description,
+        price: price,
+        category: category,
+        location: location,
+      );
       return Success(result);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));

@@ -27,6 +27,13 @@ class ProductsLoaded extends ProductsState {
   List<Object?> get props => [page];
 }
 
+class ProductCreated extends ProductsState {
+  final Product product;
+  const ProductCreated(this.product);
+  @override
+  List<Object?> get props => [product];
+}
+
 class ProductDetailLoading extends ProductsState {
   const ProductDetailLoading();
 }
@@ -81,6 +88,35 @@ class ProductsCubit extends Cubit<ProductsState> {
           emit(ProductDetailLoaded((result as Success).value));
         case ResultFailure<dynamic>():
           emit(ProductsError((result as ResultFailure).failure.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(ProductsError('Unexpected error: $e'));
+    }
+  }
+
+  Future<void> createProduct({
+    required String title,
+    required String description,
+    required double price,
+    String? category,
+    String? location,
+  }) async {
+    if (isClosed) return;
+    emit(const ProductsLoading());
+    try {
+      final result = await _repository.createProduct(
+        title: title,
+        description: description,
+        price: price,
+        category: category,
+        location: location,
+      );
+      if (isClosed) return;
+      if (result is Success) {
+        emit(ProductCreated(result.data!));
+        await loadProducts();
+      } else {
+        emit(ProductsError(result.failure!.message));
       }
     } catch (e) {
       if (!isClosed) emit(ProductsError('Unexpected error: $e'));
