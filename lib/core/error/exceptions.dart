@@ -32,4 +32,13 @@ class ValidationException extends AppException {
 class ServerException extends AppException {
   const ServerException([super.message = 'Server error. Please try again later.'])
       : super(statusCode: 500);
+
+  /// Parses a [ServerException] from a JSON response body
+  factory ServerException.fromJson(Map<String, dynamic> json) {
+    final message = json['message']?.toString() ??
+        json['error']?.toString() ??
+        json['msg']?.toString() ??
+        'Server error. Please try again later.';
+    return ServerException(message);
+  }
 }

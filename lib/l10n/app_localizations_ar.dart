@@ -425,4 +425,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsComingSoon => 'الإعدادات قريبًا';
+
+  @override
+  String get userManagement => 'إدارة المستخدمين';
+
+  @override
+  String get userManagementSubtitle => 'Manage app users';
+
+  @override
+  String get noUsersFound => 'لم يتم العثور على مستخدمين';
+
+  @override
+  String get deleteUserConfirmationTitle => 'حذف المستخدم';
+
+  @override
+  String get deleteUserConfirmationBody =>
+      'هل أنت متأكد من أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get error => 'خطأ';
+
+  @override
+  String get unexpectedState => 'حدث خطأ غير متوقع';
 }

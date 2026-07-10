@@ -426,4 +426,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsComingSoon => 'Settings Coming Soon';
+
+  @override
+  String get userManagement => 'User Management';
+
+  @override
+  String get userManagementSubtitle => 'Manage app users';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get deleteUserConfirmationTitle => 'Delete User';
+
+  @override
+  String get deleteUserConfirmationBody =>
+      'Are you sure you want to delete this user? This action cannot be undone.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get unexpectedState => 'An unexpected error occurred';
 }

@@ -17,6 +17,7 @@ class ApiEndpoints {
   static const String profile = '/users/me';
   static const String profileUpdate = '/users/me';
   static const String deleteAccount = '/users/me';
+  static const String fcmToken = '/users/fcm-token';
 
   // Users (legacy)
   static const String users = '/users';
@@ -53,5 +54,4 @@ class ApiEndpoints {
 
   // Auth extensions (not wired in UI yet)
   static const String googleAuth = '/auth/google';
-  static const String fcmToken = '/users/fcm-token';
 }

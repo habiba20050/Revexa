@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:revexa/core/error/exceptions.dart';
 
 abstract class Failure extends Equatable {
   final String message;
@@ -15,6 +16,14 @@ class NetworkFailure extends Failure {
 class ServerFailure extends Failure {
   final int? statusCode;
   const ServerFailure(super.message, {this.statusCode});
+
+  /// Converts an exception to a [ServerFailure]
+  factory ServerFailure.fromException(Exception exception) {
+    if (exception is AppException) {
+      return ServerFailure(exception.message, statusCode: exception.statusCode);
+    }
+    return ServerFailure(exception.toString());
+  }
 }
 
 class AuthFailure extends Failure {

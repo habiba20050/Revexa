@@ -11,6 +11,7 @@ import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 import 'package:revexa/l10n/app_localizations.dart';
+import 'package:revexa/core/network/user_management_screen.dart';
 
 import 'package:revexa/shared/theme/theme_cubit.dart';
 
@@ -272,6 +273,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         subtitle: l10n.addressesSubtitle,
                                         onTap: () => Navigator.pushNamed(context, AppRoutes.addresses),
                                       ),
+                                      if (user?.role == 'admin')
+                                        _ProfileMenuItem(
+                                          icon: Icons.admin_panel_settings_outlined,
+                                          title: l10n.userManagement,
+                                          subtitle: '',
+                                          onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const UserManagementScreen()),
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -387,6 +398,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       subtitle: l10n.addressesSubtitle,
                                       onTap: () => Navigator.pushNamed(context, AppRoutes.addresses),
                                     ),
+                                    if (user?.role == 'admin')
+                                      _ProfileMenuItem(
+                                        icon: Icons.admin_panel_settings_outlined,
+                                        title: l10n.userManagement,
+                                        subtitle: "",
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const UserManagementScreen()),
+                                        ),
+                                      ),
                                     const SizedBox(height: 24),
                                     _SectionHeader(title: l10n.preferences),
                                     _ToggleRow(

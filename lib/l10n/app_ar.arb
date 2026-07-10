@@ -159,5 +159,13 @@
 
   "appVersion": "الإصدار 2.4.1 (بناء 884)",
 
-  "settingsComingSoon": "الإعدادات قريبًا"
+  "settingsComingSoon": "الإعدادات قريبًا",
+
+  "userManagement": "إدارة المستخدمين",
+  "noUsersFound": "لم يتم العثور على مستخدمين",
+  "deleteUserConfirmationTitle": "حذف المستخدم",
+  "deleteUserConfirmationBody": "هل أنت متأكد من أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.",
+  "delete": "حذف",
+  "error": "خطأ",
+  "unexpectedState": "حدث خطأ غير متوقع"
 }

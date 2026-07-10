@@ -919,6 +919,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings Coming Soon'**
   String get settingsComingSoon;
+
+  /// No description provided for @userManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get userManagement;
+
+  /// No description provided for @userManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage app users'**
+  String get userManagementSubtitle;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUsersFound;
+
+  /// No description provided for @deleteUserConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get deleteUserConfirmationTitle;
+
+  /// No description provided for @deleteUserConfirmationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this user? This action cannot be undone.'**
+  String get deleteUserConfirmationBody;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @unexpectedState.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred'**
+  String get unexpectedState;
 }
 
 class _AppLocalizationsDelegate

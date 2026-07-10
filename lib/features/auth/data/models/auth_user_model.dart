@@ -88,6 +88,23 @@ class AuthUser extends Equatable {
     );
   }
 
+  /// Generic factory for parsing user data from API responses (for fetching user lists/details)
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
+    return AuthUser(
+      id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      firstName: json['firstName']?.toString() ?? '',
+      lastName: json['lastName']?.toString() ?? '',
+      role: json['role']?.toString() ?? 'user',
+      token: json['token']?.toString() ?? '',
+      phone: json['phone']?.toString(),
+      address: json['address']?.toString(),
+      imageUrl: ImageUrlUtils.resolve(
+        json['image'] ?? json['imageUrl'] ?? json['avatar'] ?? json['url'],
+      ),
+    );
+  }
+
   factory AuthUser.fromStorage(Map<String, String?> data) {
     return AuthUser(
       id: data['id'] ?? '',

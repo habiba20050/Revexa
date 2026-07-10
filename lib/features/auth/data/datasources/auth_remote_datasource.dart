@@ -142,7 +142,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Expected shape: { data: { resetToken: '...' } } or { resetToken: '...' }
       String? token;
       if (body is Map) {
-        final map = Map<String, dynamic>.from(body as Map);
+        final map = Map<String, dynamic>.from(body);
         if (map['data'] is Map) {
           token = (map['data'] as Map)['resetToken']?.toString();
         }

@@ -161,5 +161,14 @@
 
   "appVersion": "Version 2.4.1 (Build 884)",
 
-  "settingsComingSoon": "Settings Coming Soon"
+  "settingsComingSoon": "Settings Coming Soon",
+
+  "userManagement": "User Management",
+  "userManagementSubtitle": "Manage app users",
+  "noUsersFound": "No users found",
+  "deleteUserConfirmationTitle": "Delete User",
+  "deleteUserConfirmationBody": "Are you sure you want to delete this user? This action cannot be undone.",
+  "delete": "Delete",
+  "error": "Error",
+  "unexpectedState": "An unexpected error occurred"
 }
