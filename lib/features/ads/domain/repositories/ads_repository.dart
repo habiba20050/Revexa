@@ -18,5 +18,7 @@ abstract interface class AdsRepository {
     bool? isActive,
   });
   Future<Result<void>> deleteAd(String id);
-  Future<Result<String>> uploadImage(String filePath);
+  /// Returns a Result containing a map with `url` and `public_id`.
+  Future<Result<Map<String, String>>> uploadImage(String filePath, {String? folder});
+  Future<Result<Map<String, String>>> uploadImageBytes(List<int> bytes, {String fileName, String? folder});
 }

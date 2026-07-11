@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
@@ -13,7 +15,11 @@ abstract interface class ProductsRemoteDataSource {
     required double price,
     String? category,
     String? location,
+    List<XFile>? images,
   });
+
+  Future<Product> updateProduct(String id, Map<String, dynamic> data);
+  Future<void> deleteProduct(String id);
 }
 
 class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
@@ -68,20 +74,62 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
     required double price,
     String? category,
     String? location,
+    List<XFile>? images,
   }) async {
     try {
+      // Create a FormData object to send text fields and files together.
+      final formData = FormData.fromMap({
+        'title': title,
+        'description': description,
+        'price': price.toString(),
+        if (category != null && category.isNotEmpty) 'category': category,
+        if (location != null && location.isNotEmpty) 'location': location,
+      });
+
+      // Append image files to the FormData.
+      // The backend expects them under the 'images' key.
+      if (images != null && images.isNotEmpty) {
+        for (final file in images) {
+          if (kIsWeb) {
+            // For web, use fromBytes
+            final bytes = await file.readAsBytes();
+            formData.files.add(MapEntry(
+              'images',
+              MultipartFile.fromBytes(bytes, filename: file.name),
+            ));
+          } else {
+            // For mobile, use fromFile
+            formData.files.add(MapEntry('images', await MultipartFile.fromFile(file.path, filename: file.name)));
+          }
+        }
+      }
+
       final response = await _dio.post(
         ApiEndpoints.products,
-        data: {
-          'title': title,
-          'description': description,
-          'price': price,
-          if (category != null && category.isNotEmpty) 'category': category,
-          if (location != null && location.isNotEmpty) 'location': location,
-        },
+        data: formData,
       );
       final data = _unwrapSingle(response.data);
       return Product.fromJson(data);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<Product> updateProduct(String id, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(ApiEndpoints.productById(id), data: data);
+      final body = _unwrapSingle(response.data);
+      return Product.fromJson(body);
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<void> deleteProduct(String id) async {
+    try {
+      await _dio.delete(ApiEndpoints.productById(id));
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }

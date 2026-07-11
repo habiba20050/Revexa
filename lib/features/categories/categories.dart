@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
+import 'package:revexa/core/utils/image_url_utils.dart';
 import 'package:revexa/core/utils/result.dart';
 
 // Model
@@ -11,19 +12,28 @@ class Category extends Equatable {
   final String id;
   final String name;
   final String? description;
+  final String imageUrl;
 
-  const Category({required this.id, required this.name, this.description});
+  const Category({
+    required this.id,
+    required this.name,
+    this.description,
+    this.imageUrl = '',
+  });
 
   factory Category.fromJson(Map<String, dynamic> json) {
+    final imageValue = json['imageUrl'] ?? json['image'] ?? json['icon'] ?? json['avatar'];
+
     return Category(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       description: json['description']?.toString(),
+      imageUrl: ImageUrlUtils.resolve(imageValue?.toString()) ?? '',
     );
   }
 
   @override
-  List<Object?> get props => [id, name, description];
+  List<Object?> get props => [id, name, description, imageUrl];
 }
 
 // DataSource

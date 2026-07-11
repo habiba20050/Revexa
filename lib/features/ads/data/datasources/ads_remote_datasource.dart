@@ -21,7 +21,9 @@ abstract interface class AdsRemoteDataSource {
     bool? isActive,
   });
   Future<void> deleteAd(String id);
-  Future<String> uploadImage(String filePath);
+  /// Returns a map with keys `url` and `public_id`.
+  Future<Map<String, String>> uploadImage(String filePath, {String? folder});
+  Future<Map<String, String>> uploadImageBytes(List<int> bytes, {String fileName, String? folder});
 }
 
 class AdsRemoteDataSourceImpl implements AdsRemoteDataSource {
@@ -111,28 +113,74 @@ class AdsRemoteDataSourceImpl implements AdsRemoteDataSource {
   }
 
   @override
-  Future<String> uploadImage(String filePath) async {
+  Future<Map<String, String>> uploadImage(String filePath, {String? folder}) async {
     try {
       final file = await MultipartFile.fromFile(filePath);
+      final form = <String, dynamic>{'images': file};
+      if (folder != null) form['folder'] = folder;
       final response = await _dio.post(
         ApiEndpoints.upload,
-        data: FormData.fromMap({'images': file}),
+        data: FormData.fromMap(form),
       );
       final body = response.data;
       if (body is Map) {
-        if (body['secure_url'] != null) return body['secure_url'].toString();
-        if (body['url'] != null) return body['url'].toString();
+        String url = '';
+        String publicId = '';
+        if (body['secure_url'] != null) url = body['secure_url'].toString();
+        if (body['url'] != null) url = body['url'].toString();
         final data = body['data'];
         if (data is List && data.isNotEmpty) {
           final first = data.first;
           if (first is Map) {
-            return (first['url'] ?? first['secure_url'] ?? '').toString();
+            url = (first['url'] ?? first['secure_url'] ?? '').toString();
+            publicId = (first['public_id'] ?? first['publicId'] ?? '').toString();
+          } else {
+            url = first.toString();
           }
-          return first.toString();
         }
         if (data is Map) {
-          return (data['url'] ?? data['secure_url'] ?? '').toString();
+          url = (data['url'] ?? data['secure_url'] ?? '').toString();
+          publicId = (data['public_id'] ?? data['publicId'] ?? '').toString();
         }
+        if (url.isNotEmpty) return {'url': url, 'public_id': publicId};
+      }
+      throw Exception('Failed to upload image: invalid response format');
+    } on DioException catch (e) {
+      throw ErrorHandler.handleDioError(e);
+    }
+  }
+
+  @override
+  Future<Map<String, String>> uploadImageBytes(List<int> bytes, {String fileName = 'upload.jpg', String? folder}) async {
+    try {
+      final file = MultipartFile.fromBytes(bytes, filename: fileName);
+      final form = <String, dynamic>{'images': file};
+      if (folder != null) form['folder'] = folder;
+      final response = await _dio.post(
+        ApiEndpoints.upload,
+        data: FormData.fromMap(form),
+      );
+      final body = response.data;
+      if (body is Map) {
+        String url = '';
+        String publicId = '';
+        if (body['secure_url'] != null) url = body['secure_url'].toString();
+        if (body['url'] != null) url = body['url'].toString();
+        final data = body['data'];
+        if (data is List && data.isNotEmpty) {
+          final first = data.first;
+          if (first is Map) {
+            url = (first['url'] ?? first['secure_url'] ?? '').toString();
+            publicId = (first['public_id'] ?? first['publicId'] ?? '').toString();
+          } else {
+            url = first.toString();
+          }
+        }
+        if (data is Map) {
+          url = (data['url'] ?? data['secure_url'] ?? '').toString();
+          publicId = (data['public_id'] ?? data['publicId'] ?? '').toString();
+        }
+        if (url.isNotEmpty) return {'url': url, 'public_id': publicId};
       }
       throw Exception('Failed to upload image: invalid response format');
     } on DioException catch (e) {

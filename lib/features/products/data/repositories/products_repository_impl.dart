@@ -1,4 +1,5 @@
 import 'package:revexa/core/error/error_handler.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/products/data/datasources/products_remote_datasource.dart';
 import 'package:revexa/features/products/data/models/product_model.dart';
@@ -12,7 +13,10 @@ abstract interface class ProductsRepository {
     required double price,
     String? category,
     String? location,
+    List<XFile>? images,
   });
+  Future<Result<Product>> updateProduct(String id, Map<String, dynamic> data);
+  Future<Result<void>> deleteProduct(String id);
 }
 
 class ProductsRepositoryImpl implements ProductsRepository {
@@ -46,6 +50,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
     required double price,
     String? category,
     String? location,
+    List<XFile>? images,
   }) async {
     try {
       final result = await _remote.createProduct(
@@ -54,8 +59,29 @@ class ProductsRepositoryImpl implements ProductsRepository {
         price: price,
         category: category,
         location: location,
+        images: images,
       );
       return Success(result);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<Product>> updateProduct(String id, Map<String, dynamic> data) async {
+    try {
+      final result = await _remote.updateProduct(id, data);
+      return Success(result);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteProduct(String id) async {
+    try {
+      await _remote.deleteProduct(id);
+      return const Success(null);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
     }

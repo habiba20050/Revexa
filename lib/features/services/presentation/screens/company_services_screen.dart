@@ -10,6 +10,10 @@ import 'package:revexa/features/home/presentation/screens/company_dashboard_cubi
 import 'package:revexa/features/home/presentation/screens/company_dashboard_state.dart';
 import 'package:revexa/core/network/user_management_repository.dart';
 import 'package:revexa/core/network/user_management_remote_datasource.dart';
+import 'package:revexa/features/products/data/repositories/products_repository_impl.dart';
+import 'package:revexa/features/products/data/datasources/products_remote_datasource.dart';
+import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
+import 'package:revexa/features/home/presentation/screens/edit_service_screen.dart';
 import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/shared/widgets/shimmer_widgets.dart';
 
@@ -25,6 +29,9 @@ class CompanyServicesScreen extends StatelessWidget {
           UserManagementRepositoryImpl(
             UserManagementRemoteDataSourceImpl(),
           ),
+          // ProductsRepositoryImpl expects a ProductsRemoteDataSource implementation
+          // so we provide it here to satisfy the cubit's constructor.
+          ProductsRepositoryImpl(ProductsRemoteDataSourceImpl()),
         );
         final authState = context.read<AuthCubit>().state;
         if (authState is AuthAuthenticated) {
@@ -79,7 +86,7 @@ class _CompanyServicesView extends StatelessWidget {
           }
 
           if (state is CompanyDashboardLoaded) {
-            final products = state.services;
+            final products = state.products;
 
             if (products.isEmpty) {
               return _buildEmptyState(context, isArabic);
@@ -199,6 +206,73 @@ class _CompanyServicesView extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () async {
+                                        final didUpdate = await Navigator.of(context).push<bool>(
+                                          MaterialPageRoute(
+                                            builder: (ctx) => BlocProvider.value(
+                                              value: context.read<ProductsCubit>(),
+                                              child: EditServiceScreen(product: product),
+                                            ),
+                                          ),
+                                        );
+                                        if (didUpdate == true) {
+                                          final authState = context.read<AuthCubit>().state;
+                                          if (authState is AuthAuthenticated) {
+                                            await context.read<CompanyDashboardCubit>().loadCompanyServices(authState.user.id);
+                                          }
+                                        }
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () async {
+                                        final confirmed = await showDialog<bool>(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertDialog(
+                                              title: Text(isArabic ? 'حذف الخدمة' : 'Delete Service'),
+                                              content: Text(isArabic
+                                                  ? 'هل أنت متأكد من حذف هذه الخدمة؟'
+                                                  : 'Are you sure you want to delete this service?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(dialogContext, false),
+                                                  child: Text(isArabic ? 'إلغاء' : 'Cancel'),
+                                                ),
+                                                ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+                                                  onPressed: () => Navigator.pop(dialogContext, true),
+                                                  child: Text(isArabic ? 'حذف' : 'Delete'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        if (confirmed == true) {
+                                          final result = await context.read<CompanyDashboardCubit>().deleteProduct(product.id);
+                                          if (!result) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(isArabic ? 'فشل حذف الخدمة' : 'Failed to delete service'),
+                                                backgroundColor: AppColors.error,
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                    ),
                                   ],
                                 ),
                               ],

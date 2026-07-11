@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/products/data/models/product_model.dart';
 import 'package:revexa/features/products/data/repositories/products_repository_impl.dart';
@@ -30,6 +31,13 @@ class ProductsLoaded extends ProductsState {
 class ProductCreated extends ProductsState {
   final Product product;
   const ProductCreated(this.product);
+  @override
+  List<Object?> get props => [product];
+}
+
+class ProductUpdated extends ProductsState {
+  final Product product;
+  const ProductUpdated(this.product);
   @override
   List<Object?> get props => [product];
 }
@@ -100,6 +108,7 @@ class ProductsCubit extends Cubit<ProductsState> {
     required double price,
     String? category,
     String? location,
+    List<XFile>? images,
   }) async {
     if (isClosed) return;
     emit(const ProductsLoading());
@@ -110,11 +119,30 @@ class ProductsCubit extends Cubit<ProductsState> {
         price: price,
         category: category,
         location: location,
+        images: images,
       );
       if (isClosed) return;
       if (result is Success) {
         emit(ProductCreated(result.data!));
         await loadProducts();
+      } else {
+        emit(ProductsError(result.failure!.message));
+      }
+    } catch (e) {
+      if (!isClosed) emit(ProductsError('Unexpected error: $e'));
+    }
+  }
+
+  Future<void> updateProduct(String id, Map<String, dynamic> data) async {
+    if (isClosed) return;
+    emit(const ProductsLoading());
+    try {
+      final result = await _repository.updateProduct(id, data);
+      if (isClosed) return;
+      if (result is Success) {
+        emit(ProductUpdated(result.data!));
+        // Optionally, you can reload the list of products or the specific product
+        // await loadProducts();
       } else {
         emit(ProductsError(result.failure!.message));
       }

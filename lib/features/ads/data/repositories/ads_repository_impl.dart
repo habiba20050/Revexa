@@ -74,10 +74,20 @@ class AdsRepositoryImpl implements AdsRepository {
   }
 
   @override
-  Future<Result<String>> uploadImage(String filePath) async {
+  Future<Result<Map<String, String>>> uploadImage(String filePath, {String? folder}) async {
     try {
-      final url = await _remote.uploadImage(filePath);
-      return Success(url);
+      final meta = await _remote.uploadImage(filePath, folder: folder);
+      return Success(meta);
+    } catch (e) {
+      return ResultFailure(ErrorHandler.toFailure(e));
+    }
+  }
+
+  @override
+  Future<Result<Map<String, String>>> uploadImageBytes(List<int> bytes, {String fileName = 'upload.jpg', String? folder}) async {
+    try {
+      final meta = await _remote.uploadImageBytes(bytes, fileName: fileName, folder: folder);
+      return Success(meta);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
     }

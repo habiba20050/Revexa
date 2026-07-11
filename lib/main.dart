@@ -194,12 +194,28 @@ class _AppStartupWrapperState extends State<AppStartupWrapper> {
     context.read<AuthCubit>().checkAuthStatus();
   }
 
+  String? _resolveDeepLinkRoute() {
+    final uri = Uri.base;
+    final fragment = uri.fragment.split('?').first.trim();
+    if (fragment.isNotEmpty && fragment != '/') {
+      return fragment.startsWith('/') ? fragment : '/$fragment';
+    }
+
+    final path = uri.path.trim();
+    if (path.isNotEmpty && path != '/') {
+      return path;
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
+        final deepLinkRoute = _resolveDeepLinkRoute();
         if (state is AuthAuthenticated) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          Navigator.pushReplacementNamed(context, deepLinkRoute ?? AppRoutes.home);
         } else if (state is AuthUnauthenticated) {
           Navigator.pushReplacementNamed(context, AppRoutes.onboardingBooking);
         }

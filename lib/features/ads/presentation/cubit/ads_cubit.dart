@@ -114,11 +114,21 @@ class AdsCubit extends Cubit<AdsState> {
     }
   }
 
-  Future<String?> uploadAdImage(String filePath) async {
-    final result = await _repository.uploadImage(filePath);
-    if (result is Success) {
-      return (result as Success).value;
+  /// Uploads an image from a file path and returns the public URL.
+  /// Returns `null` on failure.
+  Future<String?> uploadAdImage(String filePath, {String? folder}) async {
+    final result = await _repository.uploadImage(filePath, folder: folder);
+    if (result is Success<Map<String, String>>) {
+      return result.value['url'];
     }
+    return null;
+  }
+
+  /// Uploads an image from a byte list and returns the public URL.
+  /// Returns `null` on failure.
+  Future<String?> uploadAdImageBytes(List<int> bytes, {String fileName = 'upload.jpg', String? folder}) async {
+    final result = await _repository.uploadImageBytes(bytes, fileName: fileName, folder: folder);
+    if (result is Success<Map<String, String>>) return result.value['url'];
     return null;
   }
 }

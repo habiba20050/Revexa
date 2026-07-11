@@ -9,6 +9,7 @@ import 'package:revexa/core/constants/app_routes.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
+import 'package:revexa/features/products/data/models/product_model.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
@@ -180,7 +181,7 @@ class _HomeBody extends StatelessWidget {
                 const SizedBox(height: 20),
                 const PromotionalOffersSlider(),
                 const SizedBox(height: 24),
-                const _ServicesSection(),
+                _ServicesSection(),
                 const SizedBox(height: 24),
                 const AdsHorizontalCarousel(),
                 _ActiveBookingCard(topPadding: 16),
@@ -339,18 +340,12 @@ class _GreetingBanner extends StatelessWidget {
 /// قسم "Our Services" — يعرض شبكة (Grid) من الخدمات الثابتة.
 /// القائمة ثابتة دائماً ولا تتغير بناءً على استجابة الـ API.
 class _ServicesSection extends StatelessWidget {
-  const _ServicesSection();
+  _ServicesSection();
 
   // Static service catalogue — always displayed, regardless of API state.
   // Products API is used only for dynamic data (prices, images) in the future.
   // The services list must NEVER be gated on an empty products response.
-  static const _staticServices = [
-    _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops),
-    _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail),
-    _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail),
-    _HomeServiceItem(icon: Icons.local_gas_station_outlined, title: 'Energy', subtitle: 'Fuel & Charge', route: AppRoutes.services),
-    _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services),
-  ];
+  // Previously a static list; home now shows products from `ProductsCubit`.
 
   @override
   Widget build(BuildContext context) {
@@ -376,21 +371,128 @@ class _ServicesSection extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 16),
-        // Static service grid — always visible.
-        // These are navigation entry points, not data-driven cards.
-        GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.1,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          children: _staticServices
-              .map((s) => _ServiceCard(item: s))
-              .toList(),
+
+        // Use products provided by `ProductsCubit` (services added by companies).
+        BlocBuilder<ProductsCubit, ProductsState>(
+          builder: (context, state) {
+            if (state is ProductsLoading || state is ProductsInitial) {
+              // lightweight placeholders
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.1,
+                ),
+                itemCount: 4,
+                itemBuilder: (context, index) => Container(
+                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
+                ),
+              );
+            }
+
+            if (state is ProductsLoaded) {
+              final products = state.page.products;
+              if (products.isEmpty) {
+                // Fallback to static entries if no company products exist
+                return GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.1,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _ServiceCard(item: _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops)),
+                    _ServiceCard(item: _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail)),
+                    _ServiceCard(item: _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail)),
+                    _ServiceCard(item: _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services)),
+                  ],
+                );
+              }
+
+              // Show up to 4 products as service entries on home
+              final display = products.take(4).toList();
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.1,
+                ),
+                itemCount: display.length,
+                itemBuilder: (context, index) {
+                  final product = display[index];
+                  return _ServiceProductCard(product: product);
+                },
+              );
+            }
+
+            // Error or other states -> show nothing
+            return GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.1,
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _ServiceCard(item: _HomeServiceItem(icon: Icons.map_rounded, title: 'Nearby Workshops', subtitle: 'Find repair shops', route: AppRoutes.nearbyWorkshops)),
+                _ServiceCard(item: _HomeServiceItem(icon: Icons.local_car_wash_rounded, title: 'Mobile Wash', subtitle: 'Coming to you', route: AppRoutes.mobileWashDetail)),
+                _ServiceCard(item: _HomeServiceItem(icon: Icons.build_rounded, title: 'Maintenance', subtitle: 'Expert care', route: AppRoutes.maintenanceDetail)),
+                _ServiceCard(item: _HomeServiceItem(icon: Icons.settings_outlined, title: 'Parts', subtitle: 'Genuine kits', route: AppRoutes.services)),
+              ],
+            );
+          },
         ),
       ],
+    );
+  }
+}
+
+/// Small product card used to show company products on Home.
+class _ServiceProductCard extends StatelessWidget {
+  final Product product;
+  const _ServiceProductCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, AppRoutes.services, arguments: {'query': product.title}),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.outline),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: product.firstImageUrl.isNotEmpty
+                    ? AppImage(source: product.firstImageUrl, fit: BoxFit.cover)
+                    : Image.asset(AppConstants.imgServices1, fit: BoxFit.cover),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(product.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.onSurface)),
+            const SizedBox(height: 4),
+            Text('${product.price.toStringAsFixed(0)} ${isArabic ? 'ج.م' : 'EGP'}', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+          ],
+        ),
+      ),
     );
   }
 }

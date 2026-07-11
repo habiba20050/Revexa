@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:typed_data';
 import 'package:revexa/core/theme/app_colors.dart';
 import 'package:revexa/features/categories/categories.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
@@ -97,12 +100,26 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
     final locationString = _selectedLocations.map((gov) => gov['en']!).join(', ');
 
+    // If no images selected, backend requires at least one image — show error
+    if (_selectedImages.isEmpty) {
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(isArabic ? 'الرجاء رفع صورة واحدة على الأقل' : 'Please upload at least one image'),
+            backgroundColor: AppColors.error),
+      );
+      return;
+    }
+
+    // The backend expects a single multipart request. We no longer upload images separately.
+    // We pass the XFile list directly to the cubit.
     context.read<ProductsCubit>().createProduct(
           title: _titleCtrl.text.trim(),
           description: _descriptionCtrl.text.trim(),
           price: price,
           category: _selectedCategoryId!,
           location: locationString,
+          images: _selectedImages,
         );
   }
 
@@ -111,6 +128,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     // يمكنك استخدام pickMultipleMedia للسماح باختيار صور وفيديوهات
     final List<XFile> images = await picker.pickMultiImage();
     if (images.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         // إضافة الصور الجديدة إلى القائمة الحالية
         _selectedImages.addAll(images);
@@ -198,10 +216,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   const SizedBox(height: 16),
 
                   // قسم رفع الصور
-                  _buildImagePicker(),
-                  if (_selectedImages.isNotEmpty) _buildImagePreview(),
-
-                  const SizedBox(height: 24),
+                  _buildImageSection(),
 
                   // قائمة التصنيفات المنسدلة
                   BlocBuilder<CategoriesCubit, CategoriesState>(
@@ -260,63 +275,6 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     );
   }
 
-  Widget _buildImagePicker() {
-    return OutlinedButton.icon(
-      onPressed: _pickImages,
-      icon: const Icon(Icons.add_photo_alternate_outlined),
-      label: const Text('Upload Service Images'),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.primary,
-        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-    );
-  }
-
-  Widget _buildImagePreview() {
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _selectedImages.length,
-        itemBuilder: (context, index) {
-          final imageFile = _selectedImages[index];
-          return Stack(
-            alignment: Alignment.topRight,
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: FileImage(File(imageFile.path)),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const CircleAvatar(
-                  radius: 12,
-                  backgroundColor: Colors.black54,
-                  child: Icon(Icons.close, color: Colors.white, size: 14),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _selectedImages.removeAt(index);
-                  });
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildCategoryDropdown(AppLocalizations l10n, List<Category> categories) {
     return DropdownButtonFormField<String>(
       initialValue: _selectedCategoryId,
@@ -330,13 +288,123 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       items: categories.map((category) {
         return DropdownMenuItem<String>(
           value: category.id,
-          child: Text(category.name),
+          child: Row(
+            children: [
+              if (category.imageUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: CachedNetworkImage(
+                    imageUrl: category.imageUrl,
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(color: AppColors.surfaceContainerLow),
+                    errorWidget: (context, url, error) => const Icon(Icons.category_outlined, size: 20),
+                  ),
+                ),
+              const SizedBox(width: 12),
+              Text(category.name),
+            ],
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
         labelText: l10n.serviceCategory,
         prefixIcon: const Icon(Icons.category_outlined, size: 20),
       ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    final l10n = AppLocalizations.of(context)!;
+    final isArabic = l10n.localeName == 'ar';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isArabic ? 'صور الخدمة' : 'Service Images',
+          style: GoogleFonts.urbanist(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.outline),
+          ),
+          child: Column(
+            children: [
+              if (_selectedImages.isNotEmpty)
+                SizedBox(
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _selectedImages.length,
+                    itemBuilder: (context, index) {
+                      final imageFile = _selectedImages[index];
+                      return Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: kIsWeb
+                                        ? FutureBuilder<Uint8List>(
+                                            future: imageFile.readAsBytes(),
+                                            builder: (context, snap) {
+                                              if (snap.connectionState != ConnectionState.done) return Container(color: AppColors.surfaceContainerLow);
+                                              if (snap.hasError || snap.data == null) return Container(color: AppColors.surfaceContainerLow);
+                                              return Image.memory(snap.data!, fit: BoxFit.cover);
+                                            },
+                                          )
+                                        : Image.file(File(imageFile.path), fit: BoxFit.cover),
+                                  ),
+                                ),
+                          IconButton(
+                            icon: const CircleAvatar(
+                              radius: 12,
+                              backgroundColor: Colors.black54,
+                              child: Icon(Icons.close, color: Colors.white, size: 14),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _selectedImages.removeAt(index);
+                              });
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              if (_selectedImages.isNotEmpty) const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _pickImages,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                label: Text(isArabic ? 'إضافة أو تغيير الصور' : 'Add / Change Images'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 

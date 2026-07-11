@@ -32,6 +32,11 @@ class ApiInterceptor extends Interceptor {
       debugPrint(
         '[API] --> ${options.method} ${options.uri}',
       );
+      // Print request headers and body to aid debugging (dev only)
+      try {
+        debugPrint('[API] headers: ${options.headers}');
+        debugPrint('[API] body: ${options.data}');
+      } catch (_) {}
     }
 
     handler.next(options);
@@ -54,6 +59,9 @@ class ApiInterceptor extends Interceptor {
         '[API] ERROR ${err.response?.statusCode} ${err.requestOptions.uri}: '
         '${err.message}',
       );
+      try {
+        debugPrint('[API] error response data: ${err.response?.data}');
+      } catch (_) {}
     }
 
     if (err.response?.statusCode == 401) {
