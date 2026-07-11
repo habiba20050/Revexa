@@ -21,7 +21,6 @@ import 'package:revexa/features/services/presentation/screens/services_screen.da
 import 'package:revexa/features/profile/presentation/screens/profile_screen.dart';
 import 'package:revexa/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:revexa/l10n/app_localizations.dart';
-import 'package:revexa/features/home/presentation/screens/company_dashboard_screen.dart';
 import 'package:revexa/features/chatbot/presentation/widgets/chatbot_fab.dart';
 import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
 import 'package:revexa/features/home/presentation/widgets/promotional_offers_slider.dart';
@@ -108,15 +107,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       child: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
-          // التحقق من دور المستخدم
-          final isCompany = state is AuthAuthenticated && state.user.role == 'company';
-
-          // إذا كان المستخدم شركة، اعرض لوحة التحكم الخاصة به
-          if (isCompany) {
-            return CompanyDashboardScreen();
-          }
-
-          // وإلا، اعرض الواجهة الرئيسية العادية للمستخدم
           return PopScope(
             canPop: _activeTab == NavTab.home,
             onPopInvokedWithResult: (didPop, result) {

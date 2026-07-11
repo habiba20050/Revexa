@@ -24,6 +24,37 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _priceCtrl = TextEditingController();
   String? _selectedCategoryId;
 
+  static const List<Map<String, String>> _governorates = [
+    {'en': 'Cairo', 'ar': 'القاهرة'},
+    {'en': 'Giza', 'ar': 'الجيزة'},
+    {'en': 'Alexandria', 'ar': 'الإسكندرية'},
+    {'en': 'Assiut', 'ar': 'أسيوط'},
+    {'en': 'Sohag', 'ar': 'سوهاج'},
+    {'en': 'Qena', 'ar': 'قنا'},
+    {'en': 'Aswan', 'ar': 'أسوان'},
+    {'en': 'Minya', 'ar': 'المنيا'},
+    {'en': 'Fayoum', 'ar': 'الفيوم'},
+    {'en': 'Beni Suef', 'ar': 'بني سويف'},
+    {'en': 'Qalyubia', 'ar': 'القليوبية'},
+    {'en': 'Monufia', 'ar': 'المنوفية'},
+    {'en': 'Gharbia', 'ar': 'الغربية'},
+    {'en': 'Dakahlia', 'ar': 'الدقهلية'},
+    {'en': 'Sharqia', 'ar': 'الشرقية'},
+    {'en': 'Beheira', 'ar': 'البحيرة'},
+    {'en': 'Damietta', 'ar': 'دمياط'},
+    {'en': 'Kafr El-Sheikh', 'ar': 'كفر الشيخ'},
+    {'en': 'Port Said', 'ar': 'بورسعيد'},
+    {'en': 'Suez', 'ar': 'السويس'},
+    {'en': 'Ismailia', 'ar': 'الإسماعيلية'},
+    {'en': 'Red Sea', 'ar': 'البحر الأحمر'},
+    {'en': 'Matrouh', 'ar': 'مطروح'},
+    {'en': 'New Valley', 'ar': 'الوادي الجديد'},
+    {'en': 'North Sinai', 'ar': 'شمال سيناء'},
+    {'en': 'South Sinai', 'ar': 'جنوب سيناء'},
+    {'en': 'Luxor', 'ar': 'الأقصر'},
+  ];
+  final List<Map<String, String>> _selectedLocations = [];
+
   // قائمة لتخزين مسارات الصور المختارة
   final List<XFile> _selectedImages = [];
 
@@ -47,21 +78,31 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       return;
     }
 
-    final price = double.tryParse(_priceCtrl.text);
-    if (price == null) {
-      // يمكن عرض رسالة خطأ هنا إذا لزم الأمر
+    if (_selectedLocations.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(Localizations.localeOf(context).languageCode == 'ar'
+              ? 'يرجى اختيار محافظة واحدة على الأقل'
+              : 'Please select at least one governorate'),
+          backgroundColor: AppColors.error,
+        ),
+      );
       return;
     }
+
+    final price = double.tryParse(_priceCtrl.text);
+    if (price == null) {
+      return;
+    }
+
+    final locationString = _selectedLocations.map((gov) => gov['en']!).join(', ');
 
     context.read<ProductsCubit>().createProduct(
           title: _titleCtrl.text.trim(),
           description: _descriptionCtrl.text.trim(),
           price: price,
           category: _selectedCategoryId!,
-          // سنقوم بتمرير مسارات الصور هنا
-          // ملاحظة: ستحتاج إلى تحديث ProductsCubit لرفع هذه الصور أولاً
-          // ثم إرسال الـ URLs المستلمة إلى API إنشاء المنتج.
-          // هذا مثال مبسط، التنفيذ الفعلي يتطلب منطق رفع.
+          location: locationString,
         );
   }
 
@@ -177,6 +218,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                       return const SizedBox.shrink();
                     },
                   ),
+                  const SizedBox(height: 16),
+                  _buildLocationSelector(Localizations.localeOf(context).languageCode == 'ar'),
                   const SizedBox(height: 32),
 
                   // زر الحفظ
@@ -294,6 +337,150 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         labelText: l10n.serviceCategory,
         prefixIcon: const Icon(Icons.category_outlined, size: 20),
       ),
+    );
+  }
+
+  Widget _buildLocationSelector(bool isArabic) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => _showLocationMultiSelect(isArabic),
+          borderRadius: BorderRadius.circular(12),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: isArabic ? 'المحافظات المتاحة' : 'Available Governorates',
+              prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
+            ),
+            child: Text(
+              _selectedLocations.isEmpty
+                  ? (isArabic ? 'اختر المحافظات' : 'Select Governorates')
+                  : isArabic
+                      ? 'تم اختيار ${_selectedLocations.length} محافظات'
+                      : '${_selectedLocations.length} Governorates selected',
+              style: GoogleFonts.urbanist(
+                fontSize: 14,
+                color: _selectedLocations.isEmpty ? AppColors.onSurfaceVariant : AppColors.onSurface,
+              ),
+            ),
+          ),
+        ),
+        if (_selectedLocations.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selectedLocations.map((gov) {
+              return Chip(
+                label: Text(gov[isArabic ? 'ar' : 'en']!),
+                deleteIcon: const Icon(Icons.close, size: 14),
+                onDeleted: () {
+                  setState(() {
+                    _selectedLocations.remove(gov);
+                  });
+                },
+                backgroundColor: AppColors.primary.withValues(alpha: 0.08),
+                side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
+                labelStyle: GoogleFonts.urbanist(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w600),
+              );
+            }).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showLocationMultiSelect(bool isArabic) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.9,
+              expand: false,
+              builder: (context, scrollController) {
+                return Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 16),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.outline,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isArabic ? 'اختر المحافظات' : 'Select Governorates',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.onSurface,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              isArabic ? 'تم' : 'Done',
+                              style: GoogleFonts.urbanist(
+                                  fontWeight: FontWeight.w800, color: AppColors.primary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: _governorates.length,
+                        itemBuilder: (context, index) {
+                          final gov = _governorates[index];
+                          final isSelected = _selectedLocations.contains(gov);
+                          return CheckboxListTile(
+                            title: Text(
+                              gov[isArabic ? 'ar' : 'en']!,
+                              style: GoogleFonts.urbanist(
+                                fontSize: 15,
+                                color: AppColors.onSurface,
+                              ),
+                            ),
+                            value: isSelected,
+                            activeColor: AppColors.primary,
+                            onChanged: (checked) {
+                              setModalState(() {
+                                if (checked == true) {
+                                  _selectedLocations.add(gov);
+                                } else {
+                                  _selectedLocations.remove(gov);
+                                }
+                              });
+                              setState(() {}); // Refresh parent tag list
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

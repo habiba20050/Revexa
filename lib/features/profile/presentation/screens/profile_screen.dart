@@ -273,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         subtitle: l10n.addressesSubtitle,
                                         onTap: () => Navigator.pushNamed(context, AppRoutes.addresses),
                                       ),
-                                      if (user?.role == 'admin')
+                                      if (user?.role == 'admin') ...[
                                         _ProfileMenuItem(
                                           icon: Icons.admin_panel_settings_outlined,
                                           title: l10n.userManagement,
@@ -283,6 +283,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             MaterialPageRoute(builder: (context) => const UserManagementScreen()),
                                           ),
                                         ),
+                                        _ProfileMenuItem(
+                                          icon: Icons.campaign_outlined,
+                                          title: Localizations.localeOf(context).languageCode == 'ar' 
+                                              ? 'إدارة الإعلانات' 
+                                              : 'Manage Ads',
+                                          subtitle: '',
+                                          onTap: () => Navigator.pushNamed(context, AppRoutes.manageAds),
+                                        ),
+                                      ],
+                                      if (user?.role == 'company') ...[
+                                        _ProfileMenuItem(
+                                          icon: Icons.add_business_outlined,
+                                          title: Localizations.localeOf(context).languageCode == 'ar' 
+                                              ? 'إضافة خدمة جديدة' 
+                                              : 'Add Service',
+                                          subtitle: '',
+                                          onTap: () => Navigator.pushNamed(context, AppRoutes.addService),
+                                        ),
+                                        _ProfileMenuItem(
+                                          icon: Icons.receipt_long_outlined,
+                                          title: Localizations.localeOf(context).languageCode == 'ar' 
+                                              ? 'طلبات الخدمات' 
+                                              : 'View Requests',
+                                          subtitle: '',
+                                          onTap: () => Navigator.pushNamed(context, AppRoutes.companyRequests),
+                                        ),
+                                        _ProfileMenuItem(
+                                          icon: Icons.grid_view_rounded,
+                                          title: Localizations.localeOf(context).languageCode == 'ar' 
+                                              ? 'عرض خدماتي' 
+                                              : 'My Services',
+                                          subtitle: '',
+                                          onTap: () => Navigator.pushNamed(context, AppRoutes.myServices),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -398,7 +433,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       subtitle: l10n.addressesSubtitle,
                                       onTap: () => Navigator.pushNamed(context, AppRoutes.addresses),
                                     ),
-                                    if (user?.role == 'admin')
+                                    if (user?.role == 'admin') ...[
                                       _ProfileMenuItem(
                                         icon: Icons.admin_panel_settings_outlined,
                                         title: l10n.userManagement,
@@ -408,6 +443,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           MaterialPageRoute(builder: (context) => const UserManagementScreen()),
                                         ),
                                       ),
+                                      _ProfileMenuItem(
+                                        icon: Icons.campaign_outlined,
+                                        title: Localizations.localeOf(context).languageCode == 'ar' 
+                                            ? 'إدارة الإعلانات' 
+                                            : 'Manage Ads',
+                                        subtitle: "",
+                                        onTap: () => Navigator.pushNamed(context, AppRoutes.manageAds),
+                                      ),
+                                    ],
+                                    if (user?.role == 'company') ...[
+                                      _ProfileMenuItem(
+                                        icon: Icons.add_business_outlined,
+                                        title: Localizations.localeOf(context).languageCode == 'ar' 
+                                            ? 'إضافة خدمة جديدة' 
+                                            : 'Add Service',
+                                        subtitle: "",
+                                        onTap: () => Navigator.pushNamed(context, AppRoutes.addService),
+                                      ),
+                                      _ProfileMenuItem(
+                                        icon: Icons.receipt_long_outlined,
+                                        title: Localizations.localeOf(context).languageCode == 'ar' 
+                                            ? 'طلبات الخدمات' 
+                                            : 'View Requests',
+                                        subtitle: "",
+                                        onTap: () => Navigator.pushNamed(context, AppRoutes.companyRequests),
+                                      ),
+                                      _ProfileMenuItem(
+                                        icon: Icons.grid_view_rounded,
+                                        title: Localizations.localeOf(context).languageCode == 'ar' 
+                                            ? 'عرض خدماتي' 
+                                            : 'My Services',
+                                        subtitle: "",
+                                        onTap: () => Navigator.pushNamed(context, AppRoutes.myServices),
+                                      ),
+                                    ],
                                     const SizedBox(height: 24),
                                     _SectionHeader(title: l10n.preferences),
                                     _ToggleRow(

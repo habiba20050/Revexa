@@ -12,6 +12,8 @@ class Service extends Equatable {
   final String status; // active, inactive
   final double? rating;
   final int? reviewsCount;
+  final String? location;
+  final String? companyId;
 
   String get title => name;
   String get firstImageUrl => ImageUrlUtils.resolve(image) ?? '';
@@ -27,6 +29,8 @@ class Service extends Equatable {
     this.status = 'active',
     this.rating,
     this.reviewsCount,
+    this.location,
+    this.companyId,
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
@@ -41,6 +45,8 @@ class Service extends Equatable {
       status: json['status']?.toString() ?? 'active',
       rating: (json['rating'] as num?)?.toDouble(),
       reviewsCount: (json['reviewsCount'] as num?)?.toInt(),
+      location: json['location']?.toString(),
+      companyId: json['companyId']?.toString(),
     );
   }
 
@@ -49,8 +55,15 @@ class Service extends Equatable {
     if (direct != null && direct.isNotEmpty) return direct;
     final images = json['images'];
     if (images is List && images.isNotEmpty) {
-      final resolved = ImageUrlUtils.resolve(images.first);
-      if (resolved != null && resolved.isNotEmpty) return resolved;
+      // Check if it's a map containing url or just a direct string
+      final firstImage = images.first;
+      if (firstImage is Map) {
+        final resolved = ImageUrlUtils.resolve(firstImage['url']);
+        if (resolved != null && resolved.isNotEmpty) return resolved;
+      } else {
+        final resolved = ImageUrlUtils.resolve(firstImage);
+        if (resolved != null && resolved.isNotEmpty) return resolved;
+      }
     }
     return null;
   }
@@ -63,10 +76,25 @@ class Service extends Equatable {
     'image': image,
     'duration': duration,
     'status': status,
+    'location': location,
+    'companyId': companyId,
   };
 
   @override
-  List<Object?> get props => [id, name, description, price, category, image, duration, status, rating, reviewsCount];
+  List<Object?> get props => [
+        id,
+        name,
+        description,
+        price,
+        category,
+        image,
+        duration,
+        status,
+        rating,
+        reviewsCount,
+        location,
+        companyId,
+      ];
 }
 
 class ServicesPage extends Equatable {

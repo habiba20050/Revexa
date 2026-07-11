@@ -32,4 +32,10 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String createOrder = '/orders/create';
   static const String orderDetail = '/orders/detail';
+
+  // Role-based actions
+  static const String addService = '/company/add-service';
+  static const String manageAds = '/admin/manage-ads';
+  static const String myServices = '/company/my-services';
+  static const String companyRequests = '/company/requests';
 }

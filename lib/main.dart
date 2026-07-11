@@ -34,11 +34,11 @@ import 'package:revexa/features/home/presentation/screens/home_screen.dart';
 // New feature screens
 import 'package:revexa/features/services/presentation/screens/services_screen.dart';
 import 'package:revexa/features/services/presentation/screens/service_detail_screen.dart';
-import 'package:revexa/features/services/presentation/screens/maintenance_detail_screen.dart';
-import 'package:revexa/features/services/presentation/screens/mobile_wash_detail_screen.dart';
-import 'package:revexa/features/services/presentation/screens/oil_service_detail_screen.dart';
-import 'package:revexa/features/services/presentation/screens/tires_detail_screen.dart';
-import 'package:revexa/features/services/presentation/screens/battery_detail_screen.dart';
+import 'package:revexa/features/services/presentation/screens/filtered_services_screen.dart';
+import 'package:revexa/features/home/presentation/screens/add_service_screen.dart';
+import 'package:revexa/features/home/presentation/screens/company_dashboard_screen.dart';
+import 'package:revexa/features/services/presentation/screens/company_services_screen.dart';
+import 'package:revexa/features/services/presentation/screens/company_requests_screen.dart';
 import 'package:revexa/features/workshops/presentation/screens/nearby_workshops_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/create_order_screen.dart';
 import 'package:revexa/features/orders/presentation/screens/order_detail_screen.dart';
@@ -151,11 +151,11 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.services: (_) => const ServicesScreen(),
                   AppRoutes.nearbyWorkshops: (_) => const NearbyWorkshopsScreen(),
                   AppRoutes.serviceDetail: (_) => const ServiceDetailScreen(),
-                  AppRoutes.maintenanceDetail: (_) => const MaintenanceDetailScreen(),
-                  AppRoutes.mobileWashDetail: (_) => const MobileWashDetailScreen(),
-                  AppRoutes.oilServiceDetail: (_) => const OilServiceDetailScreen(),
-                  AppRoutes.tiresDetail: (_) => const TiresDetailScreen(),
-                  AppRoutes.batteryDetail: (_) => const BatteryDetailScreen(),
+                  AppRoutes.maintenanceDetail: (_) => const FilteredServicesScreen(),
+                  AppRoutes.mobileWashDetail: (_) => const FilteredServicesScreen(),
+                  AppRoutes.oilServiceDetail: (_) => const FilteredServicesScreen(),
+                  AppRoutes.tiresDetail: (_) => const FilteredServicesScreen(),
+                  AppRoutes.batteryDetail: (_) => const FilteredServicesScreen(),
                   AppRoutes.createOrder: (_) => const CreateOrderScreen(),
                   AppRoutes.orderDetail: (_) => const OrderDetailScreen(),
                   AppRoutes.profile: (_) => const ProfileScreen(),
@@ -166,6 +166,10 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.notifications: (_) => const NotificationsScreen(),
                   AppRoutes.bookings: (_) => const BookingsScreen(),
                   AppRoutes.settings: (_) => const ProfileScreen(),
+                  AppRoutes.addService: (_) => const AddServiceScreen(),
+                  AppRoutes.manageAds: (_) => const CompanyDashboardScreen(),
+                  AppRoutes.myServices: (_) => const CompanyServicesScreen(),
+                  AppRoutes.companyRequests: (_) => const CompanyRequestsScreen(),
                 },
               );
             },
