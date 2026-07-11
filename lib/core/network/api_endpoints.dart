@@ -54,6 +54,10 @@ class ApiEndpoints {
   static const String news = '/news';
   static const String newsSync = '/news/sync';
 
+  // Ads — GET /ads, POST /ads, PUT /ads/{id}, DELETE /ads/{id}
+  static const String ads = '/ads';
+  static String adById(String id) => '/ads/$id';
+
   // Auth extensions (not wired in UI yet)
   static const String googleAuth = '/auth/google';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'package:revexa/core/constants/app_constants.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/auth/data/models/auth_user_model.dart';
 import 'package:revexa/features/auth/data/repositories/auth_repository_impl.dart';
@@ -11,68 +12,24 @@ import 'package:revexa/core/utils/image_url_utils.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
   final ProfileRemoteDataSource _profileRemote;
-  final GoogleSignIn _googleSignIn = kIsWeb
-      ? GoogleSignIn(
-          clientId: '865041538115-o3j0ldik5rup9h8caslsv6blte24uju6.apps.googleusercontent.com',
-          scopes: <String>['email', 'profile', 'openid'],
-          forceCodeForRefreshToken: true, // Request serverAuthCode for web
-        )
-      : GoogleSignIn(
-          scopes: <String>['email', 'profile', 'openid'],
-        );
+
+  /// Single GoogleSignIn instance configured for both platforms.
+  /// On web: clientId is mandatory (FedCM / OAuth popup).
+  /// On mobile: clientId is ignored by the plugin; idToken comes from Google Play Services.
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: <String>['email', 'profile', 'openid'],
+    clientId: kIsWeb ? AppConstants.googleWebClientId : null,
+  );
 
   AuthCubit(this._repository, {ProfileRemoteDataSource? profileRemote})
       : _profileRemote = profileRemote ?? ProfileRemoteDataSourceImpl(),
-        super(const AuthInitial()) {
-    // تفعيل الاستماع التلقائي في الويب فقط عند بدء عمل الـ Cubit
-    if (kIsWeb) {
-      _setupWebGoogleSignInListener();
-    }
-  }
+        super(const AuthInitial());
 
-  /// إعداد مستمع خاص بالويب لجلب التوكنات بأمان عند استخدام الـ Web Sign In
-  void _setupWebGoogleSignInListener() {
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? googleUser) async {
-      if (googleUser == null) return;
+  // ─────────────────────────────────────────────────────────────
+  // Auth status
+  // ─────────────────────────────────────────────────────────────
 
-      if (!isClosed) emit(const AuthLoading());
-
-      try {
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final String? accessToken = googleAuth.accessToken;
-        final String? idToken = googleAuth.idToken;
-
-        if (accessToken == null) {
-          if (!isClosed) emit(const AuthError('Failed to get Google Access Token on Web'));
-          return;
-        }
-
-        // On web: use serverAuthCode or idToken (idToken is typically null on web)
-        // On native: idToken is usually available
-        final String? authToken = idToken ?? googleUser.serverAuthCode;
-        if (authToken == null || authToken.isEmpty) {
-          if (!isClosed) emit(const AuthError('Failed to get Google authentication token (idToken/serverAuthCode) on Web'));
-          return;
-        }
-
-        final result = await _repository.signInWithGoogle(
-          accessToken: accessToken,
-          idToken: authToken,
-        );
-
-        if (isClosed) return;
-        if (result is Success) {
-          emit(AuthAuthenticated(result.data!));
-        } else {
-          emit(AuthError(result.failure!.message));
-        }
-      } catch (e) {
-        if (!isClosed) emit(AuthError('Google Web Sign In verification failed: $e'));
-      }
-    });
-  }
-
-  /// Check if user is already logged in (called at app startup)
+  /// Check if user is already logged in (called at app startup).
   Future<void> checkAuthStatus() async {
     if (isClosed) return;
     emit(const AuthChecking());
@@ -88,6 +45,10 @@ class AuthCubit extends Cubit<AuthState> {
       if (!isClosed) emit(const AuthUnauthenticated());
     }
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // Email / password
+  // ─────────────────────────────────────────────────────────────
 
   Future<void> login({required String email, required String password}) async {
     if (isClosed) return;
@@ -148,78 +109,45 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Google Sign-In  (جذري ومبسط)
+  // ─────────────────────────────────────────────────────────────
 
   Future<void> signInWithGoogle() async {
     if (isClosed) return;
     emit(const AuthLoading());
-    try {
-      if (kIsWeb) {
-        // For web: FedCM returns a JWT credential
-        // First try silent sign-in, then fall back to interactive
-        final user = await _googleSignIn.signInSilently();
-        
-        // After sign-in, wait a moment for the listener to process
-        await Future.delayed(const Duration(milliseconds: 300));
-        
-        // If listener didn't handle it, manually process the current user
-        if (state is! AuthAuthenticated && !isClosed) {
-          final currentUser = _googleSignIn.currentUser;
-          if (currentUser != null) {
-            try {
-              final googleAuth = await currentUser.authentication;
-              final idToken = googleAuth.idToken;
-              
-              // On web: FedCM provides idToken (JWT); accessToken may be null
-              if (idToken != null && idToken.isNotEmpty && !isClosed) {
-                final result = await _repository.signInWithGoogle(
-                  accessToken: idToken, // Pass JWT as accessToken
-                  idToken: idToken,     // Also as idToken
-                );
-                if (result is Success) {
-                  emit(AuthAuthenticated(result.data!));
-                } else {
-                  emit(AuthError(result.failure!.message));
-                }
-              } else {
-                if (!isClosed) emit(const AuthError('Failed to get Google idToken on Web (FedCM)'));
-              }
-            } catch (e) {
-              if (!isClosed) emit(AuthError('Failed to process FedCM auth: $e'));
-            }
-          } else if (user == null) {
-            // Silent sign-in failed, try interactive
-            await _googleSignIn.signIn();
-          }
-        }
-        return;
-      }
 
+    try {
+      // 1. Trigger the Google sign-in UI (works on mobile + web).
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
+        // User cancelled the picker.
         if (!isClosed) emit(const AuthUnauthenticated());
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final String? accessToken = googleAuth.accessToken;
+      // 2. Retrieve the auth tokens from the signed-in account.
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
       final String? idToken = googleAuth.idToken;
 
-      if (accessToken == null) {
-        if (!isClosed) emit(const AuthError('Failed to get Google Access Token'));
+      if (idToken == null || idToken.isEmpty) {
+        // idToken is expected on mobile always.
+        // On web it depends on FedCM support in the browser.
+        if (!isClosed) {
+          emit(const AuthError(
+            'Google Sign-In did not return an ID token. '
+            'Make sure you are running on a supported platform with '
+            'the correct OAuth client ID configured.',
+          ));
+        }
         return;
       }
 
-      // On native platforms and web: prefer idToken, fallback to serverAuthCode
-      final String? authToken = idToken ?? googleUser.serverAuthCode;
-      if (authToken == null || authToken.isEmpty) {
-        if (!isClosed) emit(const AuthError('Failed to get Google authentication token (idToken/serverAuthCode)'));
-        return;
-      }
-
-      final result = await _repository.signInWithGoogle(
-        accessToken: accessToken,
-        idToken: authToken,
-      );
+      // 3. Send idToken to the Revexa backend POST /auth/google.
+      final result = await _repository.signInWithGoogle(idToken: idToken);
 
       if (isClosed) return;
       if (result is Success) {
@@ -231,6 +159,10 @@ class AuthCubit extends Cubit<AuthState> {
       if (!isClosed) emit(AuthError('Google Sign In failed: $e'));
     }
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // Logout
+  // ─────────────────────────────────────────────────────────────
 
   Future<void> logout() async {
     if (isClosed) return;
@@ -247,6 +179,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Profile helpers
+  // ─────────────────────────────────────────────────────────────
+
   Future<void> refreshProfile() async {
     if (isClosed) return;
     final current = state;
@@ -262,13 +198,19 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> applyProfileUpdate(AuthUser user) async {
     if (isClosed) return;
-    ImageUrlUtils.avatarCacheBuster = DateTime.now().millisecondsSinceEpoch.toString();
+    ImageUrlUtils.avatarCacheBuster =
+        DateTime.now().millisecondsSinceEpoch.toString();
     final current = state;
-    final token = current is AuthAuthenticated ? current.user.token : user.token;
+    final token =
+        current is AuthAuthenticated ? current.user.token : user.token;
     final updated = user.copyWith(token: token);
     await _repository.persistUser(updated);
     if (!isClosed) emit(AuthAuthenticated(updated));
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // Password reset flow
+  // ─────────────────────────────────────────────────────────────
 
   Future<void> forgotPassword(String email) async {
     if (isClosed) return;
@@ -293,7 +235,8 @@ class AuthCubit extends Cubit<AuthState> {
     if (isClosed) return;
     emit(const AuthLoading());
     try {
-      final result = await _repository.verifyResetCode(email: email, code: code);
+      final result =
+          await _repository.verifyResetCode(email: email, code: code);
       if (isClosed) return;
       if (result is Success) {
         emit(VerifyResetCodeSuccess(result.data!));
@@ -305,6 +248,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Resets the user's password using the [token] from [verifyResetCode].
+  ///
+  /// On success the backend returns a message only (no user / JWT).
+  /// We emit [ResetPasswordSuccess] so the UI can navigate to sign-in.
   Future<void> resetPassword({
     required String token,
     required String password,
@@ -312,10 +259,11 @@ class AuthCubit extends Cubit<AuthState> {
     if (isClosed) return;
     emit(const AuthLoading());
     try {
-      final result = await _repository.resetPassword(token: token, password: password);
+      final result =
+          await _repository.resetPassword(token: token, password: password);
       if (isClosed) return;
       if (result is Success) {
-        emit(AuthAuthenticated(result.data!));
+        emit(const ResetPasswordSuccess());
       } else {
         emit(AuthError(result.failure!.message));
       }

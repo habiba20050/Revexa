@@ -56,3 +56,10 @@ class VerifyResetCodeSuccess extends AuthState {
   @override
   List<Object?> get props => [resetToken];
 }
+
+class ResetPasswordSuccess extends AuthState {
+  final String message;
+  const ResetPasswordSuccess({this.message = 'Password reset successfully. Please login.'});
+  @override
+  List<Object?> get props => [message];
+}

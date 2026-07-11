@@ -18,23 +18,13 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _tokenCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.initialToken != null && widget.initialToken!.isNotEmpty) {
-      _tokenCtrl.text = widget.initialToken!;
-    }
-  }
-
-  @override
   void dispose() {
-    _tokenCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmCtrl.dispose();
     super.dispose();
@@ -42,8 +32,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   void _onSubmit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
+    final token = widget.initialToken ?? '';
+    if (token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Missing reset token. Please verify code again.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     context.read<AuthCubit>().resetPassword(
-          token: _tokenCtrl.text.trim(),
+          token: token,
           password: _passwordCtrl.text,
         );
   }
@@ -52,8 +53,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+        if (state is ResetPasswordSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: const Color(0xFF22C55E),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.pushNamedAndRemoveUntil(context, AppRoutes.signIn, (route) => false);
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -101,14 +109,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const _FieldLabel('Reset Token'),
-                    TextFormField(
-                      controller: _tokenCtrl,
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Token is required' : null,
-                      decoration: _inputDecoration(hint: 'Paste token from email'),
-                    ),
-                    const SizedBox(height: 16),
                     const _FieldLabel('New Password'),
                     TextFormField(
                       controller: _passwordCtrl,

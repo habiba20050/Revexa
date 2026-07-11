@@ -23,6 +23,8 @@ import 'package:revexa/features/notifications/presentation/cubit/notifications_c
 import 'package:revexa/l10n/app_localizations.dart';
 import 'package:revexa/features/home/presentation/screens/company_dashboard_screen.dart';
 import 'package:revexa/features/chatbot/presentation/widgets/chatbot_fab.dart';
+import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
+import 'package:revexa/features/home/presentation/widgets/promotional_offers_slider.dart';
 
 /// الشاشة الرئيسية للتطبيق.
 /// تحتوي على الـ Bottom Navigation Bar وتدير التنقل بين الـ tabs.
@@ -38,14 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
   /// التاب النشط حالياً في الـ Bottom Navigation.
   NavTab _activeTab = NavTab.home;
 
-  /// الكلمة المبحوث عنها — تُمرر لـ ServicesScreen عند الانتقال إليها.
-  String? _searchQuery;
-
-  /// ينتقل إلى [tab] المحدد، مع دعم تمرير [searchQuery] لشاشة الخدمات.
-  void _goToTab(NavTab tab, {String? searchQuery}) {
+  /// ينتقل إلى [tab] المحدد.
+  void _goToTab(NavTab tab) {
     setState(() {
       _activeTab = tab;
-      _searchQuery = searchQuery;
     });
   }
 
@@ -57,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductsCubit>().loadProducts();
       context.read<OrdersCubit>().loadOrders();
+      context.read<AdsCubit>().loadAds();
     });
   }
 
@@ -67,13 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
       case NavTab.home:
         return _HomeBody(
           onProfileTap: () => _goToTab(NavTab.settings),
-          onSearchSubmitted: (query) => _goToTab(NavTab.services, searchQuery: query),
         );
       case NavTab.services:
         return ServicesScreen(
           onBackToHome: () => _goToTab(NavTab.home),
           onOpenSettings: () => _goToTab(NavTab.settings),
-          initialQuery: _searchQuery,
+          initialQuery: null,
         );
       case NavTab.bookings:
         return const BookingsBody();
@@ -166,10 +164,7 @@ class _HomeBody extends StatelessWidget {
   /// Callback لما المستخدم يضغط على الأفاتار في الـ AppBar.
   final VoidCallback? onProfileTap;
 
-  /// Callback لما المستخدم يبحث عن خدمة — بيستقبل نص البحث.
-  final ValueChanged<String>? onSearchSubmitted;
-
-  const _HomeBody({this.onProfileTap, this.onSearchSubmitted});
+  const _HomeBody({this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +174,7 @@ class _HomeBody extends StatelessWidget {
           context.read<ProductsCubit>().loadProducts(),
           context.read<OrdersCubit>().loadOrders(),
           context.read<AuthCubit>().checkAuthStatus(),
+          context.read<AdsCubit>().loadAds(),
         ]);
       },
       child: CustomScrollView(
@@ -192,15 +188,11 @@ class _HomeBody extends StatelessWidget {
                 const SizedBox(height: 8),
                 const _GreetingBanner(),
                 const SizedBox(height: 20),
-                _HomeSearchBar(
-                  onSearchSubmitted: onSearchSubmitted ?? (_) {},
-                ),
-                const SizedBox(height: 24),
-                const _VehicleHealthCard(),
-                const SizedBox(height: 24),
-                const _QuickActionsRow(),
+                const PromotionalOffersSlider(),
                 const SizedBox(height: 24),
                 const _ServicesSection(),
+                const SizedBox(height: 24),
+                const AdsHorizontalCarousel(),
                 _ActiveBookingCard(topPadding: 16),
                 const SizedBox(height: 16),
                 const _PromoBanner(),
@@ -350,222 +342,9 @@ class _GreetingBanner extends StatelessWidget {
   }
 }
 
-/// كارت حالة السيارة — يعرض نسبة الـ Health بـ Circular Progress،
-/// بالإضافة إلى Stat Bars لـ Engine Power وBattery Life.
-class _VehicleHealthCard extends StatelessWidget {
-  const _VehicleHealthCard();
+// Deleted _VehicleHealthCard and _StatBar widgets since they are replaced by the PromotionalOffersSlider
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withValues(alpha: 0.80),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.30),
-            blurRadius: 28, offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -48, right: -48,
-            child: Container(
-              width: 160, height: 160,
-              decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06), shape: BoxShape.circle),
-            ),
-          ),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(
-                'PREMIUM STATUS',
-                style: GoogleFonts.urbanist(
-                    fontSize: 10, fontWeight: FontWeight.w700,
-                    letterSpacing: 2.0, color: Colors.white.withValues(alpha: 0.60)),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text('OPTIMAL',
-                    style: GoogleFonts.urbanist(
-                        fontSize: 10, fontWeight: FontWeight.w700,
-                        letterSpacing: 0.8, color: Colors.white)),
-              ),
-            ]),
-            const SizedBox(height: 6),
-            Text(
-              'Vehicle Health',
-              style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.3),
-            ),
-            const SizedBox(height: 20),
-            Row(children: [
-              SizedBox(
-                width: 88, height: 88,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 88, height: 88,
-                      child: CircularProgressIndicator(
-                        value: 0.85,
-                        strokeWidth: 7,
-                        backgroundColor: Colors.white.withValues(alpha: 0.10),
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.neon),
-                        strokeCap: StrokeCap.round,
-                      ),
-                    ),
-                    RichText(
-                      text: TextSpan(children: [
-                        TextSpan(text: '85',
-                            style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
-                        TextSpan(text: '%',
-                            style: GoogleFonts.urbanist(fontSize: 10, color: AppColors.neon)),
-                      ]),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(children: [
-                  _StatBar(label: 'Engine Power', value: 0.92, valueStr: '92%', color: AppColors.neon),
-                  const SizedBox(height: 16),
-                  _StatBar(label: 'Battery Life', value: 0.78, valueStr: '78%', color: Colors.white.withValues(alpha: 0.80)),
-                ]),
-              ),
-            ]),
-          ]),
-        ],
-      ),
-    );
-  }
-}
-
-/// شريط إحصائي صغير يُستخدم داخل [_VehicleHealthCard].
-/// يعرض اسم المقياس، قيمته النصية، وـ LinearProgressIndicator.
-class _StatBar extends StatelessWidget {
-  /// اسم المقياس (مثلاً: Engine Power)
-  final String label;
-  /// القيمة من 0.0 إلى 1.0 لملء الـ progress bar.
-  final double value;
-  /// النص المعروض بجانب الاسم (مثلاً: 92%)
-  final String valueStr;
-  /// لون الـ progress bar والـ value text.
-  final Color color;
-  const _StatBar({required this.label, required this.value, required this.valueStr, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Flexible(
-          child: Text(label, style: GoogleFonts.urbanist(fontSize: 10, color: Colors.white.withValues(alpha: 0.70)), maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        const SizedBox(width: 4),
-        Text(valueStr, style: GoogleFonts.urbanist(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
-      ]),
-      const SizedBox(height: 4),
-      ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: LinearProgressIndicator(
-          value: value,
-          backgroundColor: Colors.white.withValues(alpha: 0.10),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 5,
-        ),
-      ),
-    ]);
-  }
-}
-
-/// صف الإجراءات السريعة — 4 أزرار (Wash، Service، Tires، More).
-/// كل زر ينقل المستخدم مباشرةً لشاشة الخدمة المقابلة.
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Row(
-      children: [
-        _QuickAction(icon: Icons.local_car_wash_rounded, label: l10n.quickWash,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.mobileWashDetail)),
-        const SizedBox(width: 12),
-        _QuickAction(icon: Icons.build_rounded, label: l10n.quickService,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.maintenanceDetail)),
-        const SizedBox(width: 12),
-        _QuickAction(icon: Icons.tire_repair, label: l10n.quickTires,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.tiresDetail)),
-        const SizedBox(width: 12),
-        _QuickAction(icon: Icons.more_horiz_rounded, label: l10n.quickMore,
-            onTap: () {
-              final homeState = context.findAncestorStateOfType<_HomeScreenState>();
-              if (homeState != null) {
-                homeState._goToTab(NavTab.services);
-              } else {
-                Navigator.pushNamed(context, AppRoutes.services);
-              }
-            }),
-      ],
-    );
-  }
-}
-
-/// زر إجراء سريع واحد يُستخدم داخل [_QuickActionsRow].
-/// يعرض أيقونة داخل مربع ملون وعنوان نصي تحتها.
-class _QuickAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  /// الدالة المستدعاة عند الضغط على الزر.
-  final VoidCallback onTap;
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.surface.withValues(alpha: 0.65),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.outline.withValues(alpha: 0.40)),
-          ),
-          child: Column(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Icon(icon, color: AppColors.primary, size: 18),
-            ),
-            const SizedBox(height: 6),
-            Text(label, style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
-          ]),
-        ),
-      ),
-    );
-  }
-}
+// Deleted _QuickActionsRow and _QuickAction widgets
 
 /// قسم "Our Services" — يعرض شبكة (Grid) من الخدمات الثابتة.
 /// القائمة ثابتة دائماً ولا تتغير بناءً على استجابة الـ API.
@@ -831,75 +610,4 @@ class _HomeServiceItem {
   const _HomeServiceItem({required this.icon, required this.title, required this.subtitle, required this.route});
 }
 
-/// شريط البحث التفاعلي في الصفحة الرئيسية.
-/// عند الإرسال (Enter أو السهم) يستدعي [onSearchSubmitted] وينتقل لشاشة الخدمات.
-class _HomeSearchBar extends StatefulWidget {
-  /// الدالة المستدعاة عند إرسال نص البحث.
-  final ValueChanged<String> onSearchSubmitted;
-
-  const _HomeSearchBar({required this.onSearchSubmitted});
-
-  @override
-  State<_HomeSearchBar> createState() => _HomeSearchBarState();
-}
-
-class _HomeSearchBarState extends State<_HomeSearchBar> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: AppColors.surface.withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.outline.withValues(alpha: 0.40)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: _controller,
-        onSubmitted: (value) {
-          if (value.trim().isNotEmpty) {
-            widget.onSearchSubmitted(value.trim());
-          }
-        },
-        textInputAction: TextInputAction.search,
-        style: GoogleFonts.urbanist(fontSize: 14, color: AppColors.onSurface),
-        decoration: InputDecoration(
-          hintText: l10n.servicesSearch,
-          hintStyle: GoogleFonts.urbanist(color: AppColors.onSurfaceVariant, fontSize: 14),
-          prefixIcon: Icon(Icons.search_rounded, color: AppColors.onSurfaceVariant, size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 20),
-            onPressed: () {
-              if (_controller.text.trim().isNotEmpty) {
-                widget.onSearchSubmitted(_controller.text.trim());
-              }
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Deleted _HomeSearchBar since search functionality was removed from the home screen

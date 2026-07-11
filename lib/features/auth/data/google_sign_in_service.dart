@@ -18,8 +18,8 @@ class GoogleSignInService {
     final idToken = auth.idToken;
     if (idToken == null || idToken.isEmpty) {
       throw Exception(
-        kIsWeb && AppConstants.googleWebClientId == null
-            ? 'Google Sign-In on web requires AppConstants.googleWebClientId'
+        kIsWeb
+            ? 'Google Sign-In on web failed to return ID token'
             : 'Google did not return an ID token',
       );
     }

@@ -21,8 +21,11 @@ abstract interface class AuthRepository {
   Future<Result<void>> logout();
   Future<Result<void>> forgotPassword(String email);
   Future<Result<String>> verifyResetCode({required String email, required String code});
-  Future<Result<AuthUser>> signInWithGoogle({required String accessToken, String? idToken});
-  Future<Result<AuthUser>> resetPassword({required String token, required String password});
+  /// Sends [idToken] to the backend and returns the authenticated user.
+  Future<Result<AuthUser>> signInWithGoogle({required String idToken});
+  /// Resets the password. On success emits [Result<void>] — the backend
+  /// does NOT return a user or JWT after reset.
+  Future<Result<void>> resetPassword({required String token, required String password});
   Future<AuthUser?> getStoredUser();
   Future<void> persistUser(AuthUser user);
 }
@@ -99,15 +102,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AuthUser>> signInWithGoogle({
-    required String accessToken,
-    String? idToken,
-  }) async {
+  Future<Result<AuthUser>> signInWithGoogle({required String idToken}) async {
     try {
-      final user = await _remote.signInWithGoogle(
-        accessToken: accessToken,
-        idToken: idToken,
-      );
+      final user = await _remote.signInWithGoogle(idToken: idToken);
       await _persistAuthUser(user);
       return Success(user);
     } catch (e) {
@@ -151,14 +148,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AuthUser>> resetPassword({
+  Future<Result<void>> resetPassword({
     required String token,
     required String password,
   }) async {
     try {
-      final user = await _remote.resetPassword(token: token, password: password);
-      await _persistAuthUser(user);
-      return Success(user);
+      await _remote.resetPassword(token: token, password: password);
+      // Clear stored session so the user must log in again with the new password.
+      await _storage.clearAll();
+      return const Success(null);
     } catch (e) {
       return ResultFailure(ErrorHandler.toFailure(e));
     }

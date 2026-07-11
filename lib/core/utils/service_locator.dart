@@ -21,6 +21,13 @@ import 'package:revexa/shared/theme/theme_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 import 'package:revexa/features/chatbot/data/datasources/chatbot_remote_datasource.dart';
 import 'package:revexa/features/chatbot/presentation/cubit/chatbot_cubit.dart';
+import 'package:revexa/features/ads/data/datasources/ads_remote_datasource.dart';
+import 'package:revexa/features/ads/data/repositories/ads_repository_impl.dart';
+import 'package:revexa/features/ads/domain/usecases/get_ads_usecase.dart';
+import 'package:revexa/features/ads/domain/usecases/create_ad_usecase.dart';
+import 'package:revexa/features/ads/domain/usecases/update_ad_usecase.dart';
+import 'package:revexa/features/ads/domain/usecases/delete_ad_usecase.dart';
+import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
 
 /// Simple service locator — no external package required.
 class ServiceLocator {
@@ -36,6 +43,7 @@ class ServiceLocator {
   late final NewsCubit newsCubit;
   late final NotificationsCubit notificationsCubit;
   late final ChatbotCubit chatbotCubit;
+  late final AdsCubit adsCubit;
   late final ThemeCubit themeCubit;
   late final LocaleCubit localeCubit;
 
@@ -82,6 +90,21 @@ class ServiceLocator {
     // Chatbot
     final chatbotDataSource = ChatbotRemoteDataSourceImpl();
     chatbotCubit = ChatbotCubit(chatbotDataSource);
+
+    // Ads
+    final adsDataSource = AdsRemoteDataSourceImpl();
+    final adsRepo = AdsRepositoryImpl(adsDataSource);
+    final getAdsUseCase = GetAdsUseCase(adsRepo);
+    final createAdUseCase = CreateAdUseCase(adsRepo);
+    final updateAdUseCase = UpdateAdUseCase(adsRepo);
+    final deleteAdUseCase = DeleteAdUseCase(adsRepo);
+    adsCubit = AdsCubit(
+      getAdsUseCase,
+      createAdUseCase,
+      updateAdUseCase,
+      deleteAdUseCase,
+      adsRepo,
+    );
 
     // Theme
     themeCubit = ThemeCubit();

@@ -17,6 +17,7 @@ import 'package:revexa/features/services/presentation/cubit/services_cubit.dart'
 import 'package:revexa/features/updates/presentation/cubit/news_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
+import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
 
 // Auth screens
 import 'package:revexa/features/splash/presentation/screens/splash_screen.dart';
@@ -24,6 +25,7 @@ import 'package:revexa/features/onboarding/presentation/screens/onboarding_scree
 import 'package:revexa/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/register_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:revexa/features/auth/presentation/screens/verify_reset_code_screen.dart';
 import 'package:revexa/features/auth/presentation/screens/reset_password_screen.dart';
 
 // Main
@@ -90,6 +92,7 @@ class RevexaApp extends StatelessWidget {
         BlocProvider<NewsCubit>.value(value: sl.newsCubit),
         BlocProvider<NotificationsCubit>.value(value: sl.notificationsCubit),
         BlocProvider<ChatbotCubit>.value(value: sl.chatbotCubit),
+        BlocProvider<AdsCubit>.value(value: sl.adsCubit),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
@@ -135,6 +138,10 @@ class RevexaApp extends StatelessWidget {
                   AppRoutes.signIn: (_) => const SignInScreen(),
                   AppRoutes.register: (_) => const RegisterScreen(),
                   AppRoutes.forgotPassword: (_) => const ForgotPasswordScreen(),
+                  AppRoutes.verifyResetCode: (context) {
+                    final email = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+                    return VerifyResetCodeScreen(email: email);
+                  },
                   AppRoutes.resetPassword: (context) {
                     final token = ModalRoute.of(context)?.settings.arguments as String?;
                     return ResetPasswordScreen(initialToken: token);

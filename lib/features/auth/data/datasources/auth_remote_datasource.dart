@@ -23,8 +23,11 @@ abstract interface class AuthRemoteDataSource {
   Future<void> logout();
   Future<void> forgotPassword(String email);
   Future<String> verifyResetCode({required String email, required String code});
-  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken});
-  Future<AuthUser> resetPassword({required String token, required String password});
+  /// Sends only the [idToken] (JWT from Google) to the backend.
+  Future<AuthUser> signInWithGoogle({required String idToken});
+  /// Resets the user's password. Returns void — the backend returns a message
+  /// only, not a user or token.
+  Future<void> resetPassword({required String token, required String password});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -45,25 +48,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthUser> signInWithGoogle({required String accessToken, String? idToken}) async {
-    if (idToken == null || idToken.isEmpty) {
-      if (accessToken.isEmpty) {
-        throw ArgumentError('Either accessToken or idToken is required for Google Sign-In');
-      }
+  Future<AuthUser> signInWithGoogle({required String idToken}) async {
+    if (idToken.isEmpty) {
+      throw ArgumentError('idToken must not be empty for Google Sign-In');
     }
-
     try {
-      final requestData = {
-        'accessToken': accessToken,
-        if (idToken != null && idToken.isNotEmpty) 'idToken': idToken,
-      };
-
-      debugPrint('GoogleAuth Request - accessToken: ${accessToken.substring(0, 50)}...');
-      debugPrint('GoogleAuth Request - idToken: ${idToken?.substring(0, 50) ?? "null"}...');
-
+      debugPrint('GoogleAuth Request — idToken[:50]: ${idToken.substring(0, idToken.length.clamp(0, 50))}...');
       final response = await _dio.post(
         ApiEndpoints.googleLogin,
-        data: requestData,
+        data: {'idToken': idToken},
       );
       return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
@@ -145,37 +138,55 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'email': email, 'code': code},
       );
       final body = response.data;
-      // Expected shape: { data: { resetToken: '...' } } or { resetToken: '...' }
       String? token;
-      if (body is Map) {
+      if (body is String) {
+        token = body;
+      } else if (body is Map) {
         final map = Map<String, dynamic>.from(body);
-        if (map['data'] is Map) {
-          token = (map['data'] as Map)['resetToken']?.toString();
+        // 1. Direct fields
+        if (map['resetToken'] != null) {
+          token = map['resetToken'].toString();
+        } else if (map['token'] != null) {
+          token = map['token'].toString();
         }
-        token ??= map['resetToken']?.toString();
+        // 2. Inside 'data' object or string
+        else if (map['data'] != null) {
+          final dataVal = map['data'];
+          if (dataVal is Map) {
+            final dataMap = Map<String, dynamic>.from(dataVal);
+            token = (dataMap['resetToken'] ?? dataMap['token'])?.toString();
+          } else {
+            token = dataVal.toString();
+          }
+        }
       }
-      if (token == null || token.isEmpty) {
-        throw const FormatException('Server did not return a reset token');
+      if (token == null || token.trim().isEmpty) {
+        throw const FormatException('Server did not return a valid reset token');
       }
-      return token;
+      return token.trim();
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
   }
 
   @override
-  Future<AuthUser> resetPassword({
+  Future<void> resetPassword({
     required String token,
     required String password,
   }) async {
     try {
-      final response = await _dio.post(
+      // The backend accepts the token as 'resetToken'.
+      // It returns { message: "..." } only — no user or JWT.
+      await _dio.post(
         ApiEndpoints.resetPassword,
-        data: {'token': token, 'password': password},
+        data: {
+          'resetToken': token,
+          'password': password,
+        },
       );
-      return AuthResponseParser.parse(response.data);
     } on DioException catch (e) {
       throw ErrorHandler.handleDioError(e);
     }
   }
 }
+
