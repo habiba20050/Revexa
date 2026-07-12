@@ -64,6 +64,38 @@ class _FilteredServicesScreenState extends State<FilteredServicesScreen> {
   String _categoryName = '';
   String? _categoryId;
 
+  bool _matchCategory(String dbName, String targetName) {
+    final dbLower = dbName.toLowerCase();
+    final targetLower = targetName.toLowerCase();
+    
+    if (dbLower.contains(targetLower) || targetLower.contains(dbLower)) {
+      return true;
+    }
+    
+    if ((targetLower.contains('wash') || targetLower.contains('غسيل')) &&
+        (dbLower.contains('wash') || dbLower.contains('غسيل'))) {
+      return true;
+    }
+    if ((targetLower.contains('maintenance') || targetLower.contains('صيانة')) &&
+        (dbLower.contains('maintenance') || dbLower.contains('صيانة'))) {
+      return true;
+    }
+    if ((targetLower.contains('oil') || targetLower.contains('زيت')) &&
+        (dbLower.contains('oil') || dbLower.contains('زيت'))) {
+      return true;
+    }
+    if ((targetLower.contains('tire') || targetLower.contains('إطار') || targetLower.contains('إطارات')) &&
+        (dbLower.contains('tire') || dbLower.contains('إطار') || dbLower.contains('إطارات'))) {
+      return true;
+    }
+    if ((targetLower.contains('battery') || targetLower.contains('بطار') || targetLower.contains('بطاريات')) &&
+        (dbLower.contains('battery') || dbLower.contains('بطار') || dbLower.contains('بطاريات'))) {
+      return true;
+    }
+    
+    return false;
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -82,7 +114,6 @@ class _FilteredServicesScreenState extends State<FilteredServicesScreen> {
         _categoryName = isArabic ? 'بطاريات السيارات' : 'Car Batteries';
       } else {
         _categoryName = isArabic ? 'غسيل السيارات' : 'Car Washing';
-        _categoryId = '6a3e75112afb6104bb2b27c8'; // Default mobile wash category ID
       }
 
       // Load categories if not already loaded to dynamically resolve IDs
@@ -99,8 +130,7 @@ class _FilteredServicesScreenState extends State<FilteredServicesScreen> {
     final categoriesState = context.read<CategoriesCubit>().state;
     if (_categoryId == null && categoriesState is CategoriesLoaded) {
       for (final cat in categoriesState.categories) {
-        if (cat.name.toLowerCase().contains(_categoryName.toLowerCase()) ||
-            _categoryName.toLowerCase().contains(cat.name.toLowerCase())) {
+        if (_matchCategory(cat.name, _categoryName)) {
           _categoryId = cat.id;
           break;
         }
@@ -239,8 +269,7 @@ class _FilteredServicesScreenState extends State<FilteredServicesScreen> {
         listener: (context, state) {
           if (state is CategoriesLoaded && _categoryId == null) {
             for (final cat in state.categories) {
-              if (cat.name.toLowerCase().contains(_categoryName.toLowerCase()) ||
-                  _categoryName.toLowerCase().contains(cat.name.toLowerCase())) {
+              if (_matchCategory(cat.name, _categoryName)) {
                 setState(() {
                   _categoryId = cat.id;
                 });

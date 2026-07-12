@@ -10,6 +10,8 @@ import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
 import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
 import 'package:revexa/features/products/data/models/product_model.dart';
+import 'package:revexa/features/services/data/models/service_model.dart';
+import 'package:revexa/features/services/presentation/widgets/service_detail_sheet.dart';
 import 'package:revexa/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:revexa/shared/locale/locale_cubit.dart';
 import 'package:revexa/shared/theme/theme_cubit.dart';
@@ -25,6 +27,8 @@ import 'package:revexa/l10n/app_localizations.dart';
 import 'package:revexa/features/chatbot/presentation/widgets/chatbot_fab.dart';
 import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
 import 'package:revexa/features/home/presentation/widgets/promotional_offers_slider.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:revexa/features/categories/categories.dart';
 
 /// الشاشة الرئيسية للتطبيق.
 /// تحتوي على الـ Bottom Navigation Bar وتدير التنقل بين الـ tabs.
@@ -56,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<ProductsCubit>().loadProducts();
       context.read<OrdersCubit>().loadOrders();
       context.read<AdsCubit>().loadAds();
+      context.read<CategoriesCubit>().loadCategories();
     });
   }
 
@@ -166,6 +171,7 @@ class _HomeBody extends StatelessWidget {
           context.read<OrdersCubit>().loadOrders(),
           context.read<AuthCubit>().checkAuthStatus(),
           context.read<AdsCubit>().loadAds(),
+          context.read<CategoriesCubit>().loadCategories(),
         ]);
       },
       child: CustomScrollView(
@@ -181,11 +187,11 @@ class _HomeBody extends StatelessWidget {
                 const SizedBox(height: 20),
                 const PromotionalOffersSlider(),
                 const SizedBox(height: 24),
-                _ServicesSection(),
+                const _CategoriesSection(),
                 const SizedBox(height: 24),
-                const AdsHorizontalCarousel(),
-                _ActiveBookingCard(topPadding: 16),
-                const SizedBox(height: 16),
+                _ServicesSection(),
+                _ActiveBookingCard(topPadding: 24),
+                const SizedBox(height: 24),
                 const _PromoBanner(),
                 const SizedBox(height: 120),
               ]),
@@ -337,10 +343,207 @@ class _GreetingBanner extends StatelessWidget {
 
 // Deleted _QuickActionsRow and _QuickAction widgets
 
+class _CategoriesSection extends StatelessWidget {
+  const _CategoriesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text(
+            isArabic ? 'الأقسام الرئيسية' : 'Categories',
+            style: GoogleFonts.urbanist(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        BlocBuilder<CategoriesCubit, CategoriesState>(
+          builder: (context, state) {
+            if (state is CategoriesLoading || state is CategoriesInitial) {
+              return _buildShimmerLoading();
+            } else if (state is CategoriesError) {
+              return const SizedBox.shrink();
+            } else if (state is CategoriesLoaded) {
+              final categories = state.categories;
+              if (categories.isEmpty) return const SizedBox.shrink();
+              return SizedBox(
+                height: 96,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: categories.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return _CategoryItemCard(category: category);
+                  },
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return SizedBox(
+      height: 96,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return const _CategorySkeleton();
+        },
+      ),
+    );
+  }
+}
+
+class _CategoryItemCard extends StatelessWidget {
+  final Category category;
+  const _CategoryItemCard({required this.category});
+
+  IconData _getCategoryIcon(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('wash') || lower.contains('غسيل')) {
+      return Icons.local_car_wash_rounded;
+    }
+    if (lower.contains('maintenance') || lower.contains('صيانة')) {
+      return Icons.build_rounded;
+    }
+    if (lower.contains('oil') || lower.contains('زيت')) {
+      return Icons.oil_barrel_outlined;
+    }
+    if (lower.contains('tire') || lower.contains('إطار') || lower.contains('إطارات')) {
+      return Icons.tire_repair_rounded;
+    }
+    if (lower.contains('battery') || lower.contains('بطار') || lower.contains('بطاريات')) {
+      return Icons.battery_charging_full_outlined;
+    }
+    return Icons.construction_rounded;
+  }
+
+  String _getCategoryRoute(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('wash') || lower.contains('غسيل')) {
+      return AppRoutes.mobileWashDetail;
+    }
+    if (lower.contains('maintenance') || lower.contains('صيانة')) {
+      return AppRoutes.maintenanceDetail;
+    }
+    if (lower.contains('oil') || lower.contains('زيت')) {
+      return AppRoutes.oilServiceDetail;
+    }
+    if (lower.contains('tire') || lower.contains('إطار') || lower.contains('إطارات')) {
+      return AppRoutes.tiresDetail;
+    }
+    if (lower.contains('battery') || lower.contains('بطار') || lower.contains('بطاريات')) {
+      return AppRoutes.batteryDetail;
+    }
+    return AppRoutes.services; // default fallback
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final route = _getCategoryRoute(category.name);
+    final icon = _getCategoryIcon(category.name);
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, route),
+      child: SizedBox(
+        width: 82,
+        child: Column(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.15), width: 1),
+              ),
+              child: category.imageUrl.isNotEmpty
+                  ? ClipOval(
+                      child: AppImage(
+                        source: category.imageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: Icon(icon, color: AppColors.primary, size: 24),
+                        errorWidget: Icon(icon, color: AppColors.primary, size: 24),
+                      ),
+                    )
+                  : Icon(icon, color: AppColors.primary, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              category.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.urbanist(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CategorySkeleton extends StatelessWidget {
+  const _CategorySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.surfaceContainerHigh,
+      highlightColor: AppColors.surfaceContainer,
+      child: SizedBox(
+        width: 82,
+        child: Column(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: 52,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// قسم "Our Services" — يعرض شبكة (Grid) من الخدمات الثابتة.
 /// القائمة ثابتة دائماً ولا تتغير بناءً على استجابة الـ API.
 class _ServicesSection extends StatelessWidget {
-  _ServicesSection();
+  const _ServicesSection();
 
   // Static service catalogue — always displayed, regardless of API state.
   // Products API is used only for dynamic data (prices, images) in the future.
@@ -466,8 +669,31 @@ class _ServiceProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final service = Service(
+      id: product.id,
+      name: product.title,
+      description: product.description,
+      price: product.price,
+      category: product.category ?? '',
+      image: product.firstImageUrl.isNotEmpty ? product.firstImageUrl : null,
+      location: product.location,
+      companyId: product.companyId,
+    );
+
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, AppRoutes.services, arguments: {'query': product.title}),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.background,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (context) {
+            return ServiceDetailSheet(service: service);
+          },
+        );
+      },
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -624,9 +850,7 @@ class _ActiveBookingCard extends StatelessWidget {
       },
     );
   }
-}
-
-/// بانر الترويج الموسمي في أسفل الصفحة.
+}/// بانر الترويج الموسمي في أسفل الصفحة.
 /// يعرض صورة خلفية مع gradient وعنوان العرض وزر "Claim Now".
 class _PromoBanner extends StatelessWidget {
   const _PromoBanner();
@@ -690,7 +914,6 @@ class _PromoBanner extends StatelessWidget {
     );
   }
 }
-
 /// نموذج بيانات ثابت يصف خدمة واحدة في قائمة [_ServicesSection].
 /// يحتوي على الأيقونة والعنوان والعنوان الفرعي ومسار التنقل.
 class _HomeServiceItem {

@@ -41,13 +41,21 @@ class Product extends Equatable {
 
   String get firstImageUrl => images.isNotEmpty ? images.first.url : '';
 
+  static String? _parseCategory(dynamic value) {
+    if (value == null) return null;
+    if (value is Map) {
+      return value['_id']?.toString() ?? value['id']?.toString();
+    }
+    return value.toString();
+  }
+
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      category: json['category']?.toString(),
+      category: _parseCategory(json['category']),
       images: (json['images'] as List<dynamic>?)
               ?.map((e) => ProductImage.fromJson(e as Map<String, dynamic>))
               .toList() ??

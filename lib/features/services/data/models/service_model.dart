@@ -33,13 +33,21 @@ class Service extends Equatable {
     this.companyId,
   });
 
+  static String _parseCategory(dynamic value) {
+    if (value == null) return '';
+    if (value is Map) {
+      return value['_id']?.toString() ?? value['id']?.toString() ?? '';
+    }
+    return value.toString();
+  }
+
   factory Service.fromJson(Map<String, dynamic> json) {
     return Service(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      category: json['category']?.toString() ?? '',
+      category: _parseCategory(json['category']),
       image: _readImageUrl(json),
       duration: (json['duration'] as num?)?.toInt() ?? 30,
       status: json['status']?.toString() ?? 'active',

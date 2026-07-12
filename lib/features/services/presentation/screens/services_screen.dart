@@ -9,6 +9,7 @@ import 'package:revexa/features/services/data/models/service_model.dart';
 import 'package:revexa/features/services/presentation/cubit/services_cubit.dart';
 import 'package:revexa/features/services/presentation/cubit/services_state.dart';
 import 'package:revexa/core/utils/booking_navigation.dart';
+import 'package:revexa/features/services/presentation/widgets/service_detail_sheet.dart';
 import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/shared/widgets/shimmer_widgets.dart';
 import 'package:revexa/shared/widgets/app_logo.dart';
@@ -45,7 +46,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     // tab switch because HomeScreen recreates this widget each time.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<ServicesCubit>();
-      if (cubit.state is ServicesInitial) {
+      if (cubit.state is! ServicesLoaded) {
         cubit.loadServices(limit: 20);
       }
     });
@@ -102,7 +103,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   ),
                   BlocBuilder<ServicesCubit, ServicesState>(
                     builder: (context, state) {
-                      if (state is ServicesLoading || state is ServicesInitial) {
+                      if (state is ServicesLoading ||
+                          state is ServicesInitial ||
+                          state is ServicesByCategory) {
                         return _buildSkeletons();
                       }
                       if (state is ServicesError) {
@@ -471,7 +474,19 @@ class _ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, AppRoutes.serviceDetail, arguments: service),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.background,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (context) {
+            return ServiceDetailSheet(service: service);
+          },
+        );
+      },
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -656,13 +671,19 @@ class _ApiFeaturedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => openServiceBooking(
-        context,
-        id: service.id,
-        title: service.title,
-        price: service.price,
-        description: service.description,
-      ),
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.background,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (context) {
+            return ServiceDetailSheet(service: service);
+          },
+        );
+      },
       child: Container(
         constraints: const BoxConstraints(minHeight: 200),
         decoration: BoxDecoration(

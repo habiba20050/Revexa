@@ -9,13 +9,6 @@ import 'package:revexa/features/ads/presentation/cubit/ads_cubit.dart';
 import 'package:revexa/features/ads/presentation/cubit/ads_state.dart';
 import 'package:revexa/features/ads/domain/entities/ad_entity.dart';
 import 'package:revexa/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:revexa/features/auth/presentation/cubit/auth_state.dart';
-import 'package:revexa/features/home/presentation/screens/company_dashboard_cubit.dart';
-import 'package:revexa/features/home/presentation/screens/company_dashboard_state.dart';
-import 'package:revexa/features/home/presentation/screens/edit_service_screen.dart';
-import 'package:revexa/features/products/presentation/cubit/products_cubit.dart';
-import 'package:revexa/features/products/data/models/product_model.dart';
-import 'package:revexa/shared/widgets/app_image.dart';
 import 'package:revexa/l10n/app_localizations.dart';
 import 'package:revexa/shared/widgets/primary_button.dart';
 
@@ -26,20 +19,12 @@ class CompanyDashboardScreen extends StatefulWidget {
   State<CompanyDashboardScreen> createState() => _CompanyDashboardScreenState();
 }
 
-class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AdsCubit>().loadAds();
-      final authState = context.read<AuthCubit>().state;
-      if (authState is AuthAuthenticated) {
-        final userId = authState.user.id;
-        if (userId.isNotEmpty) context.read<CompanyDashboardCubit>().loadCompanyServices(userId);
-      }
     });
   }
 
@@ -104,14 +89,13 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> with Si
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: Text('Company Panel',
+        title: Text(
+          'Company Panel',
           style: GoogleFonts.urbanist(
             fontWeight: FontWeight.w800,
             fontSize: 22,
@@ -148,49 +132,17 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> with Si
             },
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.onSurfaceVariant,
-          labelStyle: GoogleFonts.urbanist(fontWeight: FontWeight.w700),
-          tabs: const [
-            Tab(text: 'My Services'),
-            Tab(text: 'My Ads'),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildServicesTab(l10n),
-          _buildAdsTab(l10n),
-        ],
-      ),
+      body: _buildAdsTab(l10n),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          if (_tabController.index == 1) {
-            _showAdForm(context);
-          } else {
-            Navigator.pushNamed(context, '/add-service').then((didCreate) async {
-              if (didCreate == true) {
-                if (!mounted) return;
-                final authState = context.read<AuthCubit>().state;
-                final userId =
-                    authState is AuthAuthenticated ? authState.user.id : null;
-                if (userId != null) context.read<CompanyDashboardCubit>().loadCompanyServices(userId);
-              }
-            });
-          }
-        },
+        onPressed: () => _showAdForm(context),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: Text(
-          _tabController.index == 1 ? 'Add Offer' : 'Add Service',
+          'Add Offer',
           style: GoogleFonts.urbanist(fontWeight: FontWeight.w700, color: Colors.white),
         ),
       ),
-    ),
     );
   }
 
@@ -272,106 +224,6 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> with Si
     );
   }
 
-  Widget _buildServicesTab(AppLocalizations l10n) {
-    return BlocConsumer<CompanyDashboardCubit, CompanyDashboardState>(
-      listener: (context, state) {
-        if (state is CompanyDashboardError) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(state.message), backgroundColor: AppColors.error));
-        }
-      },
-      builder: (context, state) {
-        if (state is CompanyDashboardLoading && state.products.isEmpty) {
-          return _buildShimmerList();
-        }
-        if (state is CompanyDashboardError) {
-          return Center(child: Text(state.message));
-        }
-
-        final products =
-            state is CompanyDashboardLoaded ? state.products : (state is CompanyDashboardLoading ? state.products : <Product>[]);
-
-
-        if (products.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.miscellaneous_services_rounded, color: AppColors.primary.withValues(alpha: 0.4), size: 64),
-                const SizedBox(height: 16),
-                Text('No services added yet', style: GoogleFonts.urbanist(fontSize: 16, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w600)),
-              ],
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            final authState = context.read<AuthCubit>().state;
-            if (authState is AuthAuthenticated) {
-              final userId = authState.user.id;
-              if (userId.isNotEmpty) await context.read<CompanyDashboardCubit>().loadCompanyServices(userId);
-            }
-          },
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-              return _ServiceListItemCard(
-                product: product,
-                onEdit: () => _editService(context, product),
-                onDelete: () => _deleteService(context, product),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  void _editService(BuildContext context, Product product) async {
-    // The EditServiceScreen will now pop with `true` on success.
-    final didUpdate = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (ctx) => BlocProvider.value(
-          value: context.read<ProductsCubit>(), // Provide ProductsCubit
-          child: EditServiceScreen(product: product),
-        ),
-      ),
-    );
-
-    if (didUpdate == true) {
-      if (!mounted) return;
-      final authState = context.read<AuthCubit>().state;
-      if (authState is AuthAuthenticated) {
-        context.read<CompanyDashboardCubit>().loadCompanyServices(authState.user.id);
-      }
-    }
-  }
-
-  void _deleteService(BuildContext context, Product product) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Service'),
-        content: Text('Are you sure you want to delete "${product.title}"? This action cannot be undone.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              context.read<CompanyDashboardCubit>().deleteProduct(product.id);
-              Navigator.pop(dialogContext);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildShimmerList() {
     return Shimmer.fromColors(
       baseColor: AppColors.surfaceContainerLow,
@@ -386,87 +238,6 @@ class _CompanyDashboardScreenState extends State<CompanyDashboardScreen> with Si
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ServiceListItemCard extends StatelessWidget {
-  final Product product;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const _ServiceListItemCard({
-    required this.product,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AppImage(
-                source: product.firstImageUrl,
-                width: 76,
-                height: 76,
-                fit: BoxFit.cover,
-                errorWidget: Icon(Icons.broken_image_outlined, color: AppColors.error.withAlpha(26)),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurface),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${product.price.toStringAsFixed(0)} EGP',
-                    style: GoogleFonts.urbanist(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
-                  onPressed: onEdit,
-                  visualDensity: VisualDensity.compact,
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
-                  onPressed: onDelete,
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );
