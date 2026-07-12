@@ -28,6 +28,31 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
+          // Faint background car watermark
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.05,
+              child: Image.asset(
+                'assets/images/car_home.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Subtle gradient to blend watermark into background
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.background.withValues(alpha: 0.3),
+                    AppColors.background,
+                  ],
+                ),
+              ),
+            ),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
