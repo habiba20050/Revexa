@@ -151,12 +151,20 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       ),
                     ),
                     Expanded(
-                      child: Form(
-                        key: _formKey,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            children: [
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight,
+                              ),
+                              child: IntrinsicHeight(
+                                child: Form(
+                                  key: _formKey,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                                    child: Column(
+                                      children: [
                               const SizedBox(height: 40),
                               Container(
                                 width: 80,
@@ -361,13 +369,18 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                );
+              },
           ),
-        );
-      },
-    );
-  }
+        ),
+      ],
+    ),
+  ),
+],
+),
+);
+},
+);
+}
 }

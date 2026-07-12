@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/ads/data/datasources/ads_remote_datasource.dart';
@@ -22,14 +23,14 @@ class AdsRepositoryImpl implements AdsRepository {
   @override
   Future<Result<AdEntity>> createAd({
     required String title,
-    required String imageUrl,
+    required XFile imageFile,
     String? description,
     String? actionUrl,
   }) async {
     try {
       final ad = await _remote.createAd(
         title: title,
-        imageUrl: imageUrl,
+        imageFile: imageFile,
         description: description,
         actionUrl: actionUrl,
       );

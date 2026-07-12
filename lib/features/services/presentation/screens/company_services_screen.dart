@@ -123,24 +123,129 @@ class _CompanyServicesView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Service Cover Image
+                        // Service Cover Image with Edit & Delete overlay buttons
                         Expanded(
                           flex: 11,
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: product.firstImageUrl.isNotEmpty
-                                ? AppImage(
-                                    source: product.firstImageUrl,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  )
-                                : Image.asset(
-                                    AppConstants.imgMobileWashDetail1,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                  child: product.firstImageUrl.isNotEmpty
+                                      ? AppImage(
+                                          source: product.firstImageUrl,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                        )
+                                      : Image.asset(
+                                          AppConstants.imgMobileWashDetail1,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                        ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: isArabic ? null : 8,
+                                left: isArabic ? 8 : null,
+                                child: Row(
+                                  children: [
+                                    // Edit Button
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surface.withValues(alpha: 0.9),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.1),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: IconButton(
+                                        icon: Icon(Icons.edit_outlined, color: AppColors.primary, size: 15),
+                                        padding: const EdgeInsets.all(5),
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () async {
+                                          final didUpdate = await Navigator.of(context).push<bool>(
+                                            MaterialPageRoute(
+                                              builder: (ctx) => BlocProvider.value(
+                                                value: context.read<ProductsCubit>(),
+                                                child: EditServiceScreen(product: product),
+                                              ),
+                                            ),
+                                          );
+                                          if (didUpdate == true) {
+                                            final authState = context.read<AuthCubit>().state;
+                                            if (authState is AuthAuthenticated) {
+                                              await context.read<CompanyDashboardCubit>().loadCompanyServices(authState.user.id);
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    // Delete Button
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surface.withValues(alpha: 0.9),
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.1),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: IconButton(
+                                        icon: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 15),
+                                        padding: const EdgeInsets.all(5),
+                                        constraints: const BoxConstraints(),
+                                        onPressed: () async {
+                                          final confirmed = await showDialog<bool>(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return AlertDialog(
+                                                title: Text(isArabic ? 'حذف الخدمة' : 'Delete Service'),
+                                                content: Text(isArabic
+                                                    ? 'هل أنت متأكد من حذف هذه الخدمة؟'
+                                                    : 'Are you sure you want to delete this service?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(dialogContext, false),
+                                                    child: Text(isArabic ? 'إلغاء' : 'Cancel'),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+                                                    onPressed: () => Navigator.pop(dialogContext, true),
+                                                    child: Text(isArabic ? 'حذف' : 'Delete'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                          if (confirmed == true) {
+                                            final result = await context.read<CompanyDashboardCubit>().deleteProduct(product.id);
+                                            if (!result) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(isArabic ? 'فشل حذف الخدمة' : 'Failed to delete service'),
+                                                  backgroundColor: AppColors.error,
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
@@ -206,73 +311,6 @@ class _CompanyServicesView extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () async {
-                                        final didUpdate = await Navigator.of(context).push<bool>(
-                                          MaterialPageRoute(
-                                            builder: (ctx) => BlocProvider.value(
-                                              value: context.read<ProductsCubit>(),
-                                              child: EditServiceScreen(product: product),
-                                            ),
-                                          ),
-                                        );
-                                        if (didUpdate == true) {
-                                          final authState = context.read<AuthCubit>().state;
-                                          if (authState is AuthAuthenticated) {
-                                            await context.read<CompanyDashboardCubit>().loadCompanyServices(authState.user.id);
-                                          }
-                                        }
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () async {
-                                        final confirmed = await showDialog<bool>(
-                                          context: context,
-                                          builder: (dialogContext) {
-                                            return AlertDialog(
-                                              title: Text(isArabic ? 'حذف الخدمة' : 'Delete Service'),
-                                              content: Text(isArabic
-                                                  ? 'هل أنت متأكد من حذف هذه الخدمة؟'
-                                                  : 'Are you sure you want to delete this service?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(dialogContext, false),
-                                                  child: Text(isArabic ? 'إلغاء' : 'Cancel'),
-                                                ),
-                                                ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-                                                  onPressed: () => Navigator.pop(dialogContext, true),
-                                                  child: Text(isArabic ? 'حذف' : 'Delete'),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                        if (confirmed == true) {
-                                          final result = await context.read<CompanyDashboardCubit>().deleteProduct(product.id);
-                                          if (!result) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(isArabic ? 'فشل حذف الخدمة' : 'Failed to delete service'),
-                                                backgroundColor: AppColors.error,
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
                                   ],
                                 ),
                               ],

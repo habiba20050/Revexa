@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/ads/domain/entities/ad_entity.dart';
 
@@ -5,7 +6,7 @@ abstract interface class AdsRepository {
   Future<Result<List<AdEntity>>> getAds();
   Future<Result<AdEntity>> createAd({
     required String title,
-    required String imageUrl,
+    required XFile imageFile,
     String? description,
     String? actionUrl,
   });

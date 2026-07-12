@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/utils/result.dart';
 import 'package:revexa/features/ads/domain/repositories/ads_repository.dart';
 import 'package:revexa/features/ads/domain/usecases/get_ads_usecase.dart';
@@ -44,7 +45,7 @@ class AdsCubit extends Cubit<AdsState> {
 
   Future<void> createAd({
     required String title,
-    required String imageUrl,
+    required XFile imageFile,
     String? description,
     String? actionUrl,
   }) async {
@@ -53,7 +54,7 @@ class AdsCubit extends Cubit<AdsState> {
     try {
       final result = await _createAdUseCase(
         title: title,
-        imageUrl: imageUrl,
+        imageFile: imageFile,
         description: description,
         actionUrl: actionUrl,
       );

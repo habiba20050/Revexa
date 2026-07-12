@@ -47,6 +47,7 @@ app.*.map.json
 .vscode/templates
 
 # Environment Variables (secrets - never commit these)
+env
 .env
 *.env
 chatbot_backend/.env

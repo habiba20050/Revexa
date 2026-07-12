@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
 import 'package:revexa/core/error/error_handler.dart';
 import 'package:revexa/core/network/api_endpoints.dart';
 import 'package:revexa/core/network/dio_client.dart';
@@ -8,7 +10,7 @@ abstract interface class AdsRemoteDataSource {
   Future<List<AdModel>> getAds();
   Future<AdModel> createAd({
     required String title,
-    required String imageUrl,
+    required XFile imageFile,
     String? description,
     String? actionUrl,
   });
@@ -53,19 +55,33 @@ class AdsRemoteDataSourceImpl implements AdsRemoteDataSource {
   @override
   Future<AdModel> createAd({
     required String title,
-    required String imageUrl,
+    required XFile imageFile,
     String? description,
     String? actionUrl,
   }) async {
     try {
+      final formData = FormData.fromMap({
+        'name': title,
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (actionUrl != null && actionUrl.isNotEmpty) 'url': actionUrl,
+      });
+
+      if (kIsWeb) {
+        final bytes = await imageFile.readAsBytes();
+        formData.files.add(MapEntry(
+          'image',
+          MultipartFile.fromBytes(bytes, filename: imageFile.name),
+        ));
+      } else {
+        formData.files.add(MapEntry(
+          'image',
+          await MultipartFile.fromFile(imageFile.path, filename: imageFile.name),
+        ));
+      }
+
       final response = await _dio.post(
         ApiEndpoints.ads,
-        data: {
-          'title': title,
-          'image': imageUrl,
-          if (description != null) 'description': description,
-          if (actionUrl != null) 'url': actionUrl,
-        },
+        data: formData,
       );
       final body = response.data;
       final data = body['data'] ?? body;

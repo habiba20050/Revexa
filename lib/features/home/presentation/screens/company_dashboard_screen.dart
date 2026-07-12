@@ -381,6 +381,7 @@ class _AdFormSheetState extends State<_AdFormSheet> {
   late final TextEditingController _actionUrlCtrl;
   bool _isActive = true;
   bool _isUploading = false;
+  XFile? _selectedImageFile;
 
   @override
   void initState() {
@@ -406,6 +407,16 @@ class _AdFormSheetState extends State<_AdFormSheet> {
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file == null) return;
 
+    if (widget.ad == null) {
+      // Create mode: save image file reference locally and display name
+      setState(() {
+        _selectedImageFile = file;
+        _imgUrlCtrl.text = file.name;
+      });
+      return;
+    }
+
+    // Edit mode: upload immediately to get a URL for update request
     setState(() {
       _isUploading = true;
     });
@@ -454,16 +465,23 @@ class _AdFormSheetState extends State<_AdFormSheet> {
         actionUrl: _actionUrlCtrl.text.trim(),
         isActive: _isActive,
       );
+      Navigator.pop(context);
     } else {
       // Create
+      if (_selectedImageFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: const Text('Please select an image file first'), backgroundColor: AppColors.error),
+        );
+        return;
+      }
       adsCubit.createAd(
         title: _titleCtrl.text.trim(),
-        imageUrl: _imgUrlCtrl.text.trim(),
+        imageFile: _selectedImageFile!,
         description: _descCtrl.text.trim(),
         actionUrl: _actionUrlCtrl.text.trim(),
       );
+      Navigator.pop(context);
     }
-    Navigator.pop(context);
   }
 
   @override
