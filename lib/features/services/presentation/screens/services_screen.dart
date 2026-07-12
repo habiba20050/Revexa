@@ -572,70 +572,77 @@ class _FeaturedCard extends StatelessWidget {
           border: Border.all(color: AppColors.outline),
           boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3))],
         ),
-        child: IntrinsicHeight(
-          child: Row(
+        child: Stack(
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(service.icon, color: AppColors.primary, size: 24),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.3)),
-                    const SizedBox(height: 4),
-                    Text(service.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35)),
-                    const SizedBox(height: 10),
-                    Text(service.price, style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary)),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () => openServiceBooking(
-                        context,
-                        id: service.id,
-                        title: service.title,
-                        price: service.priceValue.toDouble(),
-                        description: service.subtitle,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(service.icon, color: AppColors.primary, size: 24),
                         ),
-                        child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-                      ),
+                        const SizedBox(height: 10),
+                        Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface, letterSpacing: -0.3)),
+                        const SizedBox(height: 4),
+                        Text(service.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35)),
+                        const SizedBox(height: 10),
+                        Text(service.price, style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () => openServiceBooking(
+                            context,
+                            id: service.id,
+                            title: service.title,
+                            price: service.priceValue.toDouble(),
+                            description: service.subtitle,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 130),
+              ],
             ),
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
-              child: SizedBox(
-                width: 130,
-                height: double.infinity,
-                child: Image.asset(
-                  AppConstants.imgServices1,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: AppColors.surfaceContainerHigh,
-                    child: Icon(service.icon, size: 40, color: AppColors.onSurfaceVariant.withValues(alpha: 0.3)),
+            PositionedDirectional(
+              top: 0,
+              bottom: 0,
+              end: 0,
+              child: ClipRRect(
+                borderRadius: const BorderRadiusDirectional.horizontal(end: Radius.circular(20)),
+                child: SizedBox(
+                  width: 130,
+                  child: Image.asset(
+                    AppConstants.imgServices1,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: AppColors.surfaceContainerHigh,
+                      child: Icon(service.icon, size: 40, color: AppColors.onSurfaceVariant.withValues(alpha: 0.3)),
+                    ),
                   ),
                 ),
               ),
             ),
           ],
-        ),
         ),
       ),
     );
@@ -664,56 +671,64 @@ class _ApiFeaturedCard extends StatelessWidget {
           border: Border.all(color: AppColors.outline),
           boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3))],
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface)),
-                      const SizedBox(height: 6),
-                      Text(
-                        service.description,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'From \$${service.price.toStringAsFixed(2)}',
-                        style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(service.title, style: GoogleFonts.urbanist(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.onSurface)),
+                        const SizedBox(height: 6),
+                        Text(
+                          service.description,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.onSurfaceVariant, height: 1.35),
                         ),
-                        child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          'From \$${service.price.toStringAsFixed(2)}',
+                          style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.primary),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text('Book Now', style: GoogleFonts.urbanist(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (service.firstImageUrl.isNotEmpty)
-                ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
+                if (service.firstImageUrl.isNotEmpty)
+                  const SizedBox(width: 120),
+              ],
+            ),
+            if (service.firstImageUrl.isNotEmpty)
+              PositionedDirectional(
+                top: 0,
+                bottom: 0,
+                end: 0,
+                child: ClipRRect(
+                  borderRadius: const BorderRadiusDirectional.horizontal(end: Radius.circular(20)),
                   child: SizedBox(
                     width: 120,
                     child: AppImage(
                       source: service.firstImageUrl,
                       fit: BoxFit.cover,
-                      height: double.infinity,
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
