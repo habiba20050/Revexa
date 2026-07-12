@@ -369,26 +369,36 @@ class _CategoriesSection extends StatelessWidget {
           builder: (context, state) {
             if (state is CategoriesLoading || state is CategoriesInitial) {
               return _buildShimmerLoading();
-            } else if (state is CategoriesError) {
-              return const SizedBox.shrink();
-            } else if (state is CategoriesLoaded) {
-              final categories = state.categories;
-              if (categories.isEmpty) return const SizedBox.shrink();
-              return SizedBox(
-                height: 96,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: categories.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    return _CategoryItemCard(category: category);
-                  },
-                ),
-              );
             }
-            return const SizedBox.shrink();
+            
+            List<Category> categories = [];
+            if (state is CategoriesLoaded) {
+              categories = state.categories;
+            }
+            
+            if (categories.isEmpty) {
+              categories = [
+                Category(id: 'car-wash', name: isArabic ? 'غسيل السيارات' : 'Car Wash'),
+                Category(id: 'oil-change', name: isArabic ? 'تغيير الزيت' : 'Oil Change'),
+                Category(id: 'battery-service', name: isArabic ? 'خدمة البطارية' : 'Battery Service'),
+                Category(id: 'tire-service', name: isArabic ? 'خدمة الإطارات' : 'Tire Service'),
+                Category(id: 'car-maintenance', name: isArabic ? 'صيانة السيارات' : 'Car Maintenance'),
+              ];
+            }
+
+            return SizedBox(
+              height: 96,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: categories.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return _CategoryItemCard(category: category);
+                },
+              ),
+            );
           },
         ),
       ],
